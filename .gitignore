@@ -6,6 +6,12 @@
 *.swp
 .buildlog/
 .history
+node_modules/
+**/node_modules/
+.env
+*.env
+dist/
+*.tar.gz
 
 
 

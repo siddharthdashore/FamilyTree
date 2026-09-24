@@ -1,0 +1,29 @@
+name: vanshasetu
+description: "VanshaSetu - Universal DPI Kinship Platform"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^2.5.1
+  http: ^1.2.1
+  geolocator: ^11.0.0
+  geocoding: ^3.0.0
+  qr_flutter: ^4.1.0
+  screenshot: ^3.0.0
+  share_plus: ^9.0.0
+  path_provider: ^2.1.3
+  google_mobile_ads: ^5.1.0
+  crypto: ^3.0.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true

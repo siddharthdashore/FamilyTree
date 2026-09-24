@@ -1,0 +1,29 @@
+{
+  "name": "vanshasetu-api",
+  "version": "1.0.0",
+  "description": "VanshaSetu DPI Kinship & Identity Middleware - HIPAA & DPDP Compliant",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test tests/*.test.js"
+  },
+  "keywords": [
+    "vanshasetu",
+    "dpi",
+    "kinship",
+    "hipaa",
+    "dpdp",
+    "e2ee",
+    "vuid"
+  ],
+  "author": "VanshaSetu Team",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "helmet": "^7.1.0",
+    "mysql2": "^3.9.7"
+  }
+}

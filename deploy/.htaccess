@@ -1,0 +1,67 @@
+# ==============================================================================
+# VanshaSetu — BigRock cPanel Production Apache / Passenger Configuration
+# ==============================================================================
+
+# 1. Force HTTPS Redirection (TLS 1.3 Strict Transport)
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{HTTPS} !=on
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</IfModule>
+
+# 2. Defensive HTTP Security Headers
+<IfModule mod_headers.c>
+    # Enforce HSTS (1 year + subdomains + preload)
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    
+    # Prevent clickjacking / framing
+    Header always set X-Frame-Options "DENY"
+    
+    # Prevent MIME sniffing
+    Header always set X-Content-Type-Options "nosniff"
+    
+    # Referrer policy
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    
+    # Permissions policy
+    Header always set Permissions-Policy "geolocation=(self), camera=(), microphone=()"
+    
+    # Cross domain policy
+    Header always set X-Permitted-Cross-Domain-Policies "none"
+</IfModule>
+
+# 3. Flutter Web Single Page Application (SPA) Routing Fallback
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+    
+    # Route API calls to Node.js backend if unified under single domain
+    RewriteRule ^api/(.*)$ http://127.0.0.1:3000/api/$1 [P,L]
+    RewriteRule ^health$ http://127.0.0.1:3000/health [P,L]
+    
+    # If the requested file or directory does not exist, serve index.html
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule . /index.html [L]
+</IfModule>
+
+# 4. Gzip & Brotli Compression for Flutter Web Assets
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript
+    AddOutputFilterByType DEFLATE application/javascript application/json application/wasm
+    AddOutputFilterByType DEFLATE image/svg+xml
+</IfModule>
+
+# 5. Cache Control for Static Assets
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/svg+xml "access plus 1 month"
+    ExpiresByType application/wasm "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 week"
+    ExpiresByType text/css "access plus 1 week"
+    ExpiresByType text/html "access plus 0 seconds"
+</IfModule>
+
+# 6. Disable Directory Browsing
+Options -Indexes
