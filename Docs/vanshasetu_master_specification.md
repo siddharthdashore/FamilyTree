@@ -55,111 +55,191 @@
 
 ---
 
-## 3. Database Schema (Complete MySQL 8.0 DDL)
+## 3. Database Schema (Complete MySQL 8.0 DDL — 7 Production Tables)
 
 Execute this script within phpMyAdmin or the MySQL terminal on your BigRock cPanel:
 
 ```sql
-CREATE DATABASE IF NOT EXISTS vanshasetu_db 
+CREATE DATABASE IF NOT EXISTS `vanshasetu_db` 
     CHARACTER SET utf8mb4 
     COLLATE utf8mb4_unicode_ci;
 
-USE vanshasetu_db;
+USE `vanshasetu_db`;
 
 -- --------------------------------------------------------
--- 1. Master Citizens Table
+-- 1. Master Citizens Table (ePHI & PII Hardened)
 -- --------------------------------------------------------
-CREATE TABLE IF NOT EXISTS citizens (
-    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    vuid CHAR(12) NOT NULL UNIQUE,
-    first_name VARCHAR(60) NOT NULL,
-    middle_name VARCHAR(60) DEFAULT NULL,
-    last_name VARCHAR(60) NOT NULL,
-    gender ENUM('Male', 'Female', 'Non-Binary', 'Transgender', 'Other') NOT NULL,
-    dob DATE NOT NULL,
-    height_cm DECIMAL(5,2) DEFAULT NULL,
-    weight_kg DECIMAL(5,2) DEFAULT NULL,
-    caste VARCHAR(80) DEFAULT NULL,
-    category ENUM('GEN', 'OBC', 'SC', 'ST', 'EWS', 'Other') NOT NULL,
+CREATE TABLE IF NOT EXISTS `citizens` (
+    `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    `vuid` CHAR(12) NOT NULL UNIQUE COMMENT 'Strictly 12 numeric digits: [100000000000, 999999999999]',
+    `first_name` VARCHAR(60) NOT NULL,
+    `middle_name` VARCHAR(60) DEFAULT NULL,
+    `last_name` VARCHAR(60) NOT NULL,
+    `gender` ENUM('Male', 'Female', 'Non-Binary', 'Transgender', 'Other') NOT NULL,
+    `dob` DATE NOT NULL,
+    `height_cm` DECIMAL(5,2) DEFAULT NULL,
+    `weight_kg` DECIMAL(5,2) DEFAULT NULL,
+    `ephi_encrypted_data` TEXT DEFAULT NULL COMMENT 'AES-256-GCM encrypted envelope for height, weight, health attributes',
+    `ephi_iv` CHAR(24) DEFAULT NULL COMMENT '12-byte initialization vector in base64',
+    `ephi_auth_tag` CHAR(24) DEFAULT NULL COMMENT '16-byte authentication tag in base64',
+    `caste` VARCHAR(80) DEFAULT NULL,
+    `category` ENUM('GEN', 'OBC', 'SC', 'ST', 'EWS', 'Other') NOT NULL,
+    `gotra` VARCHAR(80) DEFAULT NULL COMMENT 'Gotra / Clan lineage attribute for Indian ancestry and marriage exogamy',
+    `religion` VARCHAR(50) DEFAULT 'Hindu',
+    `marital_status` ENUM('Single', 'Married', 'Widowed', 'Divorced') DEFAULT 'Single',
+    `blood_group` ENUM('A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-') DEFAULT NULL,
+    `death_date` DATE DEFAULT NULL,
+    `death_reason` VARCHAR(255) DEFAULT NULL,
+    `death_cert_number` VARCHAR(100) DEFAULT NULL,
     
     -- Address fields (autofetched from live GPS and manually editable)
-    address_line1 VARCHAR(150),
-    address_line2 VARCHAR(150),
-    pin_code CHAR(6) NOT NULL,
-    district VARCHAR(80) NOT NULL,
-    state VARCHAR(80) NOT NULL,
-    country VARCHAR(60) DEFAULT 'India',
-    latitude DECIMAL(10, 8),
-    longitude DECIMAL(11, 8),
+    `address_line1` VARCHAR(150),
+    `address_line2` VARCHAR(150),
+    `pin_code` CHAR(6) NOT NULL,
+    `district` VARCHAR(80) NOT NULL,
+    `state` VARCHAR(80) NOT NULL,
+    `country` VARCHAR(60) DEFAULT 'India',
+    `latitude` DECIMAL(10, 8),
+    `longitude` DECIMAL(11, 8),
     
     -- Auditing & Lifecycle
-    is_claimed BOOLEAN DEFAULT FALSE,
-    status ENUM('Active', 'Missing', 'Deceased', 'Under_Investigation') DEFAULT 'Active',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `is_claimed` BOOLEAN DEFAULT FALSE,
+    `status` ENUM('Active', 'Missing', 'Deceased', 'Under_Investigation') DEFAULT 'Active',
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     
-    CONSTRAINT chk_vuid_12_digits CHECK (vuid REGEXP '^[0-9]{12}$'),
-    INDEX idx_vuid (vuid),
-    INDEX idx_name_dob (last_name, dob),
-    INDEX idx_pincode (pin_code)
-) ENGINE=InnoDB;
+    CONSTRAINT `chk_vuid_12_digits` CHECK (`vuid` REGEXP '^[0-9]{12}$'),
+    INDEX `idx_vuid` (`vuid`),
+    INDEX `idx_name_dob` (`last_name`, `dob`),
+    INDEX `idx_pincode` (`pin_code`),
+    INDEX `idx_gotra` (`gotra`),
+    INDEX `idx_demographics` (`state`, `district`, `category`, `gender`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ENCRYPTION='Y';
 
 -- --------------------------------------------------------
 -- 2. Kinship Directed Graph Relationships Table
 -- --------------------------------------------------------
-CREATE TABLE IF NOT EXISTS relationships (
-    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    source_vuid CHAR(12) NOT NULL,
-    target_vuid CHAR(12) NOT NULL,
-    relationship_type ENUM('Father', 'Mother', 'Spouse', 'Son', 'Daughter', 'Sibling', 'Guardian') NOT NULL,
-    verification_status ENUM('Unverified', 'Mutual_Confirmed', 'Document_Backed', 'Conflicted') DEFAULT 'Unverified',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+CREATE TABLE IF NOT EXISTS `relationships` (
+    `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    `source_vuid` CHAR(12) NOT NULL,
+    `target_vuid` CHAR(12) NOT NULL,
+    `relationship_type` ENUM('Father', 'Mother', 'Spouse', 'Son', 'Daughter', 'Sibling', 'Guardian') NOT NULL,
+    `verification_status` ENUM('Unverified', 'Mutual_Confirmed', 'Document_Backed', 'Conflicted') DEFAULT 'Unverified',
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     
-    FOREIGN KEY (source_vuid) REFERENCES citizens(vuid) ON DELETE CASCADE,
-    FOREIGN KEY (target_vuid) REFERENCES citizens(vuid) ON DELETE CASCADE,
-    UNIQUE KEY uq_relationship (source_vuid, target_vuid, relationship_type),
-    INDEX idx_source (source_vuid),
-    INDEX idx_target (target_vuid)
-) ENGINE=InnoDB;
+    FOREIGN KEY (`source_vuid`) REFERENCES `citizens`(`vuid`) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (`target_vuid`) REFERENCES `citizens`(`vuid`) ON DELETE CASCADE ON UPDATE CASCADE,
+    UNIQUE KEY `uq_relationship` (`source_vuid`, `target_vuid`, `relationship_type`),
+    INDEX `idx_source` (`source_vuid`),
+    INDEX `idx_target` (`target_vuid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ENCRYPTION='Y';
 
 -- --------------------------------------------------------
--- 3. Tokenized Document Vault (OCP / DigiLocker / API Setu)
+-- 3. Tokenized Document Vault (Zero-Knowledge OCP / DigiLocker)
 -- --------------------------------------------------------
-CREATE TABLE IF NOT EXISTS citizen_documents (
-    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    vuid CHAR(12) NOT NULL,
-    doc_type ENUM('AADHAAR', 'PAN', 'VOTER_ID', 'DRIVING_LICENSE', 'PASSPORT', 'RATION_CARD', 'BIRTH_CERTIFICATE') NOT NULL,
-    doc_hash CHAR(64) NOT NULL COMMENT 'Salted SHA-256 hash for deduplication',
-    doc_masked_value VARCHAR(30) NOT NULL COMMENT 'E.g., XXXX-XXXX-1234 or ABCDE****F',
-    issuer_authority VARCHAR(120) DEFAULT 'DigiLocker / API Setu',
-    is_ocp_verified BOOLEAN DEFAULT FALSE,
-    verified_at DATETIME DEFAULT NULL,
-    raw_payload_encrypted TEXT DEFAULT NULL COMMENT 'AES-256-GCM encrypted response metadata',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+CREATE TABLE IF NOT EXISTS `citizen_documents` (
+    `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    `vuid` CHAR(12) NOT NULL,
+    `doc_type` ENUM('AADHAAR', 'PAN', 'VOTER_ID', 'DRIVING_LICENSE', 'PASSPORT', 'RATION_CARD', 'BIRTH_CERTIFICATE') NOT NULL,
+    `doc_hash` CHAR(64) NOT NULL COMMENT 'Salted SHA-256 hash for zero-knowledge deduplication',
+    `doc_masked_value` VARCHAR(30) NOT NULL COMMENT 'E.g., XXXX-XXXX-1234 or ABCDE****F',
+    `issuer_authority` VARCHAR(120) DEFAULT 'DigiLocker / API Setu',
+    `is_ocp_verified` BOOLEAN DEFAULT FALSE,
+    `verified_at` DATETIME DEFAULT NULL,
+    `raw_payload_encrypted` TEXT DEFAULT NULL COMMENT 'AES-256-GCM encrypted response metadata',
+    `doc_iv` CHAR(24) DEFAULT NULL,
+    `doc_auth_tag` CHAR(24) DEFAULT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     
-    FOREIGN KEY (vuid) REFERENCES citizens(vuid) ON DELETE CASCADE,
-    INDEX idx_doc_hash (doc_hash),
-    UNIQUE KEY uq_vuid_doctype (vuid, doc_type)
-) ENGINE=InnoDB;
+    FOREIGN KEY (`vuid`) REFERENCES `citizens`(`vuid`) ON DELETE CASCADE ON UPDATE CASCADE,
+    INDEX `idx_doc_hash` (`doc_hash`),
+    UNIQUE KEY `uq_vuid_doctype` (`vuid`, `doc_type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ENCRYPTION='Y';
 
 -- --------------------------------------------------------
--- 4. Deduplication & Lineage Conflict Log (SIR / Missing Persons)
+-- 4. Deduplication & Lineage Conflict Log (SIR)
 -- --------------------------------------------------------
-CREATE TABLE IF NOT EXISTS duplicate_conflict_logs (
-    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    flagged_vuid CHAR(12) NOT NULL,
-    matched_vuid CHAR(12) NOT NULL,
-    doc_type ENUM('AADHAAR', 'PAN', 'VOTER_ID', 'DRIVING_LICENSE', 'PASSPORT', 'RATION_CARD', 'BIOMETRIC') NOT NULL,
-    conflict_reason TEXT NOT NULL,
-    status ENUM('Open', 'Investigating', 'Resolved_Fraud', 'Resolved_Merged', 'False_Positive') DEFAULT 'Open',
-    severity ENUM('Low', 'Medium', 'High', 'Critical') DEFAULT 'High',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+CREATE TABLE IF NOT EXISTS `duplicate_conflict_logs` (
+    `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    `flagged_vuid` CHAR(12) NOT NULL,
+    `matched_vuid` CHAR(12) NOT NULL,
+    `doc_type` ENUM('AADHAAR', 'PAN', 'VOTER_ID', 'DRIVING_LICENSE', 'PASSPORT', 'RATION_CARD', 'BIOMETRIC') NOT NULL,
+    `conflict_reason` TEXT NOT NULL,
+    `status` ENUM('Open', 'Investigating', 'Resolved_Fraud', 'Resolved_Merged', 'False_Positive') DEFAULT 'Open',
+    `severity` ENUM('Low', 'Medium', 'High', 'Critical') DEFAULT 'High',
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     
-    FOREIGN KEY (flagged_vuid) REFERENCES citizens(vuid) ON DELETE CASCADE,
-    FOREIGN KEY (matched_vuid) REFERENCES citizens(vuid) ON DELETE CASCADE,
-    INDEX idx_flagged (flagged_vuid),
-    INDEX idx_status (status)
-) ENGINE=InnoDB;
+    FOREIGN KEY (`flagged_vuid`) REFERENCES `citizens`(`vuid`) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (`matched_vuid`) REFERENCES `citizens`(`vuid`) ON DELETE CASCADE ON UPDATE CASCADE,
+    INDEX `idx_flagged` (`flagged_vuid`),
+    INDEX `idx_matched` (`matched_vuid`),
+    INDEX `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ENCRYPTION='Y';
+
+-- --------------------------------------------------------
+-- 5. HIPAA § 164.312(b) Immutable Audit Trail & Access Log
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `audit_logs` (
+    `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    `actor_vuid` CHAR(12) DEFAULT NULL,
+    `action` ENUM('CREATE', 'READ', 'UPDATE', 'DELETE', 'EXPORT', 'VERIFY_OCP', 'SIR_FLAG', 'EMERGENCY_ACCESS', 'BIRTH_REGISTRATION', 'DEATH_REGISTRATION', 'MARRIAGE_REGISTRATION', 'MATRIMONY_SEARCH', 'DEMOGRAPHICS_QUERY', 'EDUCATION_UPDATE') NOT NULL,
+    `resource_type` ENUM('CITIZEN', 'RELATIONSHIP', 'DOCUMENT', 'CONFLICT_LOG', 'TREE_GRAPH', 'EDUCATION', 'MARRIAGE', 'ANALYTICS') NOT NULL,
+    `resource_id` VARCHAR(100) NOT NULL,
+    `ip_address` VARCHAR(45) NOT NULL,
+    `user_agent` VARCHAR(255) DEFAULT NULL,
+    `status` ENUM('SUCCESS', 'UNAUTHORIZED', 'FORBIDDEN', 'FAILED') NOT NULL,
+    `details` TEXT DEFAULT NULL,
+    `prev_log_hash` CHAR(64) DEFAULT NULL COMMENT 'Cryptographic hash chain pointing to preceding entry',
+    `log_hash` CHAR(64) NOT NULL COMMENT 'SHA-256(id + actor + action + timestamp + prev_log_hash)',
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    INDEX `idx_actor` (`actor_vuid`),
+    INDEX `idx_action` (`action`),
+    INDEX `idx_resource` (`resource_type`, `resource_id`),
+    INDEX `idx_created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ENCRYPTION='Y';
+
+-- --------------------------------------------------------
+-- 6. Comprehensive Indian Education & Occupation Registry
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `citizen_education` (
+    `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    `vuid` CHAR(12) NOT NULL,
+    `qualification_level` ENUM('Primary', 'Secondary_10th', 'HigherSecondary_12th', 'Diploma', 'Bachelors', 'Masters', 'Doctorate', 'Professional_CA_CS', 'Other') NOT NULL,
+    `degree_name` VARCHAR(120) NOT NULL,
+    `institution` VARCHAR(180) NOT NULL,
+    `year_of_passing` INT DEFAULT NULL,
+    `occupation_sector` ENUM('Government', 'Private_IT_Corporate', 'Healthcare', 'Banking_Finance', 'Defense_Police', 'Education_Research', 'Business_SelfEmployed', 'Agriculture', 'Student', 'Homemaker', 'Other') DEFAULT 'Private_IT_Corporate',
+    `profession_title` VARCHAR(120) DEFAULT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (`vuid`) REFERENCES `citizens`(`vuid`) ON DELETE CASCADE ON UPDATE CASCADE,
+    INDEX `idx_edu_vuid` (`vuid`),
+    INDEX `idx_qualification` (`qualification_level`),
+    INDEX `idx_occupation` (`occupation_sector`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ENCRYPTION='Y';
+
+-- --------------------------------------------------------
+-- 7. Civil Marriage Registry & Verification Edge
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `marriages` (
+    `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    `marriage_reg_no` VARCHAR(80) DEFAULT NULL,
+    `bride_vuid` CHAR(12) NOT NULL,
+    `groom_vuid` CHAR(12) NOT NULL,
+    `marriage_date` DATE NOT NULL,
+    `venue_city` VARCHAR(80) DEFAULT NULL,
+    `venue_state` VARCHAR(80) DEFAULT NULL,
+    `priest_or_registrar` VARCHAR(120) DEFAULT NULL,
+    `status` ENUM('Registered', 'Customary', 'Dissolved') DEFAULT 'Registered',
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (`bride_vuid`) REFERENCES `citizens`(`vuid`) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (`groom_vuid`) REFERENCES `citizens`(`vuid`) ON DELETE CASCADE ON UPDATE CASCADE,
+    INDEX `idx_bride` (`bride_vuid`),
+    INDEX `idx_groom` (`groom_vuid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ENCRYPTION='Y';
 ```
 
 ---
@@ -423,6 +503,42 @@ app.listen(PORT, () => {
     console.log(`VanshaSetu Engine running on port ${PORT}`);
 });
 ```
+
+### 4.5 Indian Civil Life Events, Education, Matrimony & Auditing API Extensions
+
+The platform exposes dedicated modular routers for Indian civil lifecycle management, education credentialing, matrimony matchmaking with Gotra exogamy, dynamic demographic analytics, and cryptographic audit ledger verification:
+
+| Endpoint | Method | Route Handler | Description |
+| :--- | :---: | :--- | :--- |
+| **`/api/v1/events/birth`** | `POST` | `life_events_routes.js` | Allocates unique 12-digit numeric VUID, validates community metadata (`caste`, `category`, `gotra`, `religion`, `geography`), and links parental kinship edges (`Father`, `Mother`, `Son`, `Daughter`). |
+| **`/api/v1/events/death`** | `POST` | `life_events_routes.js` | Updates status to `Deceased`, registers verified municipal `death_cert_number` and `death_reason`, preserving lineage edges for inheritance and probate. |
+| **`/api/v1/events/marriage`** | `POST` | `life_events_routes.js` | Validates statutory marriage ages ($\ge 21$ groom, $\ge 18$ bride), creates `marriages` ledger entry, updates `marital_status = 'Married'`, and establishes reciprocal `Spouse` edges. |
+| **`/api/v1/education/add`** | `POST` | `education_routes.js` | Registers verified academic qualification (`Primary` to `Doctorate`), degree name, institution, and occupation sector in encrypted storage (`citizen_education`). |
+| **`/api/v1/education/:vuid`** | `GET` | `education_routes.js` | Fetches chronological educational credentials and professional title for a citizen. |
+| **`/api/v1/matrimony/search`** | `GET` | `matrimony_routes.js` | Matchmaking engine evaluating Gotra exogamy: flags `Warning_Sagotra` vs `Permitted_Exogamous` and filters by age range, community, state/district, height, and qualifications. |
+| **`/api/v1/analytics/demographics`** | `GET` | `analytics_routes.js` | Dynamic census aggregation returning population counts, gender ratios, five-tier age pyramids, and category percentages filtered by state and district. |
+| **`/api/v1/audit/verify-integrity`** | `GET` | `audit_routes.js` | Recalculates the entire SHA-256 blockchain hash chain from genesis to head block, guaranteeing 100% legal non-repudiation and tamper-detection. |
+| **`/api/v1/meta/civil-models`** | `GET` | `server.js` | Serves the canonical Single Source of Truth (`shared/civil_models.json`) including all machine codes, string labels, bilingual translations, and 72 Indian & Western relationships. |
+
+### 4.6 Single Source of Truth (SSOT) Architecture, Kinship Ontology & Universal Zero-Default Policy
+
+In strict alignment with [Article X of the Sovereign Constitution](file:///Users/siddharthdashore/Workspace/FamilyTree/Docs/constitution.md#article-x-fail-fast-integrity-universal-prohibition-of-defaults--canonical-domain-models):
+1. **Single Source of Truth (`shared/civil_models.json`):** All civil and demographic ontologies are canonically defined in exactly one place:
+   - Root SSOT: [`shared/civil_models.json`](file:///Users/siddharthdashore/Workspace/FamilyTree/shared/civil_models.json)
+   - Backend Consumer: [`backend/src/models/civil_models.js`](file:///Users/siddharthdashore/Workspace/FamilyTree/backend/src/models/civil_models.js) dynamically imports `shared/civil_models.json` with zero duplication.
+   - Client Synchronizer: [`scripts/sync_models.js`](file:///Users/siddharthdashore/Workspace/FamilyTree/scripts/sync_models.js) (`npm run sync:models`) compiles `shared/civil_models.json` into type-safe Dart constants at [`client/lib/core/constants/civil_models.dart`](file:///Users/siddharthdashore/Workspace/FamilyTree/client/lib/core/constants/civil_models.dart).
+   - API Metadata Endpoint: `GET /api/v1/meta/civil-models` exposes canonical models to external clients and web consumers.
+2. **72 Indian & Western Kinship Relations (`CivilRelationships`):** Full bilingual ontology spanning Nuclear, Ancestral, Extended Paternal, Extended Maternal, In-laws, Step/Adoptive, and Legal Guardians:
+   - Western: `Father`, `Mother`, `Son`, `Daughter`, `Spouse`, `Husband`, `Wife`, `Brother`, `Sister`, `Grandfather`, `Grandmother`, `Grandson`, `Granddaughter`, `Uncle`, `Aunt`, `Nephew`, `Niece`, `Cousin`, `FatherInLaw`, `MotherInLaw`, `BrotherInLaw`, `SisterInLaw`, `SonInLaw`, `DaughterInLaw`, `StepFather`, `StepMother`, `StepSon`, `StepDaughter`, `StepBrother`, `StepSister`, `AdoptiveFather`, `AdoptiveMother`, `AdoptedSon`, `AdoptedDaughter`, `LegalGuardian`, `Ward`.
+   - Indian (Hindi/Sanskrit): `Pita`, `Mata`, `Beta`, `Beti`, `Pati`, `Patni`, `Bhai`, `Behan`, `BadaBhai`, `ChhotaBhai`, `BadiBehan`, `ChhotiBehan`, `Dada`, `Dadi`, `Pardada`, `Pardadi`, `Nana`, `Nani`, `Parnana`, `Parnani`, `Pota`, `Poti`, `Parpota`, `Parpoti`, `Dohata`, `Dohati`, `Chacha`, `Chachi`, `Tau`, `Tai`, `Bua`, `Fufa`, `Mama`, `Mami`, `Mausa`, `Mausi`, `Bhatija`, `Bhatiji`, `Bhanja`, `Bhanji`, `Sasur`, `Saas`, `Jeth`, `Jethani`, `Devar`, `Devrani`, `Nanad`, `Nandoi`, `Sala`, `Salehar`, `Sali`, `Sadhu`, `Damad`, `Bahu`, `Samdhi`, `Samdhan`.
+3. **String-Based Value Mappings & Multilingual Parity:** Every enum item defines both a machine code and explicit, localized human-readable string display values across four sovereign DPI languages:
+   - **English (`en`)**
+   - **हिन्दी / Hindi (`hi`)**
+   - **ગુજરાતી / Gujarati (`gu`)**
+   - **मराठी / Marathi (`mr`)**
+   Examples: `GEN -> General / सामान्य / સામાન્ય / सामान्य`, `OBC -> Other Backward Class / अन्य पिछड़ा वर्ग / અન્ય પછાત વર્ગ / इतर मागासवर्गीय`, `Father -> Father / पिता / પિતા / वडील`, `Paternal_Grandfather -> Paternal Grandfather / दादा / દાદા / आजोबा`.
+4. **Reactive Client Localization (`AppLocalizations` & `LanguageSelectorButton`):** The Flutter client dynamically switches active locale across all screens without reloading, allowing users to toggle between English, हिन्दी, ગુજરાતી, and मराठी with instant updates to forms, navigation, kinship badges, and Vansha cards.
+5. **Absolute Zero-Default Invariant:** The platform strictly prohibits fallback default values, placeholders, or silent logical operators (`religion || 'Hindu'`, `category || 'GEN'`, `marital_status || 'Single'`). Operations MUST strictly succeed with valid, explicitly passed values or fail fast with deterministic `HTTP 400 Bad Request` responses.
 
 ---
 

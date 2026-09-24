@@ -1,0 +1,498 @@
+{
+  "version": "1.2.0",
+  "description": "VanshaSetu Sovereign Digital Public Infrastructure — Single Source of Truth for all UI, System, and Validation Strings across English, Hindi, Gujarati, and Marathi.",
+  "strings": {
+    "app_title": {
+      "en": "VanshaSetu",
+      "hi": "वन्शसेतु",
+      "gu": "વંશસેતુ",
+      "mr": "वंशसेतू"
+    },
+    "app_subtitle": {
+      "en": "Universal DPI Kinship & Identity Platform",
+      "hi": "सार्वभौमिक डिजिटल सार्वजनिक अवसंरचना वंशावली मंच",
+      "gu": "સાર્વભૌમિક ડીપીઆઈ વંશાવળી અને નાગરિક ઓળખ મંચ",
+      "mr": "सार्वभौम डिजिटल सार्वजनिक पायाभूत सुविधा वंशावळ मंच"
+    },
+    "select_language": {
+      "en": "Select Language",
+      "hi": "भाषा चुनें",
+      "gu": "ભાષા પસંદ કરો",
+      "mr": "भाषा निवडा"
+    },
+    "language_en": {
+      "en": "English",
+      "hi": "English",
+      "gu": "English (અંગ્રેજી)",
+      "mr": "English (इंग्रजी)"
+    },
+    "language_hi": {
+      "en": "Hindi (हिन्दी)",
+      "hi": "हिन्दी",
+      "gu": "हिन्दी (હિન્દી)",
+      "mr": "हिन्दी (हिंदी)"
+    },
+    "language_gu": {
+      "en": "Gujarati (ગુજરાતી)",
+      "hi": "ગુજરાતી (गुजराती)",
+      "gu": "ગુજરાતી",
+      "mr": "ગુજરાતી (गुजराती)"
+    },
+    "language_mr": {
+      "en": "Marathi (मराठी)",
+      "hi": "मराठी",
+      "gu": "मराठी (મરાઠી)",
+      "mr": "मराठी"
+    },
+    "nav_registration": {
+      "en": "Registration",
+      "hi": "नागरिक पंजीकरण",
+      "gu": "નાગરિક નોંધણી",
+      "mr": "नागरिक नोंदणी"
+    },
+    "nav_lineage_canvas": {
+      "en": "Lineage Canvas",
+      "hi": "वंशावली मानचित्र",
+      "gu": "વંશાવળી નકશો",
+      "mr": "वंशावळ आलेख"
+    },
+    "nav_vansha_card": {
+      "en": "Vansha Card",
+      "hi": "वन्श कार्ड",
+      "gu": "વંશ કાર્ડ",
+      "mr": "वंश कार्ड"
+    },
+    "nav_demographics": {
+      "en": "Census Analytics",
+      "hi": "जनगणना विश्लेषण",
+      "gu": "વસ્તી ગણતરી",
+      "mr": "जनगणना विश्लेषण"
+    },
+    "nav_matrimony": {
+      "en": "Matrimony Engine",
+      "hi": "विवाह मिलान",
+      "gu": "લગ્ન મેળવણી",
+      "mr": "विवाह जुळवणी"
+    },
+    "nav_audit_logs": {
+      "en": "Audit Trail",
+      "hi": "ऑडिट लॉग",
+      "gu": "ઓડિટ લૉગ્સ",
+      "mr": "ऑडिट नोंदी"
+    },
+    "reg_title": {
+      "en": "New Citizen Registration",
+      "hi": "नया नागरिक पंजीकरण",
+      "gu": "નવી નાગરિક નોંધણી",
+      "mr": "नवीन नागरिक नोंदणी"
+    },
+    "reg_subtitle": {
+      "en": "Enter demographic and civil identity details",
+      "hi": "जनसांख्यिकी एवं नागरिक पहचान विवरण दर्ज करें",
+      "gu": "વસ્તી વિષયક અને નાગરિક ઓળખ વિગતો દાખલ કરો",
+      "mr": "लोकसंख्या विषयक व ओळख माहिती प्रविष्ट करा"
+    },
+    "first_name": {
+      "en": "First Name",
+      "hi": "प्रथम नाम",
+      "gu": "પ્રથમ નામ",
+      "mr": "पहिले नाव"
+    },
+    "middle_name": {
+      "en": "Middle Name (Optional)",
+      "hi": "मध्यम नाम (वैकल्पिक)",
+      "gu": "પિતા/પતિનું નામ (વૈકલ્પિક)",
+      "mr": "वडिलांचे/पतीचे नाव (पर्यायी)"
+    },
+    "last_name": {
+      "en": "Last Name",
+      "hi": "उपनाम / जाति",
+      "gu": "અટક / સરનેમ",
+      "mr": "आडनाव"
+    },
+    "gender": {
+      "en": "Gender",
+      "hi": "लिंग",
+      "gu": "જાતિ (લિંગ)",
+      "mr": "लिंग"
+    },
+    "dob": {
+      "en": "Date of Birth (YYYY-MM-DD)",
+      "hi": "जन्म तिथि (YYYY-MM-DD)",
+      "gu": "જન્મ તારીખ (YYYY-MM-DD)",
+      "mr": "जन्मतारीख (YYYY-MM-DD)"
+    },
+    "height_cm": {
+      "en": "Height (cm)",
+      "hi": "ऊंचाई (सेमी)",
+      "gu": "ઊંચાઈ (સેમી)",
+      "mr": "उंची (सेमी)"
+    },
+    "weight_kg": {
+      "en": "Weight (kg)",
+      "hi": "वजन (किग्रा)",
+      "gu": "વજન (કિગ્રા)",
+      "mr": "वजन (किग्रॅ)"
+    },
+    "religion": {
+      "en": "Religion",
+      "hi": "धर्म",
+      "gu": "ધર્મ",
+      "mr": "धर्म"
+    },
+    "gotra": {
+      "en": "Gotra / Clan",
+      "hi": "गोत्र",
+      "gu": "ગોત્ર",
+      "mr": "गोत्र"
+    },
+    "caste": {
+      "en": "Caste / Community",
+      "hi": "जाति / समुदाय",
+      "gu": "જ્ઞાતિ / જાતિ",
+      "mr": "जात / समुदाय"
+    },
+    "category": {
+      "en": "Social Category",
+      "hi": "सामाजिक वर्ग",
+      "gu": "સામાજિક વર્ગ",
+      "mr": "सामाजिक प्रवर्ग"
+    },
+    "blood_group": {
+      "en": "Blood Group",
+      "hi": "रक्त समूह",
+      "gu": "બ્લડ ગ્રૂપ (રક્ત જૂથ)",
+      "mr": "रक्तगट"
+    },
+    "marital_status": {
+      "en": "Marital Status",
+      "hi": "वैवाहिक स्थिति",
+      "gu": "વૈવાહિક સ્થિતિ",
+      "mr": "वैवाहिक स्थिती"
+    },
+    "address_line1": {
+      "en": "Address Line 1",
+      "hi": "पता पंक्ति 1",
+      "gu": "સરનામું લીટી ૧",
+      "mr": "पत्ता ओळ १"
+    },
+    "address_line2": {
+      "en": "Address Line 2 (Optional)",
+      "hi": "पता पंक्ति 2 (वैकल्पिक)",
+      "gu": "સરનામું લીટી ૨ (વૈકલ્પિક)",
+      "mr": "पत्ता ओळ २ (पर्यायी)"
+    },
+    "pin_code": {
+      "en": "6-Digit PIN Code",
+      "hi": "6-अंकीय पिन कोड",
+      "gu": "૬-અંકનો પિન કોડ",
+      "mr": "६-अंकी पिन कोड"
+    },
+    "district": {
+      "en": "District",
+      "hi": "जिला",
+      "gu": "જિલ્લો",
+      "mr": "जिल्हा"
+    },
+    "state": {
+      "en": "State",
+      "hi": "राज्य",
+      "gu": "રાજ્ય",
+      "mr": "राज्य"
+    },
+    "country": {
+      "en": "Country",
+      "hi": "देश",
+      "gu": "દેશ",
+      "mr": "देश"
+    },
+    "autofill_gps": {
+      "en": "Auto-fill Live GPS",
+      "hi": "लाइव जीपीएस स्वतः भरें",
+      "gu": "લાઈવ જીપીએસ ઓટો-ફિલ",
+      "mr": "थेट GPS द्वारे पत्ता भरा"
+    },
+    "submit_registration": {
+      "en": "Register Citizen & Generate VUID",
+      "hi": "नागरिक पंजीकृत करें एवं VUID बनाएं",
+      "gu": "નાગરિક નોંધણી કરો અને VUID મેળવો",
+      "mr": "नागरिक नोंदणी करा व VUID मिळवा"
+    },
+    "required_field": {
+      "en": "This field is mandatory",
+      "hi": "यह जानकारी अनिवार्य है",
+      "gu": "આ વિગત ભરવી ફરજિયાત છે",
+      "mr": "ही माहिती भरणे अनिवार्य आहे"
+    },
+    "invalid_pin": {
+      "en": "Enter a valid 6-digit Indian PIN code",
+      "hi": "मान्य 6-अंकीय पिन कोड दर्ज करें",
+      "gu": "માન્ય ૬-અંકનો પિન કોડ દાખલ કરો",
+      "mr": "योग्य ६-अंकी पिन कोड टाका"
+    },
+    "registration_success": {
+      "en": "Citizen successfully registered!",
+      "hi": "नागरिक सफलतापूर्वक पंजीकृत!",
+      "gu": "નાગરિકની સફળતાપૂર્વક નોંધણી થઈ ગઈ!",
+      "mr": "नागरिकाची यशस्वीरीत्या नोंदणी झाली!"
+    },
+    "canvas_title": {
+      "en": "Kinship Lineage Canvas",
+      "hi": "वंशावली मानचित्र (Lineage Canvas)",
+      "gu": "વંશાવળી નકશો (Lineage Canvas)",
+      "mr": "वंशावळ आलेख (Lineage Canvas)"
+    },
+    "recenter": {
+      "en": "Recenter",
+      "hi": "केंद्र में लाएं",
+      "gu": "કેન્દ્રમાં લાવો",
+      "mr": "केंद्रीत करा"
+    },
+    "add_kin": {
+      "en": "Add Kin",
+      "hi": "सम्बन्धी जोड़ें",
+      "gu": "સંબંધી ઉમેરો",
+      "mr": "नातेवाईक जोडा"
+    },
+    "search_vuid": {
+      "en": "Search 12-Digit VUID",
+      "hi": "12-अंकीय VUID खोजें",
+      "gu": "૧૨-અંકનો VUID શોધો",
+      "mr": "१२-अंकी VUID शोधा"
+    },
+    "birth_event": {
+      "en": "Child Birth",
+      "hi": "शिशु जन्म",
+      "gu": "બાળ જન્મ",
+      "mr": "अपत्य जन्म"
+    },
+    "death_event": {
+      "en": "Civil Death",
+      "hi": "नागरिक मृत्यु",
+      "gu": "મૃત્યુ નોંધણી",
+      "mr": "मृत्यू नोंदणी"
+    },
+    "marriage_event": {
+      "en": "Civil Marriage",
+      "hi": "विवाह पंजीकरण",
+      "gu": "લગ્ન નોંધણી",
+      "mr": "विवाह नोंदणी"
+    },
+    "education_event": {
+      "en": "Education",
+      "hi": "शिक्षा विवरण",
+      "gu": "શિક્ષણ વિગતો",
+      "mr": "शिक्षण तपशील"
+    },
+    "card_header": {
+      "en": "VANSHACARD • वन्श कार्ड",
+      "hi": "VANSHACARD • वन्श कार्ड",
+      "gu": "VANSHACARD • વંશ કાર્ડ",
+      "mr": "VANSHACARD • वंश कार्ड"
+    },
+    "republic_of_india": {
+      "en": "REPUBLIC OF INDIA / भारत गणराज्य",
+      "hi": "भारत गणराज्य / REPUBLIC OF INDIA",
+      "gu": "ભારત ગણરાજ્ય / REPUBLIC OF INDIA",
+      "mr": "भारतीय प्रजासत्ताक / REPUBLIC OF INDIA"
+    },
+    "vuid_label": {
+      "en": "VUID (VanshaSetu Universal ID)",
+      "hi": "VUID (वन्श पहचान संख्या)",
+      "gu": "VUID (વંશ ઓળખ ક્રમાંક)",
+      "mr": "VUID (वंश ओळख क्रमांक)"
+    },
+    "valid_throughout": {
+      "en": "Digital Public Infrastructure — Valid Throughout India",
+      "hi": "डिजिटल पब्लिक इंफ्रास्ट्रक्चर — संपूर्ण भारत में मान्य",
+      "gu": "ડિજિટલ પબ્લિક ઇન્ફ્રાસ્ટ્રક્ચર — સમગ્ર ભારતમાં માન્ય",
+      "mr": "डिजिटल पब्लिक इन्फ्रास्ट्रक्चर — संपूर्ण भारतात वैध"
+    },
+    "share_whatsapp": {
+      "en": "Share on WhatsApp",
+      "hi": "व्हाट्सएप पर साझा करें",
+      "gu": "વોટ્સએપ પર શેર કરો",
+      "mr": "व्हॉट्सॲपवर शेअर करा"
+    },
+    "export_png": {
+      "en": "Save Image",
+      "hi": "छवि सुरक्षित करें",
+      "gu": "ઈમેજ સાચવો",
+      "mr": "प्रतिमा जतन करा"
+    },
+    "matrimony_title": {
+      "en": "Indian Matrimony Search",
+      "hi": "भारतीय विवाह मिलान मंच",
+      "gu": "ભારતીય વૈવાહિક સંબંધ શોધ",
+      "mr": "भारतीय विवाह जुळवणी मंच"
+    },
+    "matrimony_subtitle": {
+      "en": "Gotra Exogamy & Consanguinity Defense Engine",
+      "hi": "गोत्र बहिर्विवाह एवं सगोत्र सुरक्षा इंजन",
+      "gu": "ગોત્ર બહિર્વિવાહ અને સગોત્ર સંરક્ષણ પ્રણાલી",
+      "mr": "गोत्र बहिर्विवाह व सगोत्र संरक्षण प्रणाली"
+    },
+    "looking_for": {
+      "en": "Looking For",
+      "hi": "प्रत्याशी की तलाश",
+      "gu": "કોની શોધમાં છો?",
+      "mr": "कोणाचा शोध घेत आहात?"
+    },
+    "groom": {
+      "en": "Groom (वर)",
+      "hi": "वर (Groom)",
+      "gu": "વરરાજા (Groom)",
+      "mr": "वर (Groom)"
+    },
+    "bride": {
+      "en": "Bride (वधू)",
+      "hi": "वधू (Bride)",
+      "gu": "કન્યા (Bride)",
+      "mr": "वधू (Bride)"
+    },
+    "age_range": {
+      "en": "Age Range",
+      "hi": "आयु सीमा",
+      "gu": "ઉંમર મર્યાદા",
+      "mr": "वय मर्यादा"
+    },
+    "seeker_gotra": {
+      "en": "Seeker Gotra",
+      "hi": "आवेदक का गोत्र",
+      "gu": "આવેદકનું ગોત્ર",
+      "mr": "उमेदवाराचे गोत्र"
+    },
+    "sagotra_alert": {
+      "en": "Warning: Sagotra (Same Gotra)",
+      "hi": "चेतावनी: सगोत्र संबंध (समान गोत्र)",
+      "gu": "ચેતવણી: સગોત્ર સંબંધ (એક જ ગોત્ર)",
+      "mr": "इशारा: सगोत्र संबंध (समान गोत्र)"
+    },
+    "exogamous_permitted": {
+      "en": "Permitted: Exogamous Match",
+      "hi": "अनुमति: बहिर्विवाही अनुकूल मिलान",
+      "gu": "માન્ય: બહિર્વિવાહ અનુકૂળ સંબંધ",
+      "mr": "मान्यताप्राप्त: बहिर्विवाही जुळणारा संबंध"
+    },
+    "search_candidates": {
+      "en": "Search Eligible Matches",
+      "hi": "योग्य प्रत्याशी खोजें",
+      "gu": "યોગ્ય મુરતિયા શોધો",
+      "mr": "योग्य स्थळे शोधा"
+    },
+    "census_title": {
+      "en": "Demographics & Census Analytics",
+      "hi": "जनसांख्यिकी एवं राष्ट्रीय जनगणना",
+      "gu": "વસ્તી ગણતરી અને આંકડાશાસ્ત્ર",
+      "mr": "लोकसंख्या व राष्ट्रीय जनगणना विश्लेषण"
+    },
+    "census_subtitle": {
+      "en": "Real-Time Population Intelligence",
+      "hi": "रीयल-टाइम जनसंख्या विश्लेषण",
+      "gu": "રીઅલ-ટાઇમ વસ્તી પૃથક્કરણ",
+      "mr": "रिअल-टाइम लोकसंख्या सांख्यिकी"
+    },
+    "total_population": {
+      "en": "Total Population",
+      "hi": "कुल जनसंख्या",
+      "gu": "કુલ વસ્તી",
+      "mr": "एकूण लोकसंख्या"
+    },
+    "digital_verification_rate": {
+      "en": "Verified Identity Ratio",
+      "hi": "सत्यापित पहचान अनुपात",
+      "gu": "પ્રમાણિત ઓળખ ગુણોત્તર",
+      "mr": "प्रमाणित ओळख प्रमाण"
+    },
+    "filter_by_state": {
+      "en": "Filter by State",
+      "hi": "राज्य अनुसार चुनें",
+      "gu": "રાજ્ય પ્રમાણે ફિલ્ટર",
+      "mr": "राज्यनुसार निवडा"
+    },
+    "filter_by_district": {
+      "en": "Filter by District",
+      "hi": "जिला अनुसार चुनें",
+      "gu": "જિલ્લા પ્રમાણે ફિલ્ટર",
+      "mr": "જિલ્હ्यानुसार निवडा"
+    },
+    "gender_ratio": {
+      "en": "Gender Distribution",
+      "hi": "लिंगानुपात वितरण",
+      "gu": "જાતિ ગુણોત્તર વિતરણ",
+      "mr": "लिंग गुणोत्तर प्रमाण"
+    },
+    "age_pyramid": {
+      "en": "Age Cohort Pyramid",
+      "hi": "आयु वर्ग पिरामिड",
+      "gu": "વય જૂથ પિરામિડ",
+      "mr": "वयोगट पिरॅमिड"
+    },
+    "audit_title": {
+      "en": "Immutable HIPAA & DPDP Audit Trail",
+      "hi": "अपरिवर्तनीय HIPAA एवं DPDP ऑडिट ट्रेल",
+      "gu": "અપરિવર્તનીય HIPAA અને DPDP ઓડિટ રેકોર્ડ",
+      "mr": "अपरिवर्तनीय HIPAA व DPDP ऑडिट नोंदी"
+    },
+    "audit_verified": {
+      "en": "Cryptographic Blockchain Chain Intact",
+      "hi": "क्रिप्टोग्राफिक ब्लॉकचेन श्रृंखला अक्षुण्ण है",
+      "gu": "ક્રિપ્ટોગ્રાફિક બ્લોકચેન સાંકળ અખંડ છે",
+      "mr": "क्रिप्टोग्राफिक ब्लॉकचेन साखळी अभेद्य आहे"
+    },
+    "audit_action": {
+      "en": "Action",
+      "hi": "कार्यवाही",
+      "gu": "ક્રિયા / કાર્ય",
+      "mr": "कृती / बदल"
+    },
+    "audit_timestamp": {
+      "en": "Timestamp",
+      "hi": "समय",
+      "gu": "સમય",
+      "mr": "वेळ"
+    },
+    "audit_actor": {
+      "en": "Actor VUID",
+      "hi": "कर्ता VUID",
+      "gu": "કર્તા VUID",
+      "mr": "कर्ता VUID"
+    },
+    "verify_chain": {
+      "en": "Verify Integrity",
+      "hi": "अखंडता सत्यापित करें",
+      "gu": "સત્યતા ચકાસો",
+      "mr": "अखंडता पडताळा"
+    },
+    "cancel": {
+      "en": "Cancel",
+      "hi": "रद्द करें",
+      "gu": "રદ કરો",
+      "mr": "रद्द करा"
+    },
+    "confirm": {
+      "en": "Confirm",
+      "hi": "पुष्टि करें",
+      "gu": "પુષ્ટિ કરો",
+      "mr": "नक्की करा"
+    },
+    "loading": {
+      "en": "Processing...",
+      "hi": "प्रक्रिया जारी है...",
+      "gu": "પ્રક્રિયા ચાલુ છે...",
+      "mr": "प्रक्रिया सुरू आहे..."
+    },
+    "error": {
+      "en": "Error Occurred",
+      "hi": "त्रुटि हुई",
+      "gu": "ભૂલ આવી",
+      "mr": "त्रुटी आढळली"
+    },
+    "retry": {
+      "en": "Retry",
+      "hi": "पुनः प्रयास करें",
+      "gu": "ફરી પ્રયાસ કરો",
+      "mr": "पुन्हा प्रयत्न करा"
+    }
+  }
+}

@@ -1,0 +1,1256 @@
+{
+  "version": "1.2.0",
+  "description": "VanshaSetu Sovereign Digital Public Infrastructure — Single Source of Truth for all Civil, Demographic, Kinship, and Identity Ontologies.",
+  "categories": [
+    {
+      "code": "GEN",
+      "label": "General",
+      "hindi_label": "सामान्य",
+      "description": "General / Unreserved Category",
+      "gujarati_label": "સામાન્ય",
+      "marathi_label": "सामान्य"
+    },
+    {
+      "code": "OBC",
+      "label": "Other Backward Class",
+      "hindi_label": "अन्य पिछड़ा वर्ग",
+      "description": "Other Backward Classes",
+      "gujarati_label": "અન્ય પછાત વર્ગ (OBC)",
+      "marathi_label": "इतर मागासवर्गीय (OBC)"
+    },
+    {
+      "code": "SC",
+      "label": "Scheduled Caste",
+      "hindi_label": "अनुसूचित जाति",
+      "description": "Scheduled Castes",
+      "gujarati_label": "અનુસૂચિત જાતિ (SC)",
+      "marathi_label": "अनुसूचित जाती (SC)"
+    },
+    {
+      "code": "ST",
+      "label": "Scheduled Tribe",
+      "hindi_label": "अनुसूचित जनजाति",
+      "description": "Scheduled Tribes",
+      "gujarati_label": "અનુસૂચિત જનજાતિ (ST)",
+      "marathi_label": "अनुसूचित जमाती (ST)"
+    },
+    {
+      "code": "EWS",
+      "label": "Economically Weaker Section",
+      "hindi_label": "आर्थिक रूप से कमजोर वर्ग",
+      "description": "Economically Weaker Sections",
+      "gujarati_label": "આર્થિક રીતે નબળા વર્ગ (EWS)",
+      "marathi_label": "आर्थिकदृष्ट्या दुर्बल घटक (EWS)"
+    },
+    {
+      "code": "Other",
+      "label": "Other Category",
+      "hindi_label": "अन्य वर्ग",
+      "description": "Other Social Category",
+      "gujarati_label": "અન્ય વર્ગ",
+      "marathi_label": "इतर वर्ग"
+    }
+  ],
+  "religions": [
+    {
+      "code": "Hindu",
+      "label": "Hinduism",
+      "hindi_label": "हिन्दू",
+      "description": "Hinduism / Sanatan Dharma",
+      "gujarati_label": "હિન્દુ",
+      "marathi_label": "हिंदू"
+    },
+    {
+      "code": "Muslim",
+      "label": "Islam",
+      "hindi_label": "मुस्लिम",
+      "description": "Islam",
+      "gujarati_label": "મુસ્લિમ",
+      "marathi_label": "मुस्लिम"
+    },
+    {
+      "code": "Christian",
+      "label": "Christianity",
+      "hindi_label": "ईसाई",
+      "description": "Christianity",
+      "gujarati_label": "ખ્રિસ્તી",
+      "marathi_label": "ख्रिश्चन"
+    },
+    {
+      "code": "Sikh",
+      "label": "Sikhism",
+      "hindi_label": "सिख",
+      "description": "Sikhism",
+      "gujarati_label": "શીખ",
+      "marathi_label": "शीख"
+    },
+    {
+      "code": "Jain",
+      "label": "Jainism",
+      "hindi_label": "जैन",
+      "description": "Jainism",
+      "gujarati_label": "જૈન",
+      "marathi_label": "जैन"
+    },
+    {
+      "code": "Buddhist",
+      "label": "Buddhism",
+      "hindi_label": "बौद्ध",
+      "description": "Buddhism",
+      "gujarati_label": "બૌદ્ધ",
+      "marathi_label": "बौद्ध"
+    },
+    {
+      "code": "Parsi",
+      "label": "Zoroastrianism / Parsi",
+      "hindi_label": "पारसी",
+      "description": "Zoroastrianism",
+      "gujarati_label": "પારસી",
+      "marathi_label": "पारशी"
+    },
+    {
+      "code": "Jewish",
+      "label": "Judaism",
+      "hindi_label": "यहूदी",
+      "description": "Judaism",
+      "gujarati_label": "યહૂદી",
+      "marathi_label": "ज्यू / यहुदी"
+    },
+    {
+      "code": "Other",
+      "label": "Other Religion",
+      "hindi_label": "अन्य धर्म",
+      "description": "Other Faith / Spiritual Tradition",
+      "gujarati_label": "અન્ય ધર્મ",
+      "marathi_label": "इतर धर्म"
+    }
+  ],
+  "marital_statuses": [
+    {
+      "code": "Single",
+      "label": "Single / Unmarried",
+      "hindi_label": "अविवाहित",
+      "description": "Never Married",
+      "gujarati_label": "અવિવાહિત",
+      "marathi_label": "अविवाहित"
+    },
+    {
+      "code": "Married",
+      "label": "Married",
+      "hindi_label": "विवाहित",
+      "description": "Currently Married",
+      "gujarati_label": "પરણિત / વિવાહિત",
+      "marathi_label": "विवाहित"
+    },
+    {
+      "code": "Widowed",
+      "label": "Widowed",
+      "hindi_label": "विधवा / विधुर",
+      "description": "Deceased Spouse",
+      "gujarati_label": "વિધવા / વિધુર",
+      "marathi_label": "विधवा / विधुर"
+    },
+    {
+      "code": "Divorced",
+      "label": "Divorced",
+      "hindi_label": "तलाकशुदा",
+      "description": "Legally Divorced",
+      "gujarati_label": "છૂટાછેડા લીધેલ",
+      "marathi_label": "घटस्फोटित"
+    },
+    {
+      "code": "Separated",
+      "label": "Separated",
+      "hindi_label": "अलग",
+      "description": "Legally or Customarily Separated",
+      "gujarati_label": "અલગ થયેલ",
+      "marathi_label": "विभक्त"
+    }
+  ],
+  "blood_groups": [
+    {
+      "code": "A+",
+      "label": "A Positive (A+)",
+      "hindi_label": "ए पॉजिटिव",
+      "description": "A Rh Positive",
+      "gujarati_label": "એ પોઝિટિવ (A+)",
+      "marathi_label": "ए पॉझिटिव्ह (A+)"
+    },
+    {
+      "code": "A-",
+      "label": "A Negative (A-)",
+      "hindi_label": "ए नेगेटिव",
+      "description": "A Rh Negative",
+      "gujarati_label": "એ નેગેટિવ (A-)",
+      "marathi_label": "ए निगेटिव्ह (A-)"
+    },
+    {
+      "code": "B+",
+      "label": "B Positive (B+)",
+      "hindi_label": "बी पॉजिटिव",
+      "description": "B Rh Positive",
+      "gujarati_label": "બી પોઝિટિવ (B+)",
+      "marathi_label": "बी पॉझिटिव्ह (B+)"
+    },
+    {
+      "code": "B-",
+      "label": "B Negative (B-)",
+      "hindi_label": "बी नेगेटिव",
+      "description": "B Rh Negative",
+      "gujarati_label": "બી નેગેટિવ (B-)",
+      "marathi_label": "बी निगेटिव्ह (B-)"
+    },
+    {
+      "code": "AB+",
+      "label": "AB Positive (AB+)",
+      "hindi_label": "एबी पॉजिटिव",
+      "description": "AB Rh Positive",
+      "gujarati_label": "એબી પોઝિટિવ (AB+)",
+      "marathi_label": "एबी पॉझिटिव्ह (AB+)"
+    },
+    {
+      "code": "AB-",
+      "label": "AB Negative (AB-)",
+      "hindi_label": "एबी नेगेटिव",
+      "description": "AB Rh Negative",
+      "gujarati_label": "એબી નેગેટિવ (AB-)",
+      "marathi_label": "एबी निगेटिव्ह (AB-)"
+    },
+    {
+      "code": "O+",
+      "label": "O Positive (O+)",
+      "hindi_label": "ओ पॉजिटिव",
+      "description": "O Rh Positive",
+      "gujarati_label": "ઓ પોઝિટિવ (O+)",
+      "marathi_label": "ओ पॉझिटिव्ह (O+)"
+    },
+    {
+      "code": "O-",
+      "label": "O Negative (O-)",
+      "hindi_label": "ओ नेगेटिव",
+      "description": "O Rh Negative",
+      "gujarati_label": "ઓ નેગેટિવ (O-)",
+      "marathi_label": "ओ निगेटिव्ह (O-)"
+    }
+  ],
+  "genders": [
+    {
+      "code": "Male",
+      "label": "Male",
+      "hindi_label": "पुरुष",
+      "description": "Male / Cisgender Male",
+      "gujarati_label": "પુરુષ",
+      "marathi_label": "पुरुष"
+    },
+    {
+      "code": "Female",
+      "label": "Female",
+      "hindi_label": "महिला",
+      "description": "Female / Cisgender Female",
+      "gujarati_label": "સ્ત્રી / મહિલા",
+      "marathi_label": "स्त्री / महिला"
+    },
+    {
+      "code": "Non-Binary",
+      "label": "Non-Binary",
+      "hindi_label": "गैर-द्विआधारी",
+      "description": "Non-Binary Gender Identity",
+      "gujarati_label": "નોન-બાઈનરી",
+      "marathi_label": "नॉन-बायनरी"
+    },
+    {
+      "code": "Transgender",
+      "label": "Transgender",
+      "hindi_label": "ट्रांसजेंडर",
+      "description": "Transgender Individual",
+      "gujarati_label": "ટ્રાન્સજેન્ડર",
+      "marathi_label": "तृतीयपंथी / ट्रान्सजेंडर"
+    },
+    {
+      "code": "Other",
+      "label": "Other",
+      "hindi_label": "अन्य",
+      "description": "Other Gender Identity",
+      "gujarati_label": "અન્ય",
+      "marathi_label": "इतर"
+    }
+  ],
+  "qualifications": [
+    {
+      "code": "Primary",
+      "label": "Primary School (Class 1-5)",
+      "hindi_label": "प्राथमिक शिक्षा",
+      "description": "Elementary Education",
+      "gujarati_label": "પ્રાથમિક શિક્ષણ (1-5)",
+      "marathi_label": "प्राथमिक शिक्षण (1-5)"
+    },
+    {
+      "code": "Secondary_10th",
+      "label": "Secondary School (10th / Matric)",
+      "hindi_label": "माध्यमिक (10वीं)",
+      "description": "Matriculation / Class 10 Board",
+      "gujarati_label": "માધ્યમિક (10મું / SSC)",
+      "marathi_label": "माध्यमिक (10वी / SSC)"
+    },
+    {
+      "code": "HigherSecondary_12th",
+      "label": "Higher Secondary (12th / Intermediate)",
+      "hindi_label": "उच्चतर माध्यमिक (12वीं)",
+      "description": "Intermediate / Class 12 Board",
+      "gujarati_label": "ઉચ્ચતર માધ્યમિક (12મું / HSC)",
+      "marathi_label": "उच्च माध्यमिक (12वी / HSC)"
+    },
+    {
+      "code": "Diploma",
+      "label": "Vocational / Technical Diploma",
+      "hindi_label": "डिप्लोमा",
+      "description": "Polytechnic / Industrial Training",
+      "gujarati_label": "ડિપ્લોમા / ટેકનિકલ",
+      "marathi_label": "पदविका / डिप्लोमा"
+    },
+    {
+      "code": "Bachelors",
+      "label": "Bachelor's Degree (Undergraduate)",
+      "hindi_label": "स्नातक",
+      "description": "B.Tech, MBBS, B.Com, BA, B.Sc, etc.",
+      "gujarati_label": "સ્નાતક (બેચલર્સ ડિગ્રી)",
+      "marathi_label": "पदवी (ग्रॅज्युएट)"
+    },
+    {
+      "code": "Masters",
+      "label": "Master's Degree (Postgraduate)",
+      "hindi_label": "स्नातकोत्तर",
+      "description": "M.Tech, MD, MBA, MA, M.Sc, etc.",
+      "gujarati_label": "અનુસ્નાતક (માસ્ટર્સ ડિગ્રી)",
+      "marathi_label": "व्युत्पन्न पदवी (पोस्ट ग्रॅज्युएट)"
+    },
+    {
+      "code": "Doctorate",
+      "label": "Doctorate / Ph.D.",
+      "hindi_label": "डॉक्टरेट (पीएच.डी.)",
+      "description": "Doctor of Philosophy / Post-Doctoral",
+      "gujarati_label": "ડોક્ટરેટ (Ph.D.)",
+      "marathi_label": "विद्यावाचस्पती (Ph.D.)"
+    },
+    {
+      "code": "Professional_CA_CS",
+      "label": "Professional Certification (CA, CS, ICWA)",
+      "hindi_label": "व्यावसायिक योग्यता",
+      "description": "Chartered Accountancy / Company Secretary",
+      "gujarati_label": "વ્યવસાયિક લાયકાત (CA, CS)",
+      "marathi_label": "व्यावसायिक प्रमाणपत्र (CA, CS)"
+    },
+    {
+      "code": "Other",
+      "label": "Other Qualification",
+      "hindi_label": "अन्य",
+      "description": "Other Educational Credentials",
+      "gujarati_label": "અન્ય લાયકાત",
+      "marathi_label": "इतर शिक्षण"
+    }
+  ],
+  "occupations": [
+    {
+      "code": "Government",
+      "label": "Government & Civil Services",
+      "hindi_label": "शासकीय सेवा",
+      "description": "IAS, IPS, IFS, State Civil Services, PSU",
+      "gujarati_label": "સરકારી સેવા / અધિકારી",
+      "marathi_label": "शासकीय सेवा / अधिकारी"
+    },
+    {
+      "code": "Private_IT_Corporate",
+      "label": "Private Sector, IT & Corporate",
+      "hindi_label": "निजी / कॉर्पोरेट क्षेत्र",
+      "description": "Technology, Finance, Corporate MNCs",
+      "gujarati_label": "ખાનગી / આઈટી અને કોર્પોરેટ",
+      "marathi_label": "खाजगी / आयटी व कॉर्पोरेट"
+    },
+    {
+      "code": "Healthcare",
+      "label": "Healthcare, Medicine & Doctors",
+      "hindi_label": "चिकित्सा एवं स्वास्थ्य",
+      "description": "Medical Practitioners, Nursing, Pharmacy",
+      "gujarati_label": "તબીબી અને આરોગ્ય સેવા (ડોક્ટર, નર્સ)",
+      "marathi_label": "आरोग्य व वैद्यकीय सेवा (डॉक्टर, परिचारिका)"
+    },
+    {
+      "code": "Banking_Finance",
+      "label": "Banking & Financial Services",
+      "hindi_label": "बैंकिंग एवं वित्त",
+      "description": "Commercial Banking, Investment, Insurance",
+      "gujarati_label": "બેંકિંગ અને નાણાકીય સેવા",
+      "marathi_label": "बँकिंग व वित्तीय सेवा"
+    },
+    {
+      "code": "Defense_Police",
+      "label": "Armed Forces, Defense & Police",
+      "hindi_label": "रक्षा एवं पुलिस बल",
+      "description": "Army, Navy, Air Force, CAPF, Police",
+      "gujarati_label": "સંરક્ષણ દળ અને પોલીસ",
+      "marathi_label": "संरक्षण व पोलीस दल"
+    },
+    {
+      "code": "Education_Research",
+      "label": "Education, Teaching & Research",
+      "hindi_label": "शिक्षा एवं अनुसंधान",
+      "description": "Professors, Teachers, Research Scientists",
+      "gujarati_label": "શિક્ષણ અને વૈજ્ઞાનિક સંશોધન",
+      "marathi_label": "शिक्षण व वैज्ञानिक संशोधन"
+    },
+    {
+      "code": "Business_SelfEmployed",
+      "label": "Business, Trade & Self Employed",
+      "hindi_label": "व्यवसाय / स्वरोजगार",
+      "description": "Retail, Manufacturing, Services, Startup",
+      "gujarati_label": "વેપાર / સ્વરોજગાર / ઉદ્યોગ",
+      "marathi_label": "व्यवसाय / स्वयंरोजगार / उद्योग"
+    },
+    {
+      "code": "Agriculture",
+      "label": "Agriculture, Farming & Agro-Business",
+      "hindi_label": "कृषि एवं बागवानी",
+      "description": "Farming, Agritech, Horticulture, Dairy",
+      "gujarati_label": "ખેતીવાડી / કૃષિ વ્યવસાય",
+      "marathi_label": "शेती व कृषी व्यवसाय"
+    },
+    {
+      "code": "Student",
+      "label": "Student / Scholar",
+      "hindi_label": "विद्यार्थी",
+      "description": "Full-time Academic Student",
+      "gujarati_label": "વિદ્યાર્થી / અભ્યાસ",
+      "marathi_label": "विद्यार्थी / शिक्षणार्थी"
+    },
+    {
+      "code": "Homemaker",
+      "label": "Homemaker / Domestic Manager",
+      "hindi_label": "गृहणी",
+      "description": "Domestic Family Management",
+      "gujarati_label": "ગૃહિણી / પરિવાર સંભાળ",
+      "marathi_label": "गृहिणी / कौटुंबिक व्यवस्थापक"
+    },
+    {
+      "code": "Other",
+      "label": "Other Occupation",
+      "hindi_label": "अन्य व्यवसाय",
+      "description": "Other Professional Endeavors",
+      "gujarati_label": "અન્ય વ્યવસાય",
+      "marathi_label": "इतर व्यवसाय"
+    }
+  ],
+  "document_types": [
+    {
+      "code": "AADHAAR",
+      "label": "Aadhaar Card (UIDAI)",
+      "hindi_label": "आधार कार्ड",
+      "description": "12-digit UIDAI National Biometric Identity",
+      "gujarati_label": "આધાર કાર્ડ",
+      "marathi_label": "आधार कार्ड"
+    },
+    {
+      "code": "PAN",
+      "label": "Permanent Account Number (PAN)",
+      "hindi_label": "पैन कार्ड",
+      "description": "Income Tax Department 10-char Alphanumeric",
+      "gujarati_label": "પાન કાર્ડ",
+      "marathi_label": "पॅन कार्ड"
+    },
+    {
+      "code": "VOTER_ID",
+      "label": "Voter ID Card (EPIC)",
+      "hindi_label": "मतदाता पहचान पत्र",
+      "description": "Election Commission of India Elector Photo ID",
+      "gujarati_label": "ચૂંટણી ઓળખપત્ર (મતદાર કાર્ડ)",
+      "marathi_label": "मतदार ओळखपत्र"
+    },
+    {
+      "code": "DRIVING_LICENSE",
+      "label": "Motor Vehicle Driving License",
+      "hindi_label": "ड्राइविंग लाइसेंस",
+      "description": "Ministry of Road Transport & Highways",
+      "gujarati_label": "ડ્રાઇવિંગ લાયસન્સ",
+      "marathi_label": "वाहन चालक परवाना"
+    },
+    {
+      "code": "PASSPORT",
+      "label": "Indian Passport",
+      "hindi_label": "पासपोर्ट",
+      "description": "Ministry of External Affairs Travel Document",
+      "gujarati_label": "ભારતીય પાસપોર્ટ",
+      "marathi_label": "पारपत्र / पासपोर्ट"
+    },
+    {
+      "code": "RATION_CARD",
+      "label": "Public Distribution Ration Card",
+      "hindi_label": "राशन कार्ड",
+      "description": "Department of Food & Public Distribution",
+      "gujarati_label": "રેશન કાર્ડ",
+      "marathi_label": "शिधापत्रिका / रेशन कार्ड"
+    },
+    {
+      "code": "BIRTH_CERTIFICATE",
+      "label": "Municipal Birth Certificate",
+      "hindi_label": "जन्म प्रमाण पत्र",
+      "description": "Registrar of Births & Deaths Certificate",
+      "gujarati_label": "જન્મ પ્રમાણપત્ર",
+      "marathi_label": "जन्म दाखला / प्रमाणपत्र"
+    },
+    {
+      "code": "BIOMETRIC",
+      "label": "Biometric Verification Record",
+      "hindi_label": "बायोमेट्रिक प्रमाणीकरण",
+      "description": "Cryptographic Biometric Template",
+      "gujarati_label": "બાયોમેટ્રિક રેકોર્ડ",
+      "marathi_label": "बायोमेट्रिक नोंद"
+    }
+  ],
+  "relationships": [
+    {
+      "code": "Father",
+      "label": "Father (पिता)",
+      "hindi_label": "पिता",
+      "western": "Father",
+      "indian": "पिता (Pita)",
+      "category": "Nuclear",
+      "gujarati_label": "પિતા / બાપુજી",
+      "marathi_label": "वडील / बाबा"
+    },
+    {
+      "code": "Mother",
+      "label": "Mother (माता)",
+      "hindi_label": "माता",
+      "western": "Mother",
+      "indian": "माता (Mata)",
+      "category": "Nuclear",
+      "gujarati_label": "માતા / બા",
+      "marathi_label": "आई"
+    },
+    {
+      "code": "Son",
+      "label": "Son (पुत्र / बेटा)",
+      "hindi_label": "पुत्र",
+      "western": "Son",
+      "indian": "पुत्र (Putra)",
+      "category": "Nuclear",
+      "gujarati_label": "પુત્ર / દીકરો",
+      "marathi_label": "मुलगा / पुत्र"
+    },
+    {
+      "code": "Daughter",
+      "label": "Daughter (पुत्री / बेटी)",
+      "hindi_label": "पुत्री",
+      "western": "Daughter",
+      "indian": "पुत्री (Putri)",
+      "category": "Nuclear",
+      "gujarati_label": "પુત્રી / દીકરી",
+      "marathi_label": "मुलगी / कन्या"
+    },
+    {
+      "code": "Brother",
+      "label": "Brother (भाई)",
+      "hindi_label": "भाई",
+      "western": "Brother",
+      "indian": "भाई (Bhai)",
+      "category": "Nuclear",
+      "gujarati_label": "ભાઈ",
+      "marathi_label": "भाऊ"
+    },
+    {
+      "code": "Sister",
+      "label": "Sister (बहन)",
+      "hindi_label": "बहन",
+      "western": "Sister",
+      "indian": "बहन (Behan)",
+      "category": "Nuclear",
+      "gujarati_label": "બહેન",
+      "marathi_label": "बहीण"
+    },
+    {
+      "code": "Sibling",
+      "label": "Sibling (सहोदर भाई/बहन)",
+      "hindi_label": "सहोदर",
+      "western": "Sibling",
+      "indian": "सहोदर (Sibling)",
+      "category": "Nuclear",
+      "gujarati_label": "સહોદર (ભાઈ/બહેન)",
+      "marathi_label": "सहोदर (भाऊ/बहीण)"
+    },
+    {
+      "code": "Spouse",
+      "label": "Spouse (पति/पत्नी)",
+      "hindi_label": "जीवनसाथी",
+      "western": "Spouse",
+      "indian": "जीवनसाथी (Spouse)",
+      "category": "Spousal",
+      "gujarati_label": "જીવનસાથી",
+      "marathi_label": "जोडीदार / पती-पत्नी"
+    },
+    {
+      "code": "Husband",
+      "label": "Husband (पति)",
+      "hindi_label": "पति",
+      "western": "Husband",
+      "indian": "पति (Pati)",
+      "category": "Spousal",
+      "gujarati_label": "પતિ",
+      "marathi_label": "पती / नवरा"
+    },
+    {
+      "code": "Wife",
+      "label": "Wife (पत्नी)",
+      "hindi_label": "पत्नी",
+      "western": "Wife",
+      "indian": "पत्नी (Patni)",
+      "category": "Spousal",
+      "gujarati_label": "પત્ની",
+      "marathi_label": "पत्नी / बायको"
+    },
+    {
+      "code": "Paternal_Grandfather",
+      "label": "Paternal Grandfather (दादा)",
+      "hindi_label": "दादा",
+      "western": "Paternal Grandfather",
+      "indian": "दादा (Dada)",
+      "category": "Ancestral",
+      "gujarati_label": "દાદા (પિતાના પિતા)",
+      "marathi_label": "आजोबा (वडिलांचे वडील)"
+    },
+    {
+      "code": "Paternal_Grandmother",
+      "label": "Paternal Grandmother (दादी)",
+      "hindi_label": "दादी",
+      "western": "Paternal Grandmother",
+      "indian": "दादी (Dadi)",
+      "category": "Ancestral",
+      "gujarati_label": "દાદી (પિતાના માતા)",
+      "marathi_label": "आजी (वडिलांची आई)"
+    },
+    {
+      "code": "Maternal_Grandfather",
+      "label": "Maternal Grandfather (नाना)",
+      "hindi_label": "नाना",
+      "western": "Maternal Grandfather",
+      "indian": "नाना (Nana)",
+      "category": "Ancestral",
+      "gujarati_label": "નાના (માતાના પિતા)",
+      "marathi_label": "आजोबा (आईचे वडील)"
+    },
+    {
+      "code": "Maternal_Grandmother",
+      "label": "Maternal Grandmother (नानी)",
+      "hindi_label": "नानी",
+      "western": "Maternal Grandmother",
+      "indian": "नानी (Nani)",
+      "category": "Ancestral",
+      "gujarati_label": "નાની (માતાના માતા)",
+      "marathi_label": "आजी (आईची आई)"
+    },
+    {
+      "code": "Great_Grandfather",
+      "label": "Great Grandfather (परदादा/परनाना)",
+      "hindi_label": "परदादा",
+      "western": "Great Grandfather",
+      "indian": "परदादा (Pardada)",
+      "category": "Ancestral",
+      "gujarati_label": "પરદાદા / વડદાદા",
+      "marathi_label": "पणजोबा"
+    },
+    {
+      "code": "Great_Grandmother",
+      "label": "Great Grandmother (परदादी/परनानी)",
+      "hindi_label": "परदादी",
+      "western": "Great Grandmother",
+      "indian": "परदादी (Pardadi)",
+      "category": "Ancestral",
+      "gujarati_label": "પરદાદી / વડદાદી",
+      "marathi_label": "पणजी"
+    },
+    {
+      "code": "Grandson",
+      "label": "Grandson (पोता / नाती)",
+      "hindi_label": "पोता",
+      "western": "Grandson",
+      "indian": "पोता / नाती (Grandson)",
+      "category": "Descendant",
+      "gujarati_label": "પૌત્ર / દોહિત્ર",
+      "marathi_label": "नातू"
+    },
+    {
+      "code": "Granddaughter",
+      "label": "Granddaughter (पोती / नातिन)",
+      "hindi_label": "पोती",
+      "western": "Granddaughter",
+      "indian": "पोती / नातिन (Granddaughter)",
+      "category": "Descendant",
+      "gujarati_label": "પૌત્રી / દોહિત્રી",
+      "marathi_label": "नात"
+    },
+    {
+      "code": "Great_Grandson",
+      "label": "Great Grandson (परपोता)",
+      "hindi_label": "परपोता",
+      "western": "Great Grandson",
+      "indian": "परपोता (Parpota)",
+      "category": "Descendant",
+      "gujarati_label": "પરપૌત્ર",
+      "marathi_label": "पणतू"
+    },
+    {
+      "code": "Great_Granddaughter",
+      "label": "Great Granddaughter (परपोती)",
+      "hindi_label": "परपोती",
+      "western": "Great Granddaughter",
+      "indian": "परपोती (Parpoti)",
+      "category": "Descendant",
+      "gujarati_label": "પરપૌત્રી",
+      "marathi_label": "पणती"
+    },
+    {
+      "code": "Paternal_Uncle_Elder",
+      "label": "Paternal Uncle (Elder) (ताऊ)",
+      "hindi_label": "ताऊ",
+      "western": "Paternal Uncle (Elder)",
+      "indian": "ताऊ (Tau)",
+      "category": "Paternal_Extended",
+      "gujarati_label": "મોટા પપ્પા / મોટા બાપુ (તાઉ)",
+      "marathi_label": "मोठे काका"
+    },
+    {
+      "code": "Paternal_Aunt_Elder",
+      "label": "Paternal Aunt (Elder) (ताई)",
+      "hindi_label": "ताई",
+      "western": "Paternal Aunt (Elder)",
+      "indian": "ताई (Tai)",
+      "category": "Paternal_Extended",
+      "gujarati_label": "મોટી મમ્મી / મોટી બા (તાઈ)",
+      "marathi_label": "मोठ्या काकू"
+    },
+    {
+      "code": "Paternal_Uncle_Younger",
+      "label": "Paternal Uncle (Younger) (चाचा)",
+      "hindi_label": "चाचा",
+      "western": "Paternal Uncle (Younger)",
+      "indian": "चाचा (Chacha)",
+      "category": "Paternal_Extended",
+      "gujarati_label": "કાકા",
+      "marathi_label": "काका"
+    },
+    {
+      "code": "Paternal_Aunt_Younger",
+      "label": "Paternal Aunt (Younger) (चाची)",
+      "hindi_label": "चाची",
+      "western": "Paternal Aunt (Younger)",
+      "indian": "चाची (Chachi)",
+      "category": "Paternal_Extended",
+      "gujarati_label": "કાકી",
+      "marathi_label": "काकू"
+    },
+    {
+      "code": "Paternal_Aunt",
+      "label": "Paternal Aunt (बुआ / फूफी)",
+      "hindi_label": "बुआ",
+      "western": "Paternal Aunt",
+      "indian": "बुआ (Bua)",
+      "category": "Paternal_Extended",
+      "gujarati_label": "ફોઈ",
+      "marathi_label": "आत्या"
+    },
+    {
+      "code": "Paternal_Aunt_Husband",
+      "label": "Paternal Aunt's Husband (फूफा)",
+      "hindi_label": "फूफा",
+      "western": "Paternal Uncle-in-Law",
+      "indian": "फूफा (Phupha)",
+      "category": "Paternal_Extended",
+      "gujarati_label": "ફૂવા",
+      "marathi_label": "मामा (आत्याचे पती)"
+    },
+    {
+      "code": "Maternal_Uncle",
+      "label": "Maternal Uncle (मामा)",
+      "hindi_label": "मामा",
+      "western": "Maternal Uncle",
+      "indian": "मामा (Mama)",
+      "category": "Maternal_Extended",
+      "gujarati_label": "મામા",
+      "marathi_label": "मामा"
+    },
+    {
+      "code": "Maternal_Uncle_Wife",
+      "label": "Maternal Aunt (मामी)",
+      "hindi_label": "मामी",
+      "western": "Maternal Aunt-in-Law",
+      "indian": "मामी (Mami)",
+      "category": "Maternal_Extended",
+      "gujarati_label": "મામી",
+      "marathi_label": "मामी"
+    },
+    {
+      "code": "Maternal_Aunt",
+      "label": "Maternal Aunt (मौसी)",
+      "hindi_label": "मौसी",
+      "western": "Maternal Aunt",
+      "indian": "मौसी (Mausi)",
+      "category": "Maternal_Extended",
+      "gujarati_label": "માસી",
+      "marathi_label": "मावशी"
+    },
+    {
+      "code": "Maternal_Aunt_Husband",
+      "label": "Maternal Aunt's Husband (मौसा)",
+      "hindi_label": "मौसा",
+      "western": "Maternal Uncle-in-Law",
+      "indian": "मौसा (Mausa)",
+      "category": "Maternal_Extended",
+      "gujarati_label": "માસા",
+      "marathi_label": "मावसा"
+    },
+    {
+      "code": "Uncle",
+      "label": "Uncle (सामान्य चाचा/मामा)",
+      "hindi_label": "चाचा / मामा",
+      "western": "Uncle",
+      "indian": "चाचा / मामा (Uncle)",
+      "category": "Extended_General",
+      "gujarati_label": "કાકા / મામા / ફૂવા / માસા",
+      "marathi_label": "काका / मामा / मावसा"
+    },
+    {
+      "code": "Aunt",
+      "label": "Aunt (सामान्य चाची/मौसी/बुआ/मामी)",
+      "hindi_label": "चाची / मौसी / बुआ",
+      "western": "Aunt",
+      "indian": "चाची / मौसी / बुआ (Aunt)",
+      "category": "Extended_General",
+      "gujarati_label": "કાકી / મામી / ફોઈ / માસી",
+      "marathi_label": "काकू / मामी / आत्या / मावशी"
+    },
+    {
+      "code": "Cousin_Brother",
+      "label": "Cousin Brother (चचेरा/ममेरा भाई)",
+      "hindi_label": "चचेरा / ममेरा भाई",
+      "western": "Male Cousin",
+      "indian": "चचेरा / ममेरा भाई (Cousin Brother)",
+      "category": "Extended_General",
+      "gujarati_label": "પિતરાઈ ભાઈ",
+      "marathi_label": "चुलत/मामे/मावस भाऊ"
+    },
+    {
+      "code": "Cousin_Sister",
+      "label": "Cousin Sister (चचेरी/ममेरी बहन)",
+      "hindi_label": "चचेरी / ममेरी बहन",
+      "western": "Female Cousin",
+      "indian": "चचेरी / ममेरी बहन (Cousin Sister)",
+      "category": "Extended_General",
+      "gujarati_label": "પિતરાઈ બહેન",
+      "marathi_label": "चुलत/मामे/मावस बहीण"
+    },
+    {
+      "code": "Cousin",
+      "label": "Cousin (कजिन)",
+      "hindi_label": "कजिन",
+      "western": "Cousin",
+      "indian": "कजिन (Cousin)",
+      "category": "Extended_General",
+      "gujarati_label": "પિતરાઈ (કઝીન)",
+      "marathi_label": "चुलतबहीण/भाऊ"
+    },
+    {
+      "code": "Nephew_Brother_Son",
+      "label": "Nephew (Brother's Son) (भतीजा)",
+      "hindi_label": "भतीजा",
+      "western": "Nephew (Fraternal)",
+      "indian": "भतीजा (Bhatija)",
+      "category": "Descendant_Extended",
+      "gujarati_label": "ભત્રીજો",
+      "marathi_label": "पुतण्या"
+    },
+    {
+      "code": "Niece_Brother_Daughter",
+      "label": "Niece (Brother's Daughter) (भतीजी)",
+      "hindi_label": "भतीजी",
+      "western": "Niece (Fraternal)",
+      "indian": "भतीजी (Bhatiji)",
+      "category": "Descendant_Extended",
+      "gujarati_label": "ભત્રીજી",
+      "marathi_label": "पुतणी"
+    },
+    {
+      "code": "Nephew_Sister_Son",
+      "label": "Nephew (Sister's Son) (भांजा)",
+      "hindi_label": "भांजा",
+      "western": "Nephew (Sororal)",
+      "indian": "भांजा (Bhanja)",
+      "category": "Descendant_Extended",
+      "gujarati_label": "ભાણો",
+      "marathi_label": "भाचा"
+    },
+    {
+      "code": "Niece_Sister_Daughter",
+      "label": "Niece (Sister's Daughter) (भांजी)",
+      "hindi_label": "भांजी",
+      "western": "Niece (Sororal)",
+      "indian": "भांजी (Bhanji)",
+      "category": "Descendant_Extended",
+      "gujarati_label": "ભાણી",
+      "marathi_label": "भाची"
+    },
+    {
+      "code": "Nephew",
+      "label": "Nephew (सामान्य भतीजा/भांजा)",
+      "hindi_label": "भतीजा / भांजा",
+      "western": "Nephew",
+      "indian": "भतीजा / भांजा (Nephew)",
+      "category": "Descendant_Extended",
+      "gujarati_label": "ભત્રીજો / ભાણો",
+      "marathi_label": "पुतण्या / भाचा"
+    },
+    {
+      "code": "Niece",
+      "label": "Niece (सामान्य भतीजी/भांजी)",
+      "hindi_label": "भतीजी / भांजी",
+      "western": "Niece",
+      "indian": "भतीजी / भांजी (Niece)",
+      "category": "Descendant_Extended",
+      "gujarati_label": "ભત્રીજી / ભાણી",
+      "marathi_label": "पुतणी / भाची"
+    },
+    {
+      "code": "Father_In_Law",
+      "label": "Father-in-Law (ससुर)",
+      "hindi_label": "ससुर",
+      "western": "Father-in-Law",
+      "indian": "ससुर (Sasur)",
+      "category": "In_Laws",
+      "gujarati_label": "સસરા",
+      "marathi_label": "सासरे"
+    },
+    {
+      "code": "Mother_In_Law",
+      "label": "Mother-in-Law (सास)",
+      "hindi_label": "सास",
+      "western": "Mother-in-Law",
+      "indian": "सास (Saas)",
+      "category": "In_Laws",
+      "gujarati_label": "સાસુ",
+      "marathi_label": "सासू"
+    },
+    {
+      "code": "Son_In_Law",
+      "label": "Son-in-Law (दामाद / जंवाई)",
+      "hindi_label": "दामाद",
+      "western": "Son-in-Law",
+      "indian": "दामाद (Damad)",
+      "category": "In_Laws",
+      "gujarati_label": "જમાઈ",
+      "marathi_label": "जावई"
+    },
+    {
+      "code": "Daughter_In_Law",
+      "label": "Daughter-in-Law (बहू / पुत्रवधू)",
+      "hindi_label": "बहू",
+      "western": "Daughter-in-Law",
+      "indian": "बहू / पुत्रवधू (Bahu)",
+      "category": "In_Laws",
+      "gujarati_label": "પુત્રવધૂ / વહુ",
+      "marathi_label": "सून"
+    },
+    {
+      "code": "Brother_In_Law_Wife_Brother",
+      "label": "Brother-in-Law (Wife's Brother) (साला)",
+      "hindi_label": "साला",
+      "western": "Brother-in-Law (Wife's Brother)",
+      "indian": "साला (Sala)",
+      "category": "In_Laws",
+      "gujarati_label": "સાળો (પત્નીનો ભાઈ)",
+      "marathi_label": "मेहुणा (बायकोचा भाऊ)"
+    },
+    {
+      "code": "Sister_In_Law_Wife_Sister",
+      "label": "Sister-in-Law (Wife's Sister) (साली)",
+      "hindi_label": "साली",
+      "western": "Sister-in-Law (Wife's Sister)",
+      "indian": "साली (Sali)",
+      "category": "In_Laws",
+      "gujarati_label": "સાળી (પત્નીની બહેન)",
+      "marathi_label": "मेहुणी (बायकोची बहीण)"
+    },
+    {
+      "code": "Brother_In_Law_Husband_Elder",
+      "label": "Brother-in-Law (Husband's Elder Brother) (जेठ)",
+      "hindi_label": "जेठ",
+      "western": "Brother-in-Law (Husband's Elder Brother)",
+      "indian": "जेठ (Jeth)",
+      "category": "In_Laws",
+      "gujarati_label": "જેઠ (પતિના મોટા ભાઈ)",
+      "marathi_label": "दीर / जेठ (मोठे)"
+    },
+    {
+      "code": "Sister_In_Law_Husband_Elder_Wife",
+      "label": "Sister-in-Law (Jeth's Wife) (जेठानी)",
+      "hindi_label": "जेठानी",
+      "western": "Sister-in-Law (Jethani)",
+      "indian": "जेठानी (Jethani)",
+      "category": "In_Laws",
+      "gujarati_label": "જેઠાણી",
+      "marathi_label": "जाऊ (जेठाणी)"
+    },
+    {
+      "code": "Brother_In_Law_Husband_Younger",
+      "label": "Brother-in-Law (Husband's Younger Brother) (देवर)",
+      "hindi_label": "देवर",
+      "western": "Brother-in-Law (Husband's Younger Brother)",
+      "indian": "देवर (Devar)",
+      "category": "In_Laws",
+      "gujarati_label": "દિયર (પતિના નાના ભાઈ)",
+      "marathi_label": "दीर (लहान)"
+    },
+    {
+      "code": "Sister_In_Law_Husband_Younger_Wife",
+      "label": "Sister-in-Law (Devar's Wife) (देवराणी)",
+      "hindi_label": "देवराणी",
+      "western": "Sister-in-Law (Devrani)",
+      "indian": "देवराणी (Devrani)",
+      "category": "In_Laws",
+      "gujarati_label": "દેરાણી",
+      "marathi_label": "जाऊ (देवराणी)"
+    },
+    {
+      "code": "Sister_In_Law_Husband_Sister",
+      "label": "Sister-in-Law (Husband's Sister) (ननद)",
+      "hindi_label": "ननद",
+      "western": "Sister-in-Law (Husband's Sister)",
+      "indian": "ननद (Nanad)",
+      "category": "In_Laws",
+      "gujarati_label": "નણંદ (પતિની બહેન)",
+      "marathi_label": "नणंद"
+    },
+    {
+      "code": "Brother_In_Law_Husband_Sister_Husband",
+      "label": "Brother-in-Law (Nanad's Husband) (नंदोई)",
+      "hindi_label": "नंदोई",
+      "western": "Brother-in-Law (Nandoi)",
+      "indian": "नंदोई (Nandoi)",
+      "category": "In_Laws",
+      "gujarati_label": "નણદોઈ (નણંદના પતિ)",
+      "marathi_label": "नणंदोई"
+    },
+    {
+      "code": "Brother_In_Law_Sister_Husband",
+      "label": "Brother-in-Law (Sister's Husband) (जीजा / बहनोई)",
+      "hindi_label": "जीजा",
+      "western": "Brother-in-Law (Sister's Husband)",
+      "indian": "जीजा / बहनोई (Jija)",
+      "category": "In_Laws",
+      "gujarati_label": "બનેવી / જીજાજી",
+      "marathi_label": "मेहुणा / दाजी"
+    },
+    {
+      "code": "Sister_In_Law_Brother_Wife",
+      "label": "Sister-in-Law (Brother's Wife) (भाभी)",
+      "hindi_label": "भाभी",
+      "western": "Sister-in-Law (Brother's Wife)",
+      "indian": "भाभी (Bhabhi)",
+      "category": "In_Laws",
+      "gujarati_label": "ભાભી",
+      "marathi_label": "वहिनी"
+    },
+    {
+      "code": "Co_Father_In_Law",
+      "label": "Co-Father-in-Law (समधी)",
+      "hindi_label": "समधी",
+      "western": "Co-Father-in-Law",
+      "indian": "समधी (Samdhi)",
+      "category": "In_Laws",
+      "gujarati_label": "વેવાઈ",
+      "marathi_label": "व्याही"
+    },
+    {
+      "code": "Co_Mother_In_Law",
+      "label": "Co-Mother-in-Law (समधन)",
+      "hindi_label": "समधन",
+      "western": "Co-Mother-in-Law",
+      "indian": "समधन (Samdhan)",
+      "category": "In_Laws",
+      "gujarati_label": "વેવાણ",
+      "marathi_label": "विहीण"
+    },
+    {
+      "code": "Brother_In_Law",
+      "label": "Brother-in-Law (सामान्य साला/जीजा/देवर)",
+      "hindi_label": "साला / जीजा / देवर",
+      "western": "Brother-in-Law",
+      "indian": "साला / जीजा / देवर (Brother-in-Law)",
+      "category": "In_Laws",
+      "gujarati_label": "સાળો / બનેવી / દિયર / જેઠ",
+      "marathi_label": "मेहुणा / दीर / दाजी"
+    },
+    {
+      "code": "Sister_In_Law",
+      "label": "Sister-in-Law (सामान्य साली/भाभी/ननद)",
+      "hindi_label": "साली / भाभी / ननद",
+      "western": "Sister-in-Law",
+      "indian": "साली / भाभी / ननद (Sister-in-Law)",
+      "category": "In_Laws",
+      "gujarati_label": "સાળી / ભાભી / નણંદ / જેઠાણી",
+      "marathi_label": "मेहुणी / वहिनी / नणंद / जाऊ"
+    },
+    {
+      "code": "Step_Father",
+      "label": "Stepfather (सौतेला पिता)",
+      "hindi_label": "सौतेला पिता",
+      "western": "Stepfather",
+      "indian": "सौतेला पिता (Step Father)",
+      "category": "Step_Adoptive",
+      "gujarati_label": "સાવકા પિતા",
+      "marathi_label": "सावत्र वडील"
+    },
+    {
+      "code": "Step_Mother",
+      "label": "Stepmother (सौतेली माता)",
+      "hindi_label": "सौतेली माता",
+      "western": "Stepmother",
+      "indian": "सौतेली माता (Step Mother)",
+      "category": "Step_Adoptive",
+      "gujarati_label": "સાવકી માતા",
+      "marathi_label": "सावत्र आई"
+    },
+    {
+      "code": "Step_Son",
+      "label": "Stepson (सौतेला बेटा)",
+      "hindi_label": "सौतेला बेटा",
+      "western": "Stepson",
+      "indian": "सौतेला बेटा (Step Son)",
+      "category": "Step_Adoptive",
+      "gujarati_label": "સાવકો દીકરો",
+      "marathi_label": "सावत्र मुलगा"
+    },
+    {
+      "code": "Step_Daughter",
+      "label": "Stepdaughter (सौतेली बेटी)",
+      "hindi_label": "सौतेली बेटी",
+      "western": "Stepdaughter",
+      "indian": "सौतेली बेटी (Step Daughter)",
+      "category": "Step_Adoptive",
+      "gujarati_label": "સાવકી દીકરી",
+      "marathi_label": "सावत्र मुलगी"
+    },
+    {
+      "code": "Step_Brother",
+      "label": "Stepbrother (सौतेला भाई)",
+      "hindi_label": "सौतेला भाई",
+      "western": "Stepbrother",
+      "indian": "सौतेला भाई (Step Brother)",
+      "category": "Step_Adoptive",
+      "gujarati_label": "સાવકો ભાઈ",
+      "marathi_label": "सावत्र भाऊ"
+    },
+    {
+      "code": "Step_Sister",
+      "label": "Stepsister (सौतेली बहन)",
+      "hindi_label": "सौतेली बहन",
+      "western": "Stepsister",
+      "indian": "सौतेली बहन (Step Sister)",
+      "category": "Step_Adoptive",
+      "gujarati_label": "સાવકી બહેન",
+      "marathi_label": "सावत्र बहीण"
+    },
+    {
+      "code": "Adoptive_Father",
+      "label": "Adoptive Father (दत्तक पिता)",
+      "hindi_label": "दत्तक पिता",
+      "western": "Adoptive Father",
+      "indian": "दत्तक पिता (Adoptive Father)",
+      "category": "Step_Adoptive",
+      "gujarati_label": "દત્તક પિતા",
+      "marathi_label": "दत्तक वडील"
+    },
+    {
+      "code": "Adoptive_Mother",
+      "label": "Adoptive Mother (दत्तक माता)",
+      "hindi_label": "दत्तक माता",
+      "western": "Adoptive Mother",
+      "indian": "दत्तक माता (Adoptive Mother)",
+      "category": "Step_Adoptive",
+      "gujarati_label": "દત્તક માતા",
+      "marathi_label": "दत्तक आई"
+    },
+    {
+      "code": "Adopted_Son",
+      "label": "Adopted Son (दत्तक पुत्र)",
+      "hindi_label": "दत्तक पुत्र",
+      "western": "Adopted Son",
+      "indian": "दत्तक पुत्र (Adopted Son)",
+      "category": "Step_Adoptive",
+      "gujarati_label": "દત્તક પુત્ર",
+      "marathi_label": "दत्तक मुलगा"
+    },
+    {
+      "code": "Adopted_Daughter",
+      "label": "Adopted Daughter (दत्तक पुत्री)",
+      "hindi_label": "दत्तक पुत्री",
+      "western": "Adopted Daughter",
+      "indian": "दत्तक पुत्री (Adopted Daughter)",
+      "category": "Step_Adoptive",
+      "gujarati_label": "દત્તક પુત્રી",
+      "marathi_label": "दत्तक मुलगी"
+    },
+    {
+      "code": "Guardian",
+      "label": "Legal Guardian (संरक्षक)",
+      "hindi_label": "संरक्षक",
+      "western": "Legal Guardian",
+      "indian": "संरक्षक (Guardian)",
+      "category": "Guardian",
+      "gujarati_label": "વાલી / કાનૂની સંરક્ષક",
+      "marathi_label": "पालक / कायदेशीर संरक्षक"
+    },
+    {
+      "code": "Ward",
+      "label": "Ward (प्रतिपाल्य)",
+      "hindi_label": "प्रतिपाल्य",
+      "western": "Ward",
+      "indian": "प्रतिपाल्य (Ward)",
+      "category": "Guardian",
+      "gujarati_label": "આશ્રિત / સંરક્ષિત વ્યક્તિ",
+      "marathi_label": "पाल्य"
+    },
+    {
+      "code": "Other",
+      "label": "Other Relative (अन्य सम्बन्धी)",
+      "hindi_label": "अन्य सम्बन्धी",
+      "western": "Other Relative",
+      "indian": "अन्य सम्बन्धी (Other)",
+      "category": "Other",
+      "gujarati_label": "અન્ય સંબંધી",
+      "marathi_label": "इतर नातेवाईक"
+    }
+  ],
+  "supported_languages": [
+    {
+      "code": "en",
+      "name": "English",
+      "native_name": "English",
+      "flag": "🇬🇧"
+    },
+    {
+      "code": "hi",
+      "name": "Hindi",
+      "native_name": "हिन्दी",
+      "flag": "🇮🇳"
+    },
+    {
+      "code": "gu",
+      "name": "Gujarati",
+      "native_name": "ગુજરાતી",
+      "flag": "🇮🇳"
+    },
+    {
+      "code": "mr",
+      "name": "Marathi",
+      "native_name": "मराठी",
+      "flag": "🇮🇳"
+    }
+  ]
+}

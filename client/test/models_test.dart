@@ -15,6 +15,10 @@ void main() {
         weightKg: 72.0,
         caste: 'Brahmin',
         category: 'GEN',
+        gotra: 'Bharadwaj',
+        religion: 'Hindu',
+        maritalStatus: 'Married',
+        bloodGroup: 'B+',
         addressLine1: 'Flat 302, Green Meadows',
         addressLine2: 'HSR Layout',
         pinCode: '560102',
@@ -36,6 +40,10 @@ void main() {
       expect(json['weight_kg'], 72.0);
       expect(json['caste'], 'Brahmin');
       expect(json['category'], 'GEN');
+      expect(json['gotra'], 'Bharadwaj');
+      expect(json['religion'], 'Hindu');
+      expect(json['marital_status'], 'Married');
+      expect(json['blood_group'], 'B+');
       expect(json['address_line1'], 'Flat 302, Green Meadows');
       expect(json['address_line2'], 'HSR Layout');
       expect(json['pin_code'], '560102');

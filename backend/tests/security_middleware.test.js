@@ -134,4 +134,43 @@ describe('🛡️ Security & Zero-Trust Middleware Suite', () => {
         assert.equal(req.wasE2EEEncrypted, true);
     });
 
+    test('Rate Limiter: Allows requests within window and blocks exceeding burst with 429', () => {
+        const { rateLimiter, clearRateLimiter } = require('../src/middleware/security_guard');
+        clearRateLimiter();
+
+        const fakeReq = {
+            headers: { 'x-forwarded-for': '192.168.1.100, 10.0.0.1' },
+            socket: {}
+        };
+
+        let lastStatusCode = null;
+        let lastResponse = null;
+        const fakeRes = {
+            status: (code) => {
+                lastStatusCode = code;
+                return {
+                    json: (data) => { lastResponse = data; }
+                };
+            }
+        };
+
+        // Fire 120 requests (within quota)
+        for (let i = 0; i < 120; i++) {
+            let nextCalled = false;
+            rateLimiter(fakeReq, fakeRes, () => { nextCalled = true; });
+            assert.equal(nextCalled, true, `Request ${i + 1} should be permitted`);
+        }
+
+        // 121st request should be throttled
+        rateLimiter(fakeReq, fakeRes, () => {
+            assert.fail('121st request should have triggered 429 rate limit');
+        });
+
+        assert.equal(lastStatusCode, 429);
+        assert.equal(lastResponse.error, 'Too Many Requests');
+        assert.ok(lastResponse.retryAfterSeconds >= 1);
+
+        clearRateLimiter();
+    });
+
 });

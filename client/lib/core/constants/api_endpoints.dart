@@ -24,4 +24,23 @@ class ApiEndpoints {
   static String treeFetch(String vuid) => '$baseUrl/api/v1/tree/$vuid';
   static String get sirConflicts => '$baseUrl/api/v1/sir/conflicts';
   static String get health => '$baseUrl/health';
+
+  // Life Events & Civil Registry
+  static String get eventBirth => '$baseUrl/api/v1/events/birth';
+  static String get eventDeath => '$baseUrl/api/v1/events/death';
+  static String get eventMarriage => '$baseUrl/api/v1/events/marriage';
+
+  // Education & Occupation
+  static String get educationAdd => '$baseUrl/api/v1/education/add';
+  static String educationFetch(String vuid) => '$baseUrl/api/v1/education/$vuid';
+
+  // Indian Matrimony Search
+  static String get matrimonySearch => '$baseUrl/api/v1/matrimony/search';
+
+  // Filtered Demographics & Population Analytics
+  static String get analyticsDemographics => '$baseUrl/api/v1/analytics/demographics';
+
+  // Immutable HIPAA Audit Trail
+  static String get auditLogs => '$baseUrl/api/v1/audit/logs';
+  static String get auditVerifyIntegrity => '$baseUrl/api/v1/audit/verify-integrity';
 }

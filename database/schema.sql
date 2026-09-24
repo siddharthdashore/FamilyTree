@@ -35,6 +35,13 @@ CREATE TABLE IF NOT EXISTS `citizens` (
     
     `caste` VARCHAR(80) DEFAULT NULL,
     `category` ENUM('GEN', 'OBC', 'SC', 'ST', 'EWS', 'Other') NOT NULL,
+    `gotra` VARCHAR(80) DEFAULT NULL COMMENT 'Gotra / Clan lineage attribute for Indian ancestry and marriage exogamy',
+    `religion` VARCHAR(50) DEFAULT 'Hindu',
+    `marital_status` ENUM('Single', 'Married', 'Widowed', 'Divorced') DEFAULT 'Single',
+    `blood_group` ENUM('A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-') DEFAULT NULL,
+    `death_date` DATE DEFAULT NULL,
+    `death_reason` VARCHAR(255) DEFAULT NULL,
+    `death_cert_number` VARCHAR(100) DEFAULT NULL,
     
     -- Address fields (autofetched from live GPS and manually editable)
     `address_line1` VARCHAR(150),
@@ -55,7 +62,9 @@ CREATE TABLE IF NOT EXISTS `citizens` (
     CONSTRAINT `chk_vuid_12_digits` CHECK (`vuid` REGEXP '^[0-9]{12}$'),
     INDEX `idx_vuid` (`vuid`),
     INDEX `idx_name_dob` (`last_name`, `dob`),
-    INDEX `idx_pincode` (`pin_code`)
+    INDEX `idx_pincode` (`pin_code`),
+    INDEX `idx_gotra` (`gotra`),
+    INDEX `idx_demographics` (`state`, `district`, `category`, `gender`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ENCRYPTION='Y';
 
 -- ----------------------------------------------------------------------------
@@ -125,8 +134,8 @@ CREATE TABLE IF NOT EXISTS `duplicate_conflict_logs` (
 CREATE TABLE IF NOT EXISTS `audit_logs` (
     `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     `actor_vuid` CHAR(12) DEFAULT NULL COMMENT 'VUID of citizen or officer performing action',
-    `action` ENUM('CREATE', 'READ', 'UPDATE', 'DELETE', 'EXPORT', 'VERIFY_OCP', 'SIR_FLAG', 'EMERGENCY_ACCESS') NOT NULL,
-    `resource_type` ENUM('CITIZEN', 'RELATIONSHIP', 'DOCUMENT', 'CONFLICT_LOG', 'TREE_GRAPH') NOT NULL,
+    `action` ENUM('CREATE', 'READ', 'UPDATE', 'DELETE', 'EXPORT', 'VERIFY_OCP', 'SIR_FLAG', 'EMERGENCY_ACCESS', 'BIRTH_REGISTRATION', 'DEATH_REGISTRATION', 'MARRIAGE_REGISTRATION', 'MATRIMONY_SEARCH', 'DEMOGRAPHICS_QUERY', 'EDUCATION_UPDATE') NOT NULL,
+    `resource_type` ENUM('CITIZEN', 'RELATIONSHIP', 'DOCUMENT', 'CONFLICT_LOG', 'TREE_GRAPH', 'EDUCATION', 'MARRIAGE', 'ANALYTICS') NOT NULL,
     `resource_id` VARCHAR(100) NOT NULL COMMENT 'Identifier of accessed record',
     `ip_address` VARCHAR(45) NOT NULL COMMENT 'IPv4 or IPv6 of requester',
     `user_agent` VARCHAR(255) DEFAULT NULL,
@@ -140,4 +149,46 @@ CREATE TABLE IF NOT EXISTS `audit_logs` (
     INDEX `idx_action` (`action`),
     INDEX `idx_resource` (`resource_type`, `resource_id`),
     INDEX `idx_created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ENCRYPTION='Y';
+
+-- ----------------------------------------------------------------------------
+-- 6. Comprehensive Indian Education & Occupation Registry
+-- ----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `citizen_education` (
+    `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    `vuid` CHAR(12) NOT NULL,
+    `qualification_level` ENUM('Primary', 'Secondary_10th', 'HigherSecondary_12th', 'Diploma', 'Bachelors', 'Masters', 'Doctorate', 'Professional_CA_CS', 'Other') NOT NULL,
+    `degree_name` VARCHAR(120) NOT NULL COMMENT 'E.g., B.Tech Computer Science, MBBS, B.Com, MBA',
+    `institution` VARCHAR(180) NOT NULL,
+    `year_of_passing` INT DEFAULT NULL,
+    `occupation_sector` ENUM('Government', 'Private_IT_Corporate', 'Healthcare', 'Banking_Finance', 'Defense_Police', 'Education_Research', 'Business_SelfEmployed', 'Agriculture', 'Student', 'Homemaker', 'Other') DEFAULT 'Private_IT_Corporate',
+    `profession_title` VARCHAR(120) DEFAULT NULL COMMENT 'E.g., Software Engineer, IAS Officer, Civil Judge, Doctor',
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (`vuid`) REFERENCES `citizens`(`vuid`) ON DELETE CASCADE ON UPDATE CASCADE,
+    INDEX `idx_edu_vuid` (`vuid`),
+    INDEX `idx_qualification` (`qualification_level`),
+    INDEX `idx_occupation` (`occupation_sector`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ENCRYPTION='Y';
+
+-- ----------------------------------------------------------------------------
+-- 7. Civil Marriage Registry & Verification Edge
+-- ----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `marriages` (
+    `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    `marriage_reg_no` VARCHAR(80) DEFAULT NULL,
+    `bride_vuid` CHAR(12) NOT NULL,
+    `groom_vuid` CHAR(12) NOT NULL,
+    `marriage_date` DATE NOT NULL,
+    `venue_city` VARCHAR(80) DEFAULT NULL,
+    `venue_state` VARCHAR(80) DEFAULT NULL,
+    `priest_or_registrar` VARCHAR(120) DEFAULT NULL,
+    `status` ENUM('Registered', 'Customary', 'Dissolved') DEFAULT 'Registered',
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (`bride_vuid`) REFERENCES `citizens`(`vuid`) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (`groom_vuid`) REFERENCES `citizens`(`vuid`) ON DELETE CASCADE ON UPDATE CASCADE,
+    INDEX `idx_bride` (`bride_vuid`),
+    INDEX `idx_groom` (`groom_vuid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ENCRYPTION='Y';

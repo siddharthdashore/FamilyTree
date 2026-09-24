@@ -75,6 +75,8 @@ class TreeNotifier extends StateNotifier<TreeState> {
 
   // Automatic coordinate assignment for 2D Canvas layout
   void _computeNodeCoordinates(TreeGraphData graph) {
+    if (graph.nodes.isEmpty) return;
+
     const double cardWidth = 170.0;
     const double cardHeight = 85.0;
     const double hGap = 60.0;

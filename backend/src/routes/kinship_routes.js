@@ -4,12 +4,14 @@ const { pool } = require('../config/db');
 const { isValidVUID } = require('../services/vuid_service');
 const { logAuditEvent } = require('../services/audit_service');
 const { sendSecureResponse } = require('../middleware/security_guard');
+const { validateRelationship } = require('../models/civil_models');
 
-const VALID_RELATIONSHIPS = ['Father', 'Mother', 'Spouse', 'Son', 'Daughter', 'Sibling', 'Guardian'];
+const VALID_VERIFICATION_STATUSES = ['Unverified', 'Mutual_Confirmed', 'Document_Backed', 'Conflicted'];
 
 /**
  * POST /api/v1/kinship/connect
  * Maps a verified directed kinship edge between two 12-digit VUID citizens.
+ * Constitutional Invariant: NO default values or placeholders.
  */
 router.post('/connect', async (req, res) => {
     const { source_vuid, target_vuid, relationship_type, verification_status = 'Mutual_Confirmed' } = req.body;
@@ -23,9 +25,14 @@ router.post('/connect', async (req, res) => {
         return res.status(400).json({ error: 'Self-referential kinship links are invalid.' });
     }
 
-    if (!VALID_RELATIONSHIPS.includes(relationship_type)) {
+    const relErr = validateRelationship(relationship_type);
+    if (relErr) {
+        return res.status(400).json({ error: relErr });
+    }
+
+    if (verification_status && !VALID_VERIFICATION_STATUSES.includes(verification_status)) {
         return res.status(400).json({
-            error: `Invalid relationship_type. Must be one of: ${VALID_RELATIONSHIPS.join(', ')}`
+            error: `Invalid verification_status. Must be one of: ${VALID_VERIFICATION_STATUSES.join(', ')}`
         });
     }
 

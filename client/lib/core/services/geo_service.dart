@@ -25,37 +25,43 @@ class AddressAutofillResult {
 
 class GeoService {
   static Future<AddressAutofillResult?> fetchLiveAddress() async {
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) return null;
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) return null;
 
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) return null;
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) return null;
+      }
+      if (permission == LocationPermission.deniedForever) return null;
+
+      final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+        timeLimit: const Duration(seconds: 10),
+      );
+
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+      );
+
+      if (placemarks.isEmpty) return null;
+      final place = placemarks.first;
+
+      return AddressAutofillResult(
+        addressLine1: '${place.street ?? ''} ${place.subThoroughfare ?? ''}'.trim(),
+        addressLine2: place.subLocality ?? place.locality ?? '',
+        pinCode: place.postalCode ?? '',
+        district: place.subAdministrativeArea ?? place.locality ?? '',
+        state: place.administrativeArea ?? '',
+        country: place.country ?? 'India',
+        latitude: position.latitude,
+        longitude: position.longitude,
+      );
+    } catch (_) {
+      // Gracefully fall back if location services or geocoding are unavailable
+      return null;
     }
-    if (permission == LocationPermission.deniedForever) return null;
-
-    final position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-    );
-
-    List<Placemark> placemarks = await placemarkFromCoordinates(
-      position.latitude,
-      position.longitude,
-    );
-
-    if (placemarks.isEmpty) return null;
-    final place = placemarks.first;
-
-    return AddressAutofillResult(
-      addressLine1: '${place.street ?? ''} ${place.subThoroughfare ?? ''}'.trim(),
-      addressLine2: place.subLocality ?? place.locality ?? '',
-      pinCode: place.postalCode ?? '',
-      district: place.subAdministrativeArea ?? place.locality ?? '',
-      state: place.administrativeArea ?? '',
-      country: place.country ?? 'India',
-      latitude: position.latitude,
-      longitude: position.longitude,
-    );
   }
 }

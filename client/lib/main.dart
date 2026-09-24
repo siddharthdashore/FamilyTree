@@ -4,20 +4,33 @@ import 'core/theme/app_theme.dart';
 import 'features/auth/screens/registration_screen.dart';
 import 'features/tree/screens/tree_canvas_screen.dart';
 import 'features/card/screens/card_view_screen.dart';
+import 'features/analytics/screens/demographics_screen.dart';
+import 'features/matrimony/screens/matrimony_search_screen.dart';
+import 'features/audit/screens/audit_logs_screen.dart';
+
+import 'core/localization/app_localizations.dart';
+import 'core/localization/locale_provider.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const ProviderScope(child: VanshaSetuApp()));
 }
 
-class VanshaSetuApp extends StatelessWidget {
+class VanshaSetuApp extends ConsumerWidget {
   const VanshaSetuApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentLocale = ref.watch(localeProvider);
+
     return MaterialApp(
       title: 'VanshaSetu (वन्शसेतु)',
       debugShowCheckedModeBanner: false,
+      locale: currentLocale,
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: const [
+        AppLocalizationsDelegate(),
+      ],
       themeMode: ThemeMode.dark,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
@@ -46,6 +59,18 @@ class VanshaSetuApp extends StatelessWidget {
               state: args['state'] ?? 'Madhya Pradesh',
             ),
           );
+        }
+
+        if (settings.name == '/demographics') {
+          return MaterialPageRoute(builder: (_) => const DemographicsScreen());
+        }
+
+        if (settings.name == '/matrimony') {
+          return MaterialPageRoute(builder: (_) => const MatrimonySearchScreen());
+        }
+
+        if (settings.name == '/audit') {
+          return MaterialPageRoute(builder: (_) => const AuditLogsScreen());
         }
 
         return MaterialPageRoute(builder: (_) => const RegistrationScreen());

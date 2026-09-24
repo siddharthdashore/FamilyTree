@@ -1,6 +1,7 @@
 const { verifySignature, decryptPayload, encryptPayload } = require('../services/crypto_service');
 
 // In-Memory Replay Nonce Cache (expires after 60 seconds)
+const MAX_SEEN_NONCES = 50000;
 const seenNonces = new Map();
 const nonceTimer = setInterval(() => {
     const now = Date.now();
@@ -13,13 +14,38 @@ const nonceTimer = setInterval(() => {
 if (nonceTimer.unref) nonceTimer.unref();
 
 // In-Memory Sliding Window Rate Limiter
+const MAX_TRACKED_IPS = 10000;
 const ipRequestCounts = new Map();
 const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
 const MAX_REQUESTS_PER_WINDOW = 120; // 120 requests/min
 
-function rateLimiter(req, res, next) {
-    const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
+// Eviction timer to prevent memory leaks from inactive/expired IP records
+const ipCleanupTimer = setInterval(() => {
     const now = Date.now();
+    for (const [ip, record] of ipRequestCounts.entries()) {
+        if (now > record.resetTime) {
+            ipRequestCounts.delete(ip);
+        }
+    }
+}, 30000);
+if (ipCleanupTimer.unref) ipCleanupTimer.unref();
+
+function rateLimiter(req, res, next) {
+    // Extract client IP (handle multi-proxy x-forwarded-for chains)
+    const forwardedHeader = req.headers['x-forwarded-for'];
+    const rawIp = forwardedHeader ? forwardedHeader.split(',')[0].trim() : (req.socket.remoteAddress || '127.0.0.1');
+    const clientIp = rawIp.replace(/^::ffff:/, ''); // normalize IPv4-mapped IPv6
+    const now = Date.now();
+
+    // Prevent memory exhaustion under distributed IP spoofing
+    if (ipRequestCounts.size >= MAX_TRACKED_IPS) {
+        // Purge the oldest 20% of entries
+        let countToPurge = Math.floor(MAX_TRACKED_IPS * 0.2);
+        for (const key of ipRequestCounts.keys()) {
+            ipRequestCounts.delete(key);
+            if (--countToPurge <= 0) break;
+        }
+    }
 
     let record = ipRequestCounts.get(clientIp);
     if (!record || now > record.resetTime) {
@@ -31,11 +57,16 @@ function rateLimiter(req, res, next) {
             return res.status(429).json({
                 error: 'Too Many Requests',
                 message: 'Rate limit exceeded. Please retry in a moment.',
-                retryAfterSeconds: Math.ceil((record.resetTime - now) / 1000)
+                retryAfterSeconds: Math.max(1, Math.ceil((record.resetTime - now) / 1000))
             });
         }
     }
     next();
+}
+
+function clearRateLimiter() {
+    ipRequestCounts.clear();
+    seenNonces.clear();
 }
 
 /**
@@ -132,5 +163,6 @@ module.exports = {
     rateLimiter,
     signatureGuard,
     e2eePayloadGuard,
-    sendSecureResponse
+    sendSecureResponse,
+    clearRateLimiter
 };

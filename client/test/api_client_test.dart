@@ -31,5 +31,17 @@ void main() {
       expect(client, isNotNull);
       client.close();
     });
+
+    test('ApiException: Handles non-JSON error messages gracefully', () {
+      final exception = ApiException(
+        statusCode: 502,
+        message: '502 Bad Gateway',
+        details: {'error': '<html>502 Bad Gateway</html>'},
+      );
+
+      expect(exception.statusCode, 502);
+      expect(exception.message, contains('502 Bad Gateway'));
+      expect(exception.details['error'], contains('<html>'));
+    });
   });
 }

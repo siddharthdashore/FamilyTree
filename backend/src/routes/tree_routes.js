@@ -49,19 +49,23 @@ router.get('/:vuid', async (req, res) => {
         });
 
         // 4. Fetch All Connected Citizen Nodes
-        const [nodes] = await pool.query(`
-            SELECT 
-                c.vuid, 
-                CONCAT(c.first_name, IF(c.middle_name IS NOT NULL AND c.middle_name != '', CONCAT(' ', c.middle_name), ''), ' ', c.last_name) AS name,
-                c.gender, 
-                c.dob, 
-                c.category, 
-                c.is_claimed, 
-                c.status,
-                (SELECT COUNT(*) FROM citizen_documents cd WHERE cd.vuid = c.vuid AND cd.is_ocp_verified = TRUE) > 0 AS is_verified
-            FROM citizens c
-            WHERE c.vuid IN (?)
-        `, [[...connectedVuids]]);
+        let nodes = [];
+        if (connectedVuids.size > 0) {
+            const [rows] = await pool.query(`
+                SELECT 
+                    c.vuid, 
+                    CONCAT(c.first_name, IF(c.middle_name IS NOT NULL AND c.middle_name != '', CONCAT(' ', c.middle_name), ''), ' ', c.last_name) AS name,
+                    c.gender, 
+                    c.dob, 
+                    c.category, 
+                    c.is_claimed, 
+                    c.status,
+                    (SELECT COUNT(*) FROM citizen_documents cd WHERE cd.vuid = c.vuid AND cd.is_ocp_verified = TRUE) > 0 AS is_verified
+                FROM citizens c
+                WHERE c.vuid IN (?)
+            `, [[...connectedVuids]]);
+            nodes = rows;
+        }
 
         // Format VUIDs for display
         const formattedNodes = nodes.map(n => ({

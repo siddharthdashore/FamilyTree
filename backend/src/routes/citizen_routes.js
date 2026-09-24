@@ -5,27 +5,113 @@ const { allocateUniqueVUID, isValidVUID, formatVUID } = require('../services/vui
 const { encryptField, decryptField } = require('../services/crypto_service');
 const { logAuditEvent } = require('../services/audit_service');
 const { sendSecureResponse } = require('../middleware/security_guard');
+const {
+    validateReligion,
+    validateMaritalStatus,
+    validateCategory,
+    validateBloodGroup,
+    validateGotra,
+    validateCaste,
+    validateGender
+} = require('../models/civil_models');
 
 /**
  * POST /api/v1/citizen/register
  * Registers citizen, allocates strictly 12-digit VUID, encrypts ePHI attributes,
  * and logs immutable audit trail per HIPAA § 164.312(b).
+ * Constitutional Invariant: NO default values or placeholders. Fails on missing/invalid input.
  */
 router.post('/register', async (req, res) => {
     const {
         first_name, middle_name, last_name, gender, dob,
-        height_cm, weight_kg, caste, category = 'GEN',
-        address_line1, address_line2, pin_code, district, state, country = 'India',
+        height_cm, weight_kg, caste, category,
+        gotra, religion, marital_status, blood_group,
+        address_line1, address_line2, pin_code, district, state, country,
         latitude, longitude, health_notes
     } = req.body;
 
-    // Validate mandatory fields
-    if (!first_name || !last_name || !gender || !dob || !pin_code || !district || !state) {
+    // Validate mandatory text fields
+    if (!first_name || !last_name || !dob || !pin_code || !district || !state) {
         return res.status(400).json({ error: 'Missing mandatory registration fields.' });
+    }
+
+    if (String(first_name).trim().length > 100 || String(last_name).trim().length > 100) {
+        return res.status(400).json({ error: 'Name fields cannot exceed 100 characters.' });
     }
 
     if (!/^[0-9]{6}$/.test(String(pin_code).trim())) {
         return res.status(400).json({ error: 'PIN Code must be strictly 6 digits.' });
+    }
+
+    // Date of Birth Boundary Validation
+    const birthDate = new Date(dob);
+    const now = new Date();
+    const minDate = new Date('1850-01-01');
+    if (isNaN(birthDate.getTime()) || birthDate > now || birthDate < minDate) {
+        return res.status(400).json({ error: 'Date of birth must be a valid chronological date between 1850 and today.' });
+    }
+
+    // Optional Height & Weight Physical Bounds
+    if (height_cm !== undefined && height_cm !== null && height_cm !== '') {
+        const h = parseFloat(height_cm);
+        if (isNaN(h) || h < 20 || h > 300) {
+            return res.status(400).json({ error: 'Height must be a valid numeric measurement between 20 cm and 300 cm.' });
+        }
+    }
+
+    if (weight_kg !== undefined && weight_kg !== null && weight_kg !== '') {
+        const w = parseFloat(weight_kg);
+        if (isNaN(w) || w < 1 || w > 500) {
+            return res.status(400).json({ error: 'Weight must be a valid numeric measurement between 1 kg and 500 kg.' });
+        }
+    }
+
+    // Canonical Civil Domain Model Validations (Fail-Fast: NO Defaults)
+    const genderErr = validateGender(gender);
+    if (genderErr) return res.status(400).json({ error: genderErr });
+
+    const categoryErr = validateCategory(category);
+    if (categoryErr) return res.status(400).json({ error: categoryErr });
+
+    const casteErr = validateCaste(caste);
+    if (casteErr) return res.status(400).json({ error: casteErr });
+
+    const gotraErr = validateGotra(gotra);
+    if (gotraErr) return res.status(400).json({ error: gotraErr });
+
+    const religionErr = validateReligion(religion);
+    if (religionErr) return res.status(400).json({ error: religionErr });
+
+    const maritalErr = validateMaritalStatus(marital_status);
+    if (maritalErr) return res.status(400).json({ error: maritalErr });
+
+    const bloodErr = validateBloodGroup(blood_group);
+    if (bloodErr) return res.status(400).json({ error: bloodErr });
+
+    if (!country || typeof country !== 'string' || !country.trim()) {
+        return res.status(400).json({ error: 'Country is mandatory and must not be empty.' });
+    }
+
+    if (weight_kg !== undefined && weight_kg !== null && weight_kg !== '') {
+        const w = parseFloat(weight_kg);
+        if (isNaN(w) || w < 1 || w > 500) {
+            return res.status(400).json({ error: 'Weight must be a valid numeric measurement between 1 kg and 500 kg.' });
+        }
+    }
+
+    // Coordinates Geolocation Bounds
+    if (latitude !== undefined && latitude !== null && latitude !== '') {
+        const lat = parseFloat(latitude);
+        if (isNaN(lat) || lat < -90 || lat > 90) {
+            return res.status(400).json({ error: 'Latitude must be between -90 and 90 degrees.' });
+        }
+    }
+
+    if (longitude !== undefined && longitude !== null && longitude !== '') {
+        const lon = parseFloat(longitude);
+        if (isNaN(lon) || lon < -180 || lon > 180) {
+            return res.status(400).json({ error: 'Longitude must be between -180 and 180 degrees.' });
+        }
     }
 
     const connection = await pool.getConnection();
@@ -48,10 +134,10 @@ router.post('/register', async (req, res) => {
             INSERT INTO citizens (
                 vuid, first_name, middle_name, last_name, gender, dob,
                 height_cm, weight_kg, ephi_encrypted_data, ephi_iv, ephi_auth_tag,
-                caste, category,
+                caste, category, gotra, religion, marital_status, blood_group,
                 address_line1, address_line2, pin_code, district, state, country,
                 latitude, longitude, is_claimed, status
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE, 'Active')
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE, 'Active')
         `;
 
         await connection.query(insertQuery, [
@@ -68,6 +154,10 @@ router.post('/register', async (req, res) => {
             encryptedEphi.authTag,
             caste ? caste.trim() : null,
             category,
+            gotra ? gotra.trim() : null,
+            religion ? religion.trim() : 'Hindu',
+            marital_status || 'Single',
+            blood_group || null,
             address_line1 || null,
             address_line2 || null,
             String(pin_code).trim(),
@@ -178,6 +268,13 @@ router.get('/:vuid', async (req, res) => {
             health_notes: decryptedEphi?.health_notes ?? null,
             caste: citizen.caste,
             category: citizen.category,
+            gotra: citizen.gotra || null,
+            religion: citizen.religion || 'Hindu',
+            marital_status: citizen.marital_status || 'Single',
+            blood_group: citizen.blood_group || null,
+            death_date: citizen.death_date || null,
+            death_reason: citizen.death_reason || null,
+            death_cert_number: citizen.death_cert_number || null,
             address: {
                 line1: citizen.address_line1,
                 line2: citizen.address_line2,

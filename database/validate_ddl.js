@@ -46,6 +46,8 @@ assert(schemaSql.includes('CREATE TABLE IF NOT EXISTS `relationships`'), 'relati
 assert(schemaSql.includes('CREATE TABLE IF NOT EXISTS `citizen_documents`'), 'citizen_documents table defined');
 assert(schemaSql.includes('CREATE TABLE IF NOT EXISTS `duplicate_conflict_logs`'), 'duplicate_conflict_logs table defined');
 assert(schemaSql.includes('CREATE TABLE IF NOT EXISTS `audit_logs`'), 'HIPAA § 164.312(b) audit_logs table defined');
+assert(schemaSql.includes('CREATE TABLE IF NOT EXISTS `citizen_education`'), 'citizen_education table defined');
+assert(schemaSql.includes('CREATE TABLE IF NOT EXISTS `marriages`'), 'marriages table defined');
 
 // 2. Validate HIPAA & Field-Level Encryption Columns
 assert(schemaSql.includes('`ephi_encrypted_data`'), 'ephi_encrypted_data column present for medical/health data');
@@ -54,7 +56,7 @@ assert(schemaSql.includes('`log_hash`') && schemaSql.includes('`prev_log_hash`')
 
 // 3. Validate TDE Encryption directives
 const encryptionMatches = (schemaSql.match(/ENCRYPTION='Y'/g) || []).length;
-assert(encryptionMatches >= 5, `Transparent Data Encryption (TDE ENCRYPTION='Y') configured on all 5 tables (Found ${encryptionMatches})`);
+assert(encryptionMatches >= 7, `Transparent Data Encryption (TDE ENCRYPTION='Y') configured on all 7 tables (Found ${encryptionMatches})`);
 
 // 4. Validate VUID constraints
 assert(
@@ -64,12 +66,13 @@ assert(
 
 // 5. Validate Engine
 const innoDbMatches = (schemaSql.match(/ENGINE=InnoDB/g) || []).length;
-assert(innoDbMatches >= 5, `All 5 core tables configured with InnoDB engine (Found ${innoDbMatches})`);
+assert(innoDbMatches >= 7, `All 7 core tables configured with InnoDB engine (Found ${innoDbMatches})`);
 
 // 6. Validate Indexes
 assert(schemaSql.includes('INDEX `idx_vuid` (`vuid`)'), 'idx_vuid index present on citizens');
 assert(schemaSql.includes('INDEX `idx_name_dob` (`last_name`, `dob`)'), 'idx_name_dob composite index present');
 assert(schemaSql.includes('INDEX `idx_pincode` (`pin_code`)'), 'idx_pincode index present');
+assert(schemaSql.includes('INDEX `idx_gotra` (`gotra`)'), 'idx_gotra index present on citizens');
 assert(schemaSql.includes('INDEX `idx_source` (`source_vuid`)'), 'idx_source index present on relationships');
 assert(schemaSql.includes('INDEX `idx_target` (`target_vuid`)'), 'idx_target index present on relationships');
 assert(schemaSql.includes('INDEX `idx_doc_hash` (`doc_hash`)'), 'idx_doc_hash index present on citizen_documents');
@@ -79,7 +82,7 @@ assert(schemaSql.includes('INDEX `idx_resource` (`resource_type`, `resource_id`)
 // 7. Validate Foreign Keys & CASCADE rules
 assert(schemaSql.includes('REFERENCES `citizens`(`vuid`) ON DELETE CASCADE'), 'Foreign keys configured with ON DELETE CASCADE');
 
-// 8. Validate seed.sql VUID integrity
+// 8. Validate seed.sql VUID integrity & multi-generational tables
 if (fs.existsSync(seedPath)) {
     const seedSql = fs.readFileSync(seedPath, 'utf8');
     const vuidMatches = seedSql.match(/'\d{10,14}'/g) || [];
@@ -91,6 +94,16 @@ if (fs.existsSync(seedPath)) {
         }
     });
     assert(invalidVuids.length === 0, `All seeded VUIDs strictly match 12 digits (Found ${vuidMatches.length} valid VUIDs)`);
+    assert(seedSql.includes('INSERT INTO `citizen_education`'), 'Seed data includes citizen_education qualifications');
+    assert(seedSql.includes('INSERT INTO `marriages`'), 'Seed data includes civil marriages records');
+    assert(seedSql.includes('INSERT INTO `audit_logs`'), 'Seed data includes genesis audit trail with hash chain');
+}
+
+// 9. Validate verify_schema.sql existence and table coverage
+const verifyPath = path.join(__dirname, 'verify_schema.sql');
+if (fs.existsSync(verifyPath)) {
+    const verifySql = fs.readFileSync(verifyPath, 'utf8');
+    assert(verifySql.includes('INFORMATION_SCHEMA.TABLES') && verifySql.includes('CHECK_CONSTRAINTS'), 'verify_schema.sql verifies all 7 tables and CHECK constraints');
 }
 
 console.log(`\n=========================================`);

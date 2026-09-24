@@ -32,8 +32,9 @@ describe('🔒 Cryptographic Service & E2EE Suite', () => {
         const originalText = 'Sensitive Medical History';
         const encrypted = encryptField(originalText);
 
-        // Tamper with ciphertext by corrupting a byte
-        const tamperedCipher = 'A' + encrypted.ciphertext.substring(1);
+        // Tamper with ciphertext by corrupting a character
+        const replacement = encrypted.ciphertext[0] === 'X' ? 'Y' : 'X';
+        const tamperedCipher = replacement + encrypted.ciphertext.substring(1);
 
         assert.throws(() => {
             decryptField(tamperedCipher, encrypted.iv, encrypted.authTag);

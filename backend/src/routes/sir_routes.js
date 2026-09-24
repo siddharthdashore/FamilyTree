@@ -34,8 +34,11 @@ router.get('/conflicts', async (req, res) => {
             params.push(severity);
         }
 
+        const safeLimit = Math.min(Math.max(parseInt(limit, 10) || 50, 1), 100);
+        const safeOffset = Math.max(parseInt(offset, 10) || 0, 0);
+
         query += ' ORDER BY d.created_at DESC LIMIT ? OFFSET ?';
-        params.push(parseInt(limit, 10), parseInt(offset, 10));
+        params.push(safeLimit, safeOffset);
 
         const [rows] = await pool.query(query, params);
 
@@ -58,9 +61,12 @@ router.get('/logs', async (req, res) => {
     const { limit = 100, offset = 0 } = req.query;
 
     try {
+        const safeLimit = Math.min(Math.max(parseInt(limit, 10) || 100, 1), 500);
+        const safeOffset = Math.max(parseInt(offset, 10) || 0, 0);
+
         const [rows] = await pool.query(
             'SELECT id, actor_vuid, action, resource_type, resource_id, ip_address, status, prev_log_hash, log_hash, created_at FROM audit_logs ORDER BY id DESC LIMIT ? OFFSET ?',
-            [parseInt(limit, 10), parseInt(offset, 10)]
+            [safeLimit, safeOffset]
         );
 
         return sendSecureResponse(req, res, 200, {

@@ -4,7 +4,8 @@
   "description": "VanshaSetu Root Workspace",
   "scripts": {
     "start": "node backend/server.js",
-    "test": "npm --prefix backend test",
+    "sync:models": "node scripts/sync_models.js",
+    "test": "node scripts/sync_models.js && npm --prefix backend test",
     "test:client": "cd client && flutter test",
     "test:all": "npm test && npm run test:client",
     "validate:db": "node database/validate_ddl.js",

@@ -5,26 +5,29 @@ const { isValidVUID } = require('../services/vuid_service');
 const { hashDocument, maskDocument, encryptField } = require('../services/crypto_service');
 const { logAuditEvent } = require('../services/audit_service');
 const { sendSecureResponse } = require('../middleware/security_guard');
-
-const VALID_DOC_TYPES = ['AADHAAR', 'PAN', 'VOTER_ID', 'DRIVING_LICENSE', 'PASSPORT', 'RATION_CARD', 'BIRTH_CERTIFICATE'];
+const { validateDocumentType } = require('../models/civil_models');
 
 /**
  * POST /api/v1/docs/verify-ocp
  * Ingests and verifies identity credential via zero-knowledge salted hashing.
  * Detects cross-citizen duplicate collisions for Special Investigation Registry (SIR).
+ * Constitutional Invariant: NO default values or placeholders.
  */
 router.post('/verify-ocp', async (req, res) => {
-    const { vuid, doc_type, doc_raw_value, issuer_authority = 'DigiLocker / API Setu', metadata = null } = req.body;
+    const { vuid, doc_type, doc_raw_value, issuer_authority, metadata = null } = req.body;
 
     // 1. Validate Input
     if (!isValidVUID(vuid)) {
         return res.status(400).json({ error: 'VUID must be strictly 12 numeric digits.' });
     }
 
-    if (!doc_type || !VALID_DOC_TYPES.includes(doc_type.toUpperCase())) {
-        return res.status(400).json({
-            error: `Invalid doc_type. Must be one of: ${VALID_DOC_TYPES.join(', ')}`
-        });
+    const docErr = validateDocumentType(doc_type ? doc_type.toUpperCase() : null);
+    if (docErr) {
+        return res.status(400).json({ error: docErr });
+    }
+
+    if (!issuer_authority || typeof issuer_authority !== 'string' || !issuer_authority.trim()) {
+        return res.status(400).json({ error: 'issuer_authority is mandatory and must not be empty.' });
     }
 
     if (!doc_raw_value || String(doc_raw_value).trim().length < 4) {

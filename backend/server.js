@@ -12,6 +12,10 @@ const kinshipRoutes = require('./src/routes/kinship_routes');
 const docRoutes = require('./src/routes/doc_routes');
 const treeRoutes = require('./src/routes/tree_routes');
 const sirRoutes = require('./src/routes/sir_routes');
+const lifeEventsRoutes = require('./src/routes/life_events_routes');
+const educationRoutes = require('./src/routes/education_routes');
+const matrimonyRoutes = require('./src/routes/matrimony_routes');
+const analyticsRoutes = require('./src/routes/analytics_routes');
 
 const app = express();
 
@@ -93,13 +97,32 @@ app.get('/', (req, res) => {
 
 // ============================================================================
 // 3. API Route Registration
-// ============================================================================
+const { RAW_CIVIL_MODELS, SUPPORTED_LANGUAGES, SUPPORTED_LANGUAGE_CODES, getLocalizedLabel } = require('./src/models/civil_models');
+
+// Metadata & Canonical Models Route (Multilingual: en, hi, gu, mr)
+app.get('/api/v1/meta/civil-models', (req, res) => {
+    const lang = (req.query.lang || '').toLowerCase();
+    if (SUPPORTED_LANGUAGE_CODES.includes(lang)) {
+        return res.status(200).json({
+            ...RAW_CIVIL_MODELS,
+            selected_language: lang,
+            localized_categories: Object.fromEntries(RAW_CIVIL_MODELS.categories.map(c => [c.code, getLocalizedLabel('categories', c.code, lang)])),
+            localized_relationships: Object.fromEntries(RAW_CIVIL_MODELS.relationships.map(r => [r.code, getLocalizedLabel('relationships', r.code, lang)])),
+        });
+    }
+    return res.status(200).json(RAW_CIVIL_MODELS);
+});
+
 app.use('/api/v1/citizen', citizenRoutes);
 app.use('/api/v1/kinship', kinshipRoutes);
 app.use('/api/v1/docs', docRoutes);
 app.use('/api/v1/tree', treeRoutes);
 app.use('/api/v1/sir', sirRoutes);
 app.use('/api/v1/audit', sirRoutes); // Mounts /logs and /verify-integrity
+app.use('/api/v1/events', lifeEventsRoutes); // Birth, Death, Marriage
+app.use('/api/v1/education', educationRoutes); // Education & Occupation
+app.use('/api/v1/matrimony', matrimonyRoutes); // Indian Matrimonial Matchmaking
+app.use('/api/v1/analytics', analyticsRoutes); // Filtered Population & Demographics
 
 // ============================================================================
 // 4. 404 & Centralized Error Handling
@@ -123,8 +146,9 @@ app.use((err, req, res, next) => {
 });
 
 // ============================================================================
-// 5. Server Lifecycle
+// 5. Server Lifecycle & Graceful Shutdown
 // ============================================================================
+const { closePool } = require('./src/config/db');
 const PORT = process.env.PORT || 3000;
 let serverInstance = null;
 
@@ -135,4 +159,26 @@ if (process.env.NODE_ENV !== 'test') {
     });
 }
 
-module.exports = { app, serverInstance };
+const gracefulShutdown = async (signal) => {
+    console.log(`Received ${signal}. Shutting down VanshaSetu gracefully...`);
+    if (serverInstance) {
+        serverInstance.close(async () => {
+            console.log('HTTP server terminated.');
+            await closePool();
+            process.exit(0);
+        });
+        // Force process exit if teardown hangs
+        setTimeout(() => {
+            console.error('Forced shutdown due to timeout.');
+            process.exit(1);
+        }, 5000).unref();
+    } else {
+        await closePool();
+        process.exit(0);
+    }
+};
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+
+module.exports = { app, serverInstance, gracefulShutdown };

@@ -12,16 +12,18 @@
 
 | Phase | Milestone Name | Total Tasks | Priority | Status |
 | :---: | :--- | :---: | :---: | :---: |
-| **01** | Database Foundation & Schema Initialization | 5 | P0 | `[x]` Completed (23/23 DDL Assertions Passed) |
-| **02** | Node.js Backend Middleware & Security | 8 | P0 | `[x]` Completed (34/34 Node Tests Passed) |
+| **01** | Database Foundation & Schema Initialization | 5 | P0 | `[x]` Completed (30/30 DDL Assertions Passed) |
+| **02** | Node.js Backend Middleware & Security | 8 | P0 | `[x]` Completed (46/46 Node Tests Passed) |
 | **03** | Flutter Client Foundation & Architecture | 5 | P0 | `[x]` Completed |
 | **04** | Citizen Registration & GPS Geocoding Engine | 5 | P0 | `[x]` Completed |
 | **05** | Interactive Kinship Graph Canvas & Bezier Rendering | 6 | P0 | `[x]` Completed |
 | **06** | Vansha Card Credential & WhatsApp Sharing | 5 | P1 | `[x]` Completed |
 | **07** | OCP Document Vault & SIR Deduplication Engine | 5 | P0 | `[x]` Completed |
 | **08** | Monetization Abstraction & Ad Policy | 3 | P2 | `[x]` Completed |
-| **09** | End-to-End Testing, Security Audit & Validation | 5 | P0 | `[x]` Completed (77/77 Total Tests Passed) |
+| **09** | End-to-End Testing, Security Audit & Validation | 5 | P0 | `[x]` Completed (100/100 Total Tests Passed) |
 | **10** | BigRock Cloud cPanel Deployment & Runbook Execution | 5 | P0 | `[x]` Completed (Runbook & Automation Pipeline Active) |
+| **11** | Codebase-Wide Hardening, Boundary Defense & Leak Audit | 6 | P0 | `[x]` Completed (Memory Leak, Concurrency & DoS Hardened) |
+| **12** | Indian Civil Life Events, Education, Matrimony & Auditing | 6 | P0 | `[x]` Completed (Birth/Death/Marriage, Gotra, Census, HIPAA) |
 
 ---
 
@@ -331,3 +333,127 @@
   - **Deliverable:** Build release Web bundle via `flutter build web --release` and package production distribution archives with SHA-256 integrity checksums.
   - **Verification:** Verified execution: `dist/public_html.tar.gz` and `dist/vanshasetu-api.tar.gz` built with verified checksums in `dist/checksums.sha256`.
   - **Status:** Completed via [`deploy/build_production.sh`](file:///Users/siddharthdashore/Workspace/FamilyTree/deploy/build_production.sh).
+
+---
+
+## Phase 11: Codebase-Wide Hardening, Boundary Defense & Leak Audit
+
+- [x] **TASK-11.1: Rate Limiter Memory Eviction & DDoS DoS Defense** `P0`
+  - **Deliverable:** Add 30s background unref eviction timer to `ipRequestCounts` in `security_guard.js`. Impose a hard ceiling `MAX_TRACKED_IPS = 10,000` with 20% LRU batch eviction on overflow to block memory exhaustion from distributed IP spoofing.
+  - **Verification:** Verified via `backend/tests/security_middleware.test.js` (rate limit permits 120 reqs/min and blocks 121st with 429).
+  - **Status:** Completed via [`backend/src/middleware/security_guard.js`](file:///Users/siddharthdashore/Workspace/FamilyTree/backend/src/middleware/security_guard.js).
+
+- [x] **TASK-11.2: Boundary Condition Hardening in Registration & Profiling** `P0`
+  - **Deliverable:** Guard citizen registration inputs with strict chronological bounds: DOB between 1850-01-01 and today; physical bounds: height $[20, 300]\text{ cm}$, weight $[1, 500]\text{ kg}$; coordinate bounds: latitude $[-90, 90]^\circ$, longitude $[-180, 180]^\circ$; name length $\le 100$ characters.
+  - **Verification:** Verified via `backend/tests/api_routes.test.js` rejecting impossible future DOBs and out-of-range heights with 400 Bad Request.
+  - **Status:** Completed via [`backend/src/routes/citizen_routes.js`](file:///Users/siddharthdashore/Workspace/FamilyTree/backend/src/routes/citizen_routes.js).
+
+- [x] **TASK-11.3: Pagination Safety & Memory Exhaustion Defense** `P0`
+  - **Deliverable:** Sanitize `limit` and `offset` in `/conflicts` and `/logs` endpoints: enforce `limit` cap between $1$ and $100$ (or $500$ for audit) and `offset \ge 0`, eliminating MySQL syntax errors from negative/NaN inputs and server OOM from unbounded limits.
+  - **Verification:** Verified via `backend/tests/api_routes.test.js` passing negative query inputs without SQL error.
+  - **Status:** Completed via [`backend/src/routes/sir_routes.js`](file:///Users/siddharthdashore/Workspace/FamilyTree/backend/src/routes/sir_routes.js).
+
+- [x] **TASK-11.4: Database Graceful Shutdown & Signal Handling** `P0`
+  - **Deliverable:** Implement `gracefulShutdown` in `server.js` listening for `SIGTERM` and `SIGINT`, shutting down HTTP listeners, releasing the MySQL connection pool (`closePool()`), and terminating cleanly without hanging worker sockets.
+  - **Verification:** Verified pool closure logic in `backend/src/config/db.js` and lifecycle handlers in `backend/server.js`.
+  - **Status:** Completed via [`backend/server.js`](file:///Users/siddharthdashore/Workspace/FamilyTree/backend/server.js) & [`backend/src/config/db.js`](file:///Users/siddharthdashore/Workspace/FamilyTree/backend/src/config/db.js).
+
+- [x] **TASK-11.5: Client Controller Disposal & Memory Leak Prevention** `P0`
+  - **Deliverable:** Implement `dispose()` in `_TreeCanvasScreenState` to dispose `TransformationController`. Attach dismiss lifecycle listener in `_showAddKinDialog` to properly dispose dialog `TextEditingController`.
+  - **Verification:** Verified via `client/test/tree_canvas_test.dart` and Flutter test suite.
+  - **Status:** Completed via [`client/lib/features/tree/screens/tree_canvas_screen.dart`](file:///Users/siddharthdashore/Workspace/FamilyTree/client/lib/features/tree/screens/tree_canvas_screen.dart).
+
+- [x] **TASK-11.6: Empty Set & Parsing Boundary Defense** `P0`
+  - **Deliverable:** Guard `WHERE c.vuid IN (?)` in `tree_routes.js` against empty sets; guard `_computeNodeCoordinates` in `tree_provider.dart` against empty node lists; wrap `GeoService.fetchLiveAddress` in `try/catch` with 10s timeout; wrap HTTP response JSON decoding in `api_client.dart` with non-JSON fallback.
+  - **Verification:** Verified via `client/test/api_client_test.dart` and `client/test/tree_canvas_test.dart`.
+  - **Status:** Completed across frontend and backend core services.
+
+---
+
+## Phase 12: Indian Civil Life Events, Education, Matrimony & Auditing
+
+- [x] **TASK-12.1: Civil Life Events Registry (Child Birth, Death, Marriage)** `P0`
+  - **Deliverable:** Implement secure civil life event endpoints:
+    - `/api/v1/events/birth`: Allocates 12-digit numeric VUID, creates citizen record inheriting caste/category/gotra/address, and establishes parental kinship edges (`Father`, `Mother`, `Son`, `Daughter`).
+    - `/api/v1/events/death`: Updates citizen status to `Deceased`, records `death_date`, `death_reason`, and `death_cert_number`.
+    - `/api/v1/events/marriage`: Validates legal marriage age ($\ge 21$ for groom, $\ge 18$ for bride), creates marriage certificate record in `marriages` table, updates `marital_status = 'Married'`, and establishes reciprocal `Spouse` kinship edges.
+  - **Verification:** Verified via `backend/tests/extended_features.test.js` tests 1, 2, and 3.
+  - **Status:** Completed via [`backend/src/routes/life_events_routes.js`](file:///Users/siddharthdashore/Workspace/FamilyTree/backend/src/routes/life_events_routes.js).
+
+- [x] **TASK-12.2: Citizen Education & Professional Qualifications Registry** `P0`
+  - **Deliverable:** Implement `citizen_education` table (InnoDB, `ENCRYPTION='Y'`) and API routes (`/api/v1/education/add`, `/:vuid`) tracking `qualification_level`, `degree_name`, `institution`, `year_of_completion`, `occupation_sector`, and `profession_title`.
+  - **Verification:** Verified via `backend/tests/extended_features.test.js` test 4.
+  - **Status:** Completed via [`backend/src/routes/education_routes.js`](file:///Users/siddharthdashore/Workspace/FamilyTree/backend/src/routes/education_routes.js).
+
+- [x] **TASK-12.3: Indian Matrimony Engine with Gotra Exogamy & Consanguinity Defense** `P0`
+  - **Deliverable:** Implement bride-groom matchmaking search API (`/api/v1/matrimony/search`) evaluating Gotra exogamy: detects Sagotra consanguinity between seeker and candidate, flags `Warning_Sagotra` vs `Permitted_Exogamous`, and filters by age range, community/caste, state, height, and qualifications.
+  - **Verification:** Verified via `backend/tests/extended_features.test.js` test 5.
+  - **Status:** Completed via [`backend/src/routes/matrimony_routes.js`](file:///Users/siddharthdashore/Workspace/FamilyTree/backend/src/routes/matrimony_routes.js).
+
+- [x] **TASK-12.4: National Demographic & Census Population Analytics** `P0`
+  - **Deliverable:** Implement real-time demographic analytics endpoint (`/api/v1/analytics/demographics`) computing population counts dynamically filtered by State, District, Gender, Age Brackets (0-14, 15-24, 25-59, 60+), Social Categories (GEN, OBC, SC, ST, EWS), and Marital Status with digital verification ratios.
+  - **Verification:** Verified via `backend/tests/extended_features.test.js` test 6.
+  - **Status:** Completed via [`backend/src/routes/analytics_routes.js`](file:///Users/siddharthdashore/Workspace/FamilyTree/backend/src/routes/analytics_routes.js).
+
+- [x] **TASK-12.5: Comprehensive Immutable Auditing & Cryptographic Integrity Verification** `P0`
+  - **Deliverable:** Expand HIPAA § 164.312(b) & DPDP Act 2023 audit actions (`BIRTH_REGISTRATION`, `DEATH_REGISTRATION`, `MARRIAGE_REGISTRATION`, `MATRIMONY_SEARCH`, `DEMOGRAPHICS_QUERY`, `EDUCATION_UPDATE`). Implement `/api/v1/audit/verify-integrity` recalculating SHA-256 hash chains across the entire sequence.
+  - **Verification:** Verified via `backend/tests/extended_features.test.js` test 7.
+  - **Status:** Completed via [`backend/src/routes/audit_routes.js`](file:///Users/siddharthdashore/Workspace/FamilyTree/backend/src/routes/audit_routes.js) & [`backend/src/services/crypto_service.js`](file:///Users/siddharthdashore/Workspace/FamilyTree/backend/src/services/crypto_service.js).
+
+- [x] **TASK-12.6: Flutter Mobile & Web Client Experience & Widget Testing** `P0`
+  - **Deliverable:** Implement Flutter screens and integrations:
+    - [`DemographicsScreen`](file:///Users/siddharthdashore/Workspace/FamilyTree/client/lib/features/analytics/screens/demographics_screen.dart): Census analytics, interactive filters, population hero banner, gender split, and age pyramid.
+    - [`MatrimonySearchScreen`](file:///Users/siddharthdashore/Workspace/FamilyTree/client/lib/features/matrimony/screens/matrimony_search_screen.dart): Bride/Groom toggle, age range slider, Gotra exogamy alert badges, and educational profiles.
+    - [`AuditLogsScreen`](file:///Users/siddharthdashore/Workspace/FamilyTree/client/lib/features/audit/screens/audit_logs_screen.dart): Immutable audit trail with live SHA-256 blockchain verification status banner.
+    - [`TreeCanvasScreen`](file:///Users/siddharthdashore/Workspace/FamilyTree/client/lib/features/tree/screens/tree_canvas_screen.dart): Action chips and dialogs for registering births, deaths, marriages, and education.
+  - **Verification:** 100% widget test coverage via `client/test/extended_features_test.dart` (3/3 widget tests passing).
+  - **Status:** Completed and registered in [`client/lib/main.dart`](file:///Users/siddharthdashore/Workspace/FamilyTree/client/lib/main.dart).
+
+---
+
+## Phase 13: Canonical Common Domain Models & Universal Elimination of Fallback Defaults
+
+- [x] **TASK-13.1: Centralized Canonical Domain Model Registries** `P0`
+  - **Deliverable:** Establish centralized canonical registries for Indian civil attributes: `religion`, `marital_status`, `gotra`, `category`, `caste`, `blood_group`, `gender`, `relationship`, `qualification_level`, `occupation_sector`, and `document_type`:
+    - Backend: [`backend/src/models/civil_models.js`](file:///Users/siddharthdashore/Workspace/FamilyTree/backend/src/models/civil_models.js) with strict validators (`validateReligion`, `validateMaritalStatus`, `validateGotra`, `validateCategory`, `validateCaste`, `validateBloodGroup`, etc.).
+    - Client: [`client/lib/core/constants/civil_models.dart`](file:///Users/siddharthdashore/Workspace/FamilyTree/client/lib/core/constants/civil_models.dart) with canonical type arrays (`CivilReligions.all`, `CivilMaritalStatuses.all`, `CivilCategories.all`, `CivilBloodGroups.all`, etc.).
+  - **Verification:** Verified via `npm test` and `flutter test`.
+  - **Status:** Completed.
+
+- [x] **TASK-13.2: Universal Elimination of Fallback Defaults & Silent Placeholders** `P0`
+  - **Deliverable:** Completely eliminate all silent fallbacks, placeholders, and logical alternatives (`|| 'Hindu'`, `|| 'GEN'`, `|| 'Single'`, `|| '452001'`, `|| 'N/A'`) across:
+    - [`citizen_routes.js`](file:///Users/siddharthdashore/Workspace/FamilyTree/backend/src/routes/citizen_routes.js): Strict validation of all mandatory fields; missing values return immediate `400 Bad Request`.
+    - [`life_events_routes.js`](file:///Users/siddharthdashore/Workspace/FamilyTree/backend/src/routes/life_events_routes.js): Child birth validates inherited or provided attributes fail-fast; death & marriage strictly validate mandatory attributes.
+    - [`matrimony_routes.js`](file:///Users/siddharthdashore/Workspace/FamilyTree/backend/src/routes/matrimony_routes.js), [`education_routes.js`](file:///Users/siddharthdashore/Workspace/FamilyTree/backend/src/routes/education_routes.js), [`analytics_routes.js`](file:///Users/siddharthdashore/Workspace/FamilyTree/backend/src/routes/analytics_routes.js), [`doc_routes.js`](file:///Users/siddharthdashore/Workspace/FamilyTree/backend/src/routes/doc_routes.js), and [`kinship_routes.js`](file:///Users/siddharthdashore/Workspace/FamilyTree/backend/src/routes/kinship_routes.js).
+    - Flutter [`citizen_registration_model.dart`](file:///Users/siddharthdashore/Workspace/FamilyTree/client/lib/features/auth/models/citizen_registration_model.dart) & [`registration_screen.dart`](file:///Users/siddharthdashore/Workspace/FamilyTree/client/lib/features/auth/screens/registration_screen.dart): Zero fallback default arguments; user must explicitly select all attributes.
+  - **Verification:** Verified via backend tests (46/46 passing) and client tests (24/24 passing).
+  - **Status:** Completed.
+
+- [x] **TASK-13.3: Constitutional Enactment of Article X (Fail-Fast Integrity & Canonical Models)** `P0`
+  - **Deliverable:** Update [`Docs/constitution.md`](file:///Users/siddharthdashore/Workspace/FamilyTree/Docs/constitution.md) enacting **Article X: Fail-Fast Integrity, Universal Prohibition of Defaults & Canonical Domain Models**, ratifying the zero-default invariant as a permanent architectural mandate.
+  - **Verification:** Verified via `Docs/constitution.md` Article X and test suite invariants.
+  - **Status:** Completed.
+
+- [x] **TASK-13.4: Single Source of Truth (SSOT) Architecture & Kinship Ontology Expansion** `P0`
+  - **Deliverable:** Consolidate backend and client models into a single canonical source of truth [`shared/civil_models.json`](file:///Users/siddharthdashore/Workspace/FamilyTree/shared/civil_models.json):
+    - Created [`scripts/sync_models.js`](file:///Users/siddharthdashore/Workspace/FamilyTree/scripts/sync_models.js) and `npm run sync:models` to automatically generate [`client/lib/core/constants/civil_models.dart`](file:///Users/siddharthdashore/Workspace/FamilyTree/client/lib/core/constants/civil_models.dart).
+    - Refactored [`backend/src/models/civil_models.js`](file:///Users/siddharthdashore/Workspace/FamilyTree/backend/src/models/civil_models.js) to dynamically import from `shared/civil_models.json`.
+    - Added REST endpoint `GET /api/v1/meta/civil-models` serving raw models with string labels.
+    - Expanded `CivilRelationships` to 72 complete Indian (Hindi/Sanskrit) and Western relationships with string labels and bilingual translations.
+    - Added string-based human-readable labels and Hindi labels for all enums (categories, religions, blood groups, marital statuses, genders, qualifications, occupations, document types).
+  - **Verification:** Verified via `backend/tests/api_routes.test.js` test 12, `npm test` (47/47), `flutter test` (24/24), `database/validate_ddl.js` (30/30) = 101/101 total assertions.
+  - **Status:** Completed.
+
+- [x] **TASK-13.5: Multilingual Sovereign Public Infrastructure Parity (English, Hindi, Gujarati, Marathi)** `P0`
+  - **Deliverable:** Expand the platform to full four-language parity across English (`en`), Hindi (`hi`), Gujarati (`gu`), and Marathi (`mr`):
+    - Enriched [`shared/civil_models.json`](file:///Users/siddharthdashore/Workspace/FamilyTree/shared/civil_models.json) with `gujarati_label` and `marathi_label` across all 9 civil domains and all 72 kinship relationships.
+    - Enhanced [`scripts/sync_models.js`](file:///Users/siddharthdashore/Workspace/FamilyTree/scripts/sync_models.js) to generate `gujaratiLabels`, `marathiLabels`, and `getLocalizedLabel(code, lang)` in [`client/lib/core/constants/civil_models.dart`](file:///Users/siddharthdashore/Workspace/FamilyTree/client/lib/core/constants/civil_models.dart).
+    - Created [`AppLocalizations`](file:///Users/siddharthdashore/Workspace/FamilyTree/client/lib/core/localization/app_localizations.dart) with comprehensive translations for all UI strings across screens.
+    - Created [`localeProvider`](file:///Users/siddharthdashore/Workspace/FamilyTree/client/lib/core/localization/locale_provider.dart) and [`LanguageSelectorButton`](file:///Users/siddharthdashore/Workspace/FamilyTree/client/lib/core/widgets/language_selector_button.dart) widget allowing live one-tap language switching.
+    - Enhanced backend [`civil_models.js`](file:///Users/siddharthdashore/Workspace/FamilyTree/backend/src/models/civil_models.js) and `GET /api/v1/meta/civil-models?lang=...` with multilingual dictionaries.
+    - Enacted Section 10.3 in [`Docs/constitution.md`](file:///Users/siddharthdashore/Workspace/FamilyTree/Docs/constitution.md) codifying 4-language parity.
+  - **Verification:** Verified via `backend/tests/api_routes.test.js` test 13, `client/test/localization_test.dart` (5/5 tests), `npm test` (48/48), `flutter test` (29/29), `validate_ddl.js` (30/30) = 107/107 total assertions.
+  - **Status:** Completed.
+
+
+

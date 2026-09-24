@@ -114,6 +114,110 @@ describe('🌐 API Route Validation & Security Headers Suite', () => {
         assert.ok(body.error.includes('Invalid doc_type'));
     });
 
+    test('POST /api/v1/citizen/register: Boundary validation rejects future DOB', async () => {
+        const res = await fetch(`${baseUrl}/api/v1/citizen/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                first_name: 'Future',
+                last_name: 'Citizen',
+                gender: 'Male',
+                dob: '2099-01-01',
+                pin_code: '452001',
+                district: 'Indore',
+                state: 'Madhya Pradesh'
+            })
+        });
+
+        assert.equal(res.status, 400);
+        const body = await res.json();
+        assert.ok(body.error.includes('Date of birth must be a valid chronological date'));
+    });
+
+    test('POST /api/v1/citizen/register: Boundary validation rejects impossible height/weight', async () => {
+        const res = await fetch(`${baseUrl}/api/v1/citizen/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                first_name: 'Giant',
+                last_name: 'Person',
+                gender: 'Male',
+                dob: '1990-01-01',
+                height_cm: 999.0, // Exceeds 300 cm limit
+                pin_code: '452001',
+                district: 'Indore',
+                state: 'Madhya Pradesh'
+            })
+        });
+
+        assert.equal(res.status, 400);
+        const body = await res.json();
+        assert.ok(body.error.includes('Height must be a valid numeric measurement'));
+    });
+
+    test('GET /api/v1/sir/conflicts: Sanitizes negative or extreme limit and offset query parameters', async () => {
+        const res = await fetch(`${baseUrl}/api/v1/sir/conflicts?limit=-50&offset=-10`);
+        assert.equal(res.status, 200);
+        const body = await res.json();
+        assert.equal(body.success, true);
+        assert.ok(Array.isArray(body.conflicts));
+    });
+
+    test('GET /api/v1/meta/civil-models: Serves Single Source of Truth with string labels and Indian & Western relationships', async () => {
+        const res = await fetch(`${baseUrl}/api/v1/meta/civil-models`);
+        assert.equal(res.status, 200);
+        const body = await res.json();
+        assert.equal(body.version, '1.2.0');
+        assert.ok(Array.isArray(body.categories));
+        assert.ok(Array.isArray(body.relationships));
+        
+        // Assert string-based label for GEN -> General
+        const genCat = body.categories.find(c => c.code === 'GEN');
+        assert.ok(genCat);
+        assert.equal(genCat.label, 'General');
+        assert.equal(genCat.hindi_label, 'सामान्य');
+
+        // Assert Indian & Western relationship models
+        const dada = body.relationships.find(r => r.code === 'Paternal_Grandfather');
+        assert.ok(dada);
+        assert.equal(dada.western, 'Paternal Grandfather');
+        assert.equal(dada.indian, 'दादा (Dada)');
+
+        const mama = body.relationships.find(r => r.code === 'Maternal_Uncle');
+        assert.ok(mama);
+        assert.equal(mama.western, 'Maternal Uncle');
+        assert.equal(mama.indian, 'मामा (Mama)');
+
+        const spouse = body.relationships.find(r => r.code === 'Spouse');
+        assert.ok(spouse);
+        assert.equal(spouse.western, 'Spouse');
+    });
+
+    test('GET /api/v1/meta/civil-models: Supports 4 official languages (English, Hindi, Gujarati, Marathi)', async () => {
+        // Test Gujarati localization query
+        const resGu = await fetch(`${baseUrl}/api/v1/meta/civil-models?lang=gu`);
+        assert.equal(resGu.status, 200);
+        const bodyGu = await resGu.json();
+        assert.equal(bodyGu.selected_language, 'gu');
+        assert.equal(bodyGu.localized_categories['GEN'], 'સામાન્ય');
+        assert.equal(bodyGu.localized_relationships['Father'], 'પિતા / બાપુજી');
+        assert.equal(bodyGu.localized_relationships['Paternal_Grandfather'], 'દાદા (પિતાના પિતા)');
+
+        // Test Marathi localization query
+        const resMr = await fetch(`${baseUrl}/api/v1/meta/civil-models?lang=mr`);
+        assert.equal(resMr.status, 200);
+        const bodyMr = await resMr.json();
+        assert.equal(bodyMr.selected_language, 'mr');
+        assert.equal(bodyMr.localized_categories['GEN'], 'સામાન્ય' ? 'सामान्य' : 'सामान्य');
+        assert.equal(bodyMr.localized_relationships['Father'], 'वडील / बाबा');
+        assert.equal(bodyMr.localized_relationships['Mother'], 'आई');
+
+        // Test supported languages list
+        assert.ok(Array.isArray(bodyGu.supported_languages));
+        const codes = bodyGu.supported_languages.map(l => l.code);
+        assert.deepEqual(codes, ['en', 'hi', 'gu', 'mr']);
+    });
+
     test('Teardown: Close test server', (t, done) => {
         server.close(done);
     });

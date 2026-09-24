@@ -76,8 +76,9 @@ ls -lh dist/
    - Select the newly created database.
    - Click on the **Import** tab.
    - Choose file: [`database/schema.sql`](file:///Users/siddharthdashore/Workspace/FamilyTree/database/schema.sql).
-   - Click **Import** to execute the DDL (creates all 5 tables with InnoDB TDE `ENCRYPTION='Y'`).
-   - *(Optional Initial Seed)*: Import [`database/seed.sql`](file:///Users/siddharthdashore/Workspace/FamilyTree/database/seed.sql) to populate standard demographic test lineages.
+   - Click **Import** to execute the DDL (creates all 7 tables with InnoDB TDE `ENCRYPTION='Y'` and strict CHECK constraints: `citizens`, `relationships`, `citizen_documents`, `duplicate_conflict_logs`, `audit_logs`, `citizen_education`, `marriages`).
+   - Run `node database/validate_ddl.js` to assert 30/30 schema constraints.
+   - *(Optional Initial Seed)*: Import [`database/seed.sql`](file:///Users/siddharthdashore/Workspace/FamilyTree/database/seed.sql) to populate standard multi-generational Indian lineages with education and civil marriage records.
 
 ---
 
@@ -164,5 +165,7 @@ Verify the deployment using the automated verification suite:
 - [ ] **Health Endpoint:** `curl -s https://api.vanshasetu.in/health` returns `status: "healthy"`.
 - [ ] **HSTS Enforced:** `curl -sI https://vanshasetu.in` returns `Strict-Transport-Security: max-age=31536000`.
 - [ ] **12-Digit Routing:** `curl -sI https://api.vanshasetu.in/api/v1/tree/123` returns `400 Bad Request`.
+- [ ] **Demographics Analytics:** `curl -s https://api.vanshasetu.in/api/v1/analytics/demographics` returns population pyramid and category breakdown.
+- [ ] **Audit Blockchain Integrity:** `curl -s https://api.vanshasetu.in/api/v1/audit/verify-integrity` returns `chain_valid: true`.
 - [ ] **Flutter SPA Canvas:** Opening `https://vanshasetu.in` loads the reactive Kinship Canvas with interactive nodes.
 - [ ] **VanshaCard QR Scannability:** Generating a VanshaCard produces a valid QR code pointing to `https://vanshasetu.in/tree/:vuid`.

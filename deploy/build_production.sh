@@ -21,7 +21,7 @@ echo ""
 echo "▶ Step 1/5: Executing Sovereign Constitutional Quality Gate..."
 cd "$ROOT_DIR"
 npm run test:all
-echo "✅ All 44 automated test suites passed successfully!"
+echo "✅ All automated test suites passed successfully!"
 
 # Step 2: Clean and Initialize Output Directories
 echo ""

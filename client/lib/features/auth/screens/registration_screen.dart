@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/constants/civil_models.dart';
+import '../../../core/localization/app_localizations.dart';
+import '../../../core/localization/locale_provider.dart';
+import '../../../core/widgets/language_selector_button.dart';
 import '../../../core/services/geo_service.dart';
 import '../models/citizen_registration_model.dart';
 import '../providers/auth_provider.dart';
@@ -19,6 +23,7 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
   final _lastNameController = TextEditingController();
   final _dobController = TextEditingController();
   final _casteController = TextEditingController();
+  final _gotraController = TextEditingController();
   final _heightController = TextEditingController();
   final _weightController = TextEditingController();
 
@@ -32,6 +37,9 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
 
   String _gender = 'Male';
   String _category = 'GEN';
+  String _religion = 'Hindu';
+  String _maritalStatus = 'Single';
+  String? _bloodGroup;
   double? _latitude;
   double? _longitude;
   bool _isLoadingLocation = false;
@@ -43,6 +51,7 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
     _lastNameController.dispose();
     _dobController.dispose();
     _casteController.dispose();
+    _gotraController.dispose();
     _heightController.dispose();
     _weightController.dispose();
     _addr1Controller.dispose();
@@ -97,6 +106,10 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
       weightKg: double.tryParse(_weightController.text.trim()),
       caste: _casteController.text.trim().isEmpty ? null : _casteController.text.trim(),
       category: _category,
+      gotra: _gotraController.text.trim().isEmpty ? null : _gotraController.text.trim(),
+      religion: _religion,
+      maritalStatus: _maritalStatus,
+      bloodGroup: _bloodGroup,
       addressLine1: _addr1Controller.text.trim(),
       addressLine2: _addr2Controller.text.trim().isEmpty ? null : _addr2Controller.text.trim(),
       pinCode: _pinController.text.trim(),
@@ -162,11 +175,15 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
+    final loc = AppLocalizations.of(context);
+    final currentLang = ref.watch(localeProvider).languageCode;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('New Citizen Registration'),
+        title: Text(loc.translate('reg_title')),
         actions: [
+          const LanguageSelectorButton(),
+          const SizedBox(width: 8),
           IconButton(
             icon: const Icon(Icons.account_tree),
             tooltip: 'View Sample Tree',
@@ -224,7 +241,8 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
                   Expanded(
                     child: DropdownButtonFormField<String>(
                       initialValue: _gender,
-                      items: ['Male', 'Female', 'Non-Binary', 'Other']
+                      isExpanded: true,
+                      items: CivilGenders.all
                           .map((g) => DropdownMenuItem(value: g, child: Text(g)))
                           .toList(),
                       onChanged: (v) => setState(() => _gender = v!),
@@ -250,7 +268,8 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
                   Expanded(
                     child: DropdownButtonFormField<String>(
                       initialValue: _category,
-                      items: ['GEN', 'OBC', 'SC', 'ST', 'EWS']
+                      isExpanded: true,
+                      items: CivilCategories.all
                           .map((c) => DropdownMenuItem(value: c, child: Text(c)))
                           .toList(),
                       onChanged: (v) => setState(() => _category = v!),
@@ -282,6 +301,60 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
                       controller: _weightController,
                       keyboardType: TextInputType.number,
                       decoration: const InputDecoration(labelText: 'Weight (kg)'),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: _gotraController,
+                      decoration: const InputDecoration(
+                        labelText: 'Gotra / Clan (गोत्र)',
+                        hintText: 'Bharadwaj / Kashyap',
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: DropdownButtonFormField<String>(
+                      initialValue: _religion,
+                      isExpanded: true,
+                      items: CivilReligions.all
+                          .map((r) => DropdownMenuItem(value: r, child: Text(r)))
+                          .toList(),
+                      onChanged: (v) => setState(() => _religion = v!),
+                      decoration: const InputDecoration(labelText: 'Religion (धर्म)'),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: DropdownButtonFormField<String>(
+                      initialValue: _maritalStatus,
+                      isExpanded: true,
+                      items: CivilMaritalStatuses.all
+                          .map((m) => DropdownMenuItem(value: m, child: Text(m)))
+                          .toList(),
+                      onChanged: (v) => setState(() => _maritalStatus = v!),
+                      decoration: const InputDecoration(labelText: 'Marital Status (वैवाहिक स्थिति)'),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: DropdownButtonFormField<String>(
+                      value: _bloodGroup,
+                      isExpanded: true,
+                      items: CivilBloodGroups.all
+                          .map((b) => DropdownMenuItem(value: b, child: Text(b)))
+                          .toList(),
+                      onChanged: (v) => setState(() => _bloodGroup = v),
+                      decoration: const InputDecoration(labelText: 'Blood Group (रक्त समूह)'),
                     ),
                   ),
                 ],

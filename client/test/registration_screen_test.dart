@@ -19,6 +19,10 @@ void main() {
       expect(find.text('First Name *'), findsOneWidget);
       expect(find.text('Last Name *'), findsOneWidget);
       expect(find.text('DOB (YYYY-MM-DD) *'), findsOneWidget);
+      expect(find.text('Gotra / Clan (गोत्र)'), findsOneWidget);
+      expect(find.text('Religion (धर्म)'), findsOneWidget);
+      expect(find.text('Marital Status (वैवाहिक स्थिति)'), findsOneWidget);
+      expect(find.text('Blood Group (रक्त समूह)'), findsOneWidget);
       expect(find.text('Residential Address'), findsOneWidget);
       expect(find.text('Autofill GPS'), findsOneWidget);
       expect(find.text('Address Line 1 (House/Street) *'), findsOneWidget);

@@ -8,6 +8,10 @@ class CitizenRegistrationModel {
   final double? weightKg;
   final String? caste;
   final String category;
+  final String? gotra;
+  final String religion;
+  final String maritalStatus;
+  final String? bloodGroup;
   final String addressLine1;
   final String? addressLine2;
   final String pinCode;
@@ -27,6 +31,10 @@ class CitizenRegistrationModel {
     this.weightKg,
     this.caste,
     this.category = 'GEN',
+    this.gotra,
+    this.religion = 'Hindu',
+    this.maritalStatus = 'Single',
+    this.bloodGroup,
     required this.addressLine1,
     this.addressLine2,
     required this.pinCode,
@@ -48,6 +56,10 @@ class CitizenRegistrationModel {
       'weight_kg': weightKg,
       'caste': caste,
       'category': category,
+      'gotra': gotra,
+      'religion': religion,
+      'marital_status': maritalStatus,
+      'blood_group': bloodGroup,
       'address_line1': addressLine1,
       'address_line2': addressLine2,
       'pin_code': pinCode,

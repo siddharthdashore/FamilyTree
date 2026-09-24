@@ -38,6 +38,10 @@ const inMemoryStore = {
             ephi_auth_tag: null,
             caste: 'Brahmin',
             category: 'GEN',
+            gotra: 'Bharadwaj',
+            religion: 'Hindu',
+            marital_status: 'Widowed',
+            blood_group: 'O+',
             address_line1: '42 Heritage Enclave',
             address_line2: 'Civil Lines',
             pin_code: '452001',
@@ -65,6 +69,10 @@ const inMemoryStore = {
             ephi_auth_tag: null,
             caste: 'Brahmin',
             category: 'GEN',
+            gotra: 'Bharadwaj',
+            religion: 'Hindu',
+            marital_status: 'Married',
+            blood_group: 'B+',
             address_line1: '104 Lotus Heights',
             address_line2: 'Vijay Nagar',
             pin_code: '452010',
@@ -92,6 +100,10 @@ const inMemoryStore = {
             ephi_auth_tag: null,
             caste: 'Brahmin',
             category: 'GEN',
+            gotra: 'Kashyap',
+            religion: 'Hindu',
+            marital_status: 'Married',
+            blood_group: 'A+',
             address_line1: '104 Lotus Heights',
             address_line2: 'Vijay Nagar',
             pin_code: '452010',
@@ -119,6 +131,10 @@ const inMemoryStore = {
             ephi_auth_tag: null,
             caste: 'Brahmin',
             category: 'GEN',
+            gotra: 'Bharadwaj',
+            religion: 'Hindu',
+            marital_status: 'Married',
+            blood_group: 'B+',
             address_line1: 'Flat 302, Green Meadows',
             address_line2: 'HSR Layout Sector 2',
             pin_code: '560102',
@@ -146,6 +162,10 @@ const inMemoryStore = {
             ephi_auth_tag: null,
             caste: 'Brahmin',
             category: 'GEN',
+            gotra: 'Vashishta',
+            religion: 'Hindu',
+            marital_status: 'Married',
+            blood_group: 'AB+',
             address_line1: 'Flat 302, Green Meadows',
             address_line2: 'HSR Layout Sector 2',
             pin_code: '560102',
@@ -173,6 +193,10 @@ const inMemoryStore = {
             ephi_auth_tag: null,
             caste: 'Brahmin',
             category: 'GEN',
+            gotra: 'Bharadwaj',
+            religion: 'Hindu',
+            marital_status: 'Single',
+            blood_group: 'B+',
             address_line1: 'Flat 302, Green Meadows',
             address_line2: 'HSR Layout Sector 2',
             pin_code: '560102',
@@ -210,6 +234,115 @@ const inMemoryStore = {
             longitude: 75.8600,
             is_claimed: 0,
             status: 'Missing',
+            gotra: 'Bharadwaj',
+            religion: 'Hindu',
+            marital_status: 'Single',
+            blood_group: 'A+',
+            death_date: null,
+            death_reason: null,
+            death_cert_number: null,
+            created_at: new Date('2026-01-01T00:00:00Z')
+        },
+        {
+            id: 8,
+            vuid: '710293849102',
+            first_name: 'Rohan',
+            middle_name: null,
+            last_name: 'Verma',
+            gender: 'Male',
+            dob: '1996-04-10',
+            height_cm: 177.0,
+            weight_kg: 72.0,
+            ephi_encrypted_data: null,
+            ephi_iv: null,
+            ephi_auth_tag: null,
+            caste: 'Kayastha',
+            category: 'GEN',
+            gotra: 'Gautam',
+            religion: 'Hindu',
+            marital_status: 'Single',
+            blood_group: 'B+',
+            address_line1: '12 Scheme 54',
+            address_line2: 'Vijay Nagar',
+            pin_code: '452010',
+            district: 'Indore',
+            state: 'Madhya Pradesh',
+            country: 'India',
+            latitude: 22.7533,
+            longitude: 75.8937,
+            is_claimed: 1,
+            status: 'Active',
+            death_date: null,
+            death_reason: null,
+            death_cert_number: null,
+            created_at: new Date('2026-01-01T00:00:00Z')
+        },
+        {
+            id: 9,
+            vuid: '710293849103',
+            first_name: 'Ananya',
+            middle_name: null,
+            last_name: 'Joshi',
+            gender: 'Female',
+            dob: '1999-08-15',
+            height_cm: 164.0,
+            weight_kg: 54.0,
+            ephi_encrypted_data: null,
+            ephi_iv: null,
+            ephi_auth_tag: null,
+            caste: 'Brahmin',
+            category: 'GEN',
+            gotra: 'Shandilya',
+            religion: 'Hindu',
+            marital_status: 'Single',
+            blood_group: 'O+',
+            address_line1: '88 Annapurna Road',
+            address_line2: 'Sudama Nagar',
+            pin_code: '452009',
+            district: 'Indore',
+            state: 'Madhya Pradesh',
+            country: 'India',
+            latitude: 22.6950,
+            longitude: 75.8320,
+            is_claimed: 1,
+            status: 'Active',
+            death_date: null,
+            death_reason: null,
+            death_cert_number: null,
+            created_at: new Date('2026-01-01T00:00:00Z')
+        },
+        {
+            id: 10,
+            vuid: '710293849104',
+            first_name: 'Priya',
+            middle_name: 'Devi',
+            last_name: 'Patel',
+            gender: 'Female',
+            dob: '1997-12-02',
+            height_cm: 162.0,
+            weight_kg: 56.0,
+            ephi_encrypted_data: null,
+            ephi_iv: null,
+            ephi_auth_tag: null,
+            caste: 'Patidar',
+            category: 'OBC',
+            gotra: 'Kashyap',
+            religion: 'Hindu',
+            marital_status: 'Single',
+            blood_group: 'AB+',
+            address_line1: '15 Mahakal Marg',
+            address_line2: 'Freeganj',
+            pin_code: '456001',
+            district: 'Ujjain',
+            state: 'Madhya Pradesh',
+            country: 'India',
+            latitude: 23.1765,
+            longitude: 75.7885,
+            is_claimed: 1,
+            status: 'Active',
+            death_date: null,
+            death_reason: null,
+            death_cert_number: null,
             created_at: new Date('2026-01-01T00:00:00Z')
         }
     ],
@@ -259,6 +392,89 @@ const inMemoryStore = {
             created_at: new Date('2026-01-15T09:00:00Z')
         }
     ],
+    citizen_education: [
+        {
+            id: 1,
+            vuid: '284910293847',
+            qualification_level: 'Bachelors',
+            degree_name: 'B.Tech Computer Science & Engineering',
+            institution: 'Indian Institute of Technology Bombay',
+            year_of_passing: 2020,
+            occupation_sector: 'Private_IT_Corporate',
+            profession_title: 'Senior Software Engineer',
+            created_at: new Date('2026-01-01T00:00:00Z')
+        },
+        {
+            id: 2,
+            vuid: '510928340192',
+            qualification_level: 'Masters',
+            degree_name: 'M.Sc Mathematics',
+            institution: 'Holkar Science College Indore',
+            year_of_passing: 1995,
+            occupation_sector: 'Education_Research',
+            profession_title: 'Senior Education Administrator',
+            created_at: new Date('2026-01-01T00:00:00Z')
+        },
+        {
+            id: 3,
+            vuid: '928174019284',
+            qualification_level: 'Masters',
+            degree_name: 'MBA in Financial Analytics',
+            institution: 'Indian Institute of Management Indore',
+            year_of_passing: 2022,
+            occupation_sector: 'Banking_Finance',
+            profession_title: 'Senior Portfolio Manager',
+            created_at: new Date('2026-01-01T00:00:00Z')
+        },
+        {
+            id: 4,
+            vuid: '710293849103',
+            qualification_level: 'Bachelors',
+            degree_name: 'MBBS (Bachelor of Medicine)',
+            institution: 'All India Institute of Medical Sciences (AIIMS) Bhopal',
+            year_of_passing: 2023,
+            occupation_sector: 'Healthcare',
+            profession_title: 'Resident Medical Officer',
+            created_at: new Date('2026-01-01T00:00:00Z')
+        },
+        {
+            id: 5,
+            vuid: '710293849102',
+            qualification_level: 'Bachelors',
+            degree_name: 'B.Com & Chartered Accountancy (CA)',
+            institution: 'Institute of Chartered Accountants of India',
+            year_of_passing: 2019,
+            occupation_sector: 'Banking_Finance',
+            profession_title: 'Senior Financial Analyst',
+            created_at: new Date('2026-01-01T00:00:00Z')
+        }
+    ],
+    marriages: [
+        {
+            id: 1,
+            marriage_reg_no: 'MP-IND-2000-8492',
+            bride_vuid: '510928340193',
+            groom_vuid: '510928340192',
+            marriage_date: '2000-05-12',
+            venue_city: 'Indore',
+            venue_state: 'Madhya Pradesh',
+            priest_or_registrar: 'Registrar of Marriages, District Court Indore',
+            status: 'Registered',
+            created_at: new Date('2026-01-01T00:00:00Z')
+        },
+        {
+            id: 2,
+            marriage_reg_no: 'KA-BLR-2023-1104',
+            bride_vuid: '928174019284',
+            groom_vuid: '284910293847',
+            marriage_date: '2023-11-20',
+            venue_city: 'Bengaluru',
+            venue_state: 'Karnataka',
+            priest_or_registrar: 'Sub-Registrar Office, Koramangala',
+            status: 'Registered',
+            created_at: new Date('2026-01-01T00:00:00Z')
+        }
+    ],
     audit_logs: [
         {
             id: 1,
@@ -292,41 +508,26 @@ function executeInMemoryQuery(sql, params = []) {
 
     // 2. INSERT INTO citizens (...) VALUES (...)
     if (s.startsWith('INSERT INTO citizens')) {
-        const [
-            vuid, first_name, middle_name, last_name, gender, dob,
-            height_cm, weight_kg, ephi_encrypted_data, ephi_iv, ephi_auth_tag,
-            caste, category,
-            address_line1, address_line2, pin_code, district, state, country,
-            latitude, longitude
-        ] = params;
-
+        const colMatch = s.match(/INSERT INTO citizens\s*\(([^)]+)\)/i);
         const newCitizen = {
             id: inMemoryStore.citizens.length + 1,
-            vuid: String(vuid),
-            first_name,
-            middle_name,
-            last_name,
-            gender,
-            dob,
-            height_cm,
-            weight_kg,
-            ephi_encrypted_data,
-            ephi_iv,
-            ephi_auth_tag,
-            caste,
-            category: category || 'GEN',
-            address_line1,
-            address_line2,
-            pin_code,
-            district,
-            state,
-            country: country || 'India',
-            latitude,
-            longitude,
+            category: 'GEN',
+            religion: 'Hindu',
+            marital_status: 'Single',
+            country: 'India',
             is_claimed: 1,
             status: 'Active',
             created_at: new Date()
         };
+
+        if (colMatch) {
+            const cols = colMatch[1].split(',').map(c => c.trim().toLowerCase());
+            cols.forEach((col, idx) => {
+                newCitizen[col] = params[idx];
+            });
+        }
+        if (newCitizen.vuid) newCitizen.vuid = String(newCitizen.vuid);
+
         inMemoryStore.citizens.push(newCitizen);
         return [{ insertId: newCitizen.id, affectedRows: 1 }, []];
     }
@@ -336,6 +537,11 @@ function executeInMemoryQuery(sql, params = []) {
         const vuid = String(params[0]);
         const match = inMemoryStore.citizens.filter(c => c.vuid === vuid);
         return [match, []];
+    }
+
+    // 3b. SELECT ... FROM citizens (all records or demographics)
+    if (s.includes('FROM citizens') && !s.includes('WHERE')) {
+        return [inMemoryStore.citizens.slice(), []];
     }
 
     // 4. SELECT vuid FROM citizens WHERE vuid IN (?, ?)
@@ -490,6 +696,112 @@ function executeInMemoryQuery(sql, params = []) {
         return [inMemoryStore.audit_logs.slice().reverse(), []];
     }
 
+    // 15. INSERT INTO citizen_education
+    if (s.startsWith('INSERT INTO citizen_education')) {
+        const [vuid, qualification_level, degree_name, institution, year_of_passing, occupation_sector, profession_title] = params;
+        const entry = {
+            id: inMemoryStore.citizen_education.length + 1,
+            vuid: String(vuid),
+            qualification_level,
+            degree_name,
+            institution,
+            year_of_passing: year_of_passing ? parseInt(year_of_passing, 10) : null,
+            occupation_sector: occupation_sector || 'Private_IT_Corporate',
+            profession_title: profession_title || null,
+            created_at: new Date()
+        };
+        inMemoryStore.citizen_education.push(entry);
+        return [{ insertId: entry.id, affectedRows: 1 }, []];
+    }
+
+    // 16. SELECT ... FROM citizen_education WHERE vuid = ?
+    if (s.includes('FROM citizen_education WHERE vuid = ?')) {
+        const vuid = String(params[0]);
+        const records = inMemoryStore.citizen_education.filter(e => e.vuid === vuid);
+        return [records, []];
+    }
+
+    // 17. INSERT INTO marriages
+    if (s.startsWith('INSERT INTO marriages')) {
+        const [marriage_reg_no, bride_vuid, groom_vuid, marriage_date, venue_city, venue_state, priest_or_registrar, status] = params;
+        const entry = {
+            id: inMemoryStore.marriages.length + 1,
+            marriage_reg_no,
+            bride_vuid: String(bride_vuid),
+            groom_vuid: String(groom_vuid),
+            marriage_date,
+            venue_city: venue_city || null,
+            venue_state: venue_state || null,
+            priest_or_registrar: priest_or_registrar || null,
+            status: status || 'Registered',
+            created_at: new Date()
+        };
+        inMemoryStore.marriages.push(entry);
+        return [{ insertId: entry.id, affectedRows: 1 }, []];
+    }
+
+    // 18. UPDATE citizens SET status = 'Deceased' ...
+    if (s.includes("UPDATE citizens SET status = 'Deceased'") || s.includes('SET status = ?, death_date = ?')) {
+        const vuid = String(params[params.length - 1]);
+        const citizen = inMemoryStore.citizens.find(c => c.vuid === vuid);
+        if (citizen) {
+            citizen.status = 'Deceased';
+            citizen.death_date = params[0] || new Date().toISOString().split('T')[0];
+            citizen.death_reason = params[1] || 'Natural';
+            citizen.death_cert_number = params[2] || 'D-REC-VALID';
+        }
+        return [{ affectedRows: 1 }, []];
+    }
+
+    // 19. UPDATE citizens SET marital_status = ? ...
+    if (s.includes('UPDATE citizens SET marital_status = ?')) {
+        const status = params[0];
+        const v1 = String(params[1]);
+        const v2 = params[2] ? String(params[2]) : null;
+        inMemoryStore.citizens.forEach(c => {
+            if (c.vuid === v1 || c.vuid === v2) {
+                c.marital_status = status;
+            }
+        });
+        return [{ affectedRows: v2 ? 2 : 1 }, []];
+    }
+
+    // 20. Matrimony Candidates Search Query
+    if (s.includes('c.marital_status') || s.includes('c.gender = ?') || s.includes('FROM citizens c') && s.includes('candidate')) {
+        const lookingForGender = params[0];
+        let candidates = inMemoryStore.citizens.filter(c => {
+            if (c.status === 'Deceased' || c.status === 'Missing') return false;
+            if (lookingForGender && c.gender !== lookingForGender) return false;
+            return true;
+        });
+
+        // Enrich candidates with education
+        const enriched = candidates.map(c => {
+            const edu = inMemoryStore.citizen_education.find(e => e.vuid === c.vuid);
+            return {
+                vuid: c.vuid,
+                first_name: c.first_name,
+                last_name: c.last_name,
+                gender: c.gender,
+                dob: c.dob,
+                caste: c.caste,
+                category: c.category,
+                gotra: c.gotra || 'Kashyap',
+                religion: c.religion || 'Hindu',
+                marital_status: c.marital_status || 'Single',
+                height_cm: c.height_cm,
+                district: c.district,
+                state: c.state,
+                qualification_level: edu ? edu.qualification_level : 'Graduation',
+                degree_name: edu ? edu.degree_name : 'Graduate',
+                institution: edu ? edu.institution : 'University',
+                profession_title: edu ? edu.profession_title : 'Professional',
+                occupation_sector: edu ? edu.occupation_sector : 'Corporate'
+            };
+        });
+        return [enriched, []];
+    }
+
     // Generic fallback
     return [[], []];
 }
@@ -575,8 +887,20 @@ async function testConnection() {
     return await checkMysqlLiveness();
 }
 
+/**
+ * Gracefully close MySQL pool connections during application shutdown.
+ */
+async function closePool() {
+    try {
+        await mysqlPool.end();
+    } catch (_) {
+        // Suppress errors during offline mode teardown
+    }
+}
+
 module.exports = {
     pool,
     testConnection,
-    inMemoryStore
+    inMemoryStore,
+    closePool
 };
