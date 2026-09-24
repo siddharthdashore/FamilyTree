@@ -78,9 +78,9 @@ class TreeNotifier extends StateNotifier<TreeState> {
     if (graph.nodes.isEmpty) return;
 
     const double cardWidth = 170.0;
-    const double cardHeight = 85.0;
+    const double cardHeight = 140.0;
     const double hGap = 60.0;
-    const double vGap = 160.0;
+    const double vGap = 140.0;
     const double centerX = 500.0;
     const double centerY = 400.0;
 

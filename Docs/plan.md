@@ -240,9 +240,16 @@ lib/
 * **KinshipLinePainter:**
   * **Spousal Edges:** Horizontal purple `#9333EA` double-lines between spouses.
   * **Parent-Child Edges:** Smooth cubic Bezier curves (`cubicTo`) routing from parent midpoint downwards to child card apex in slate `#64748B`.
-* **Card Ergonomics:**
-  * Blue `#1E3A8A` border for Male, Maroon `#BE185D` for Female, Amber for Other.
-  * Monospaced VUID representation, OCP verification badge, tap gesture triggers bottom sheet with lineage action sheet.
+* **Card & Leaf Ergonomics (Two-Tier Genealogical Design):**
+  * **Top Tier (Round Circular Leaf):** Circular avatar with portrait image and 3.5px colored border with soft halo glow.
+    * **Blue (`#2563EB`)** for Male.
+    * **Pink (`#EC4899`)** for Female.
+    * **Gray (`#6B7280`)** if Died / Deceased (top priority, honoring ancestral memory).
+    * **Purple (`#A855F7`)** for other all civil genders (`Non-Binary`, `Transgender`, `Other`).
+    * **Gold (`#F59E0B`) Star Badge:** For root/focus citizen.
+  * **Bottom Tier (Rectangle Details Card):** Located directly below the circular avatar:
+    * Citizen full name, verification badge (`Icons.verified`), gender & social category (`node.gender • node.category`), and 12-digit formatted VUID in clean monospace.
+    * Tap gesture triggers modal bottom sheet with comprehensive civil actions (Education, Child Birth, Marriage, Death, Vansha Card).
 
 ---
 
@@ -363,10 +370,10 @@ The VanshaSetu platform is hardened with a multi-tiered automated testing matrix
 | **HIPAA Audit Chaining** | `backend/tests/audit.test.js` | `node:test` + `node:assert` | **2** | `PASS (100%)` | SHA-256 blockchain-style hash chaining (`prev_log_hash`), cryptographic tamper detection on historical log manipulation. |
 | **Core Services** | `client/test/services_test.dart` | `flutter_test` | **2** | `PASS (100%)` | Clean DPI ad policy (monetization disabled by default), AddressAutofillResult geographic data retention. |
 | **Registration UI** | `client/test/registration_screen_test.dart` | `flutter_test` (Widget) | **2** | `PASS (100%)` | Renders all demographic/address fields including Gotra and canonical dropdowns, required validation errors upon empty submission. |
-| **Kinship Canvas UI** | `client/test/tree_canvas_test.dart` | `flutter_test` (Widget) | **2** | `PASS (100%)` | App bar rendering, canvas container, recenter action, `KinshipLinePainter.shouldRepaint` evaluation on layout changes. |
+| **Kinship Canvas UI** | `client/test/tree_canvas_test.dart` | `flutter_test` (Widget) | **3** | `PASS (100%)` | App bar rendering, canvas container, recenter action, `KinshipLinePainter.shouldRepaint` evaluation on layout changes, and two-tier leaf node chromatic invariants (blue for male, pink for female, gray if died, purple for other genders). |
 | **Vansha Card UI** | `client/test/vansha_card_widget_test.dart` | `flutter_test` (Widget) | **1** | `PASS (100%)` | ISO/IEC 7810 ID-1 card aspect ratio (1.586), QR code generation, OCP verified badge, formatted VUID display. |
 | **App Smoke Test** | `client/test/widget_test.dart` | `flutter_test` (Widget) | **1** | `PASS (100%)` | Full root MaterialApp startup smoke test, registration navigation. |
-| **TOTAL** | **Entire Codebase** | **All Runners** | **107 / 107** | **100% PASS** | **Zero failures, zero regressions, full end-to-end verification.** |
+| **TOTAL** | **Entire Codebase** | **All Runners** | **108 / 108** | **100% PASS** | **Zero failures, zero regressions, full end-to-end verification.** |
 
 ### 14.2 Automated Testing Runbook Commands
 

@@ -176,8 +176,17 @@ Every pull request, architectural design, database migration, and cryptographic 
 ### Section 6.4: Client Resource Lifecycle & Controller Disposal Mandate
 1. In Flutter and all UI components, every stateful controller (`TextEditingController`, `TransformationController`, `ScrollController`, animation listeners) MUST be explicitly disposed during widget disposal (`dispose()`) or dialog termination (`.then((_) => controller.dispose())`). Leaking stateful controllers or listeners across navigation is unconstitutional.
 
-### Section 6.5: Canvas Rendering & Painter Optimization
+### Section 6.5: Canvas Rendering, Leaf Node Architecture & Chromatic Invariants
 1. Custom painters (`CustomPainter`) MUST implement semantic equality checks in `shouldRepaint` (`oldDelegate.nodes != nodes || oldDelegate.edges != edges`) rather than unconditional `true`, preventing GPU and CPU thrashing on idle frames.
+2. **Genealogical Leaf Node Hierarchy:**
+   - Every node on the kinship lineage canvas MUST be structured with a distinct two-tier visual hierarchy:
+     1. **Top Tier (Round Circular Leaf):** A circular avatar container with an image portrait and a prominent 3.5px chromatic border.
+     2. **Bottom Tier (Rectangular Details Card):** Positioned directly beneath the circular avatar, containing citizen full name, verified credentials, demographic category, and 12-digit formatted VUID.
+3. **Chromatic Invariants for Leaf Nodes:**
+   - **Gray (`#6B7280`):** Strict priority for citizens with `Deceased` status (preserving respectful ancestral memory).
+   - **Blue (`#2563EB`):** Citizens with `Male` gender.
+   - **Pink (`#EC4899`):** Citizens with `Female` gender.
+   - **Purple (`#A855F7`):** All other civil genders (`Non-Binary`, `Transgender`, `Other`).
 
 ### Section 6.6: Fault-Tolerant Platform & Network Ingestion
 1. External hardware/sensor integrations (e.g. GPS geolocation) MUST be wrapped in defensive `try/catch` blocks with explicit timeouts ($\le 10\text{s}$) and safe fallbacks to manual input.
@@ -192,8 +201,8 @@ Every pull request, architectural design, database migration, and cryptographic 
 2. The entire test suite across all subsystems MUST execute cleanly with zero errors, zero uncaught exceptions, and zero skipped core assertions:
    - **Database DDL & Schema Validator:** 30/30 assertions passed.
    - **Backend API, Crypto, Security & E2E Suites:** 48/48 tests passed across 7 suites.
-   - **Client Unit & Widget Suite:** 29/29 tests passed across 10 suites.
-   - **Total Sovereign Test Suite:** **107/107 assertions passed (100% pass rate)**.
+   - **Client Unit & Widget Suite:** 30/30 tests passed across 10 suites.
+   - **Total Sovereign Test Suite:** **108/108 assertions passed (100% pass rate)**.
 3. Total workspace testing is enforced via:
    ```bash
    npm run test:all && node database/validate_ddl.js

@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vanshasetu/core/constants/civil_models.dart';
 import 'package:vanshasetu/core/localization/app_localizations.dart';
-import 'package:vanshasetu/core/localization/locale_provider.dart';
 import 'package:vanshasetu/core/widgets/language_selector_button.dart';
 
 void main() {

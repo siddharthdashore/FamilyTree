@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/civil_models.dart';
-import '../../../core/localization/app_localizations.dart';
 import '../../../core/localization/locale_provider.dart';
 import '../../../core/widgets/language_selector_button.dart';
-import '../../../core/network/api_client.dart';
 import '../../../core/constants/api_endpoints.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../models/tree_graph_model.dart';
@@ -13,6 +11,48 @@ import '../providers/tree_provider.dart';
 class TreeCanvasScreen extends ConsumerStatefulWidget {
   final String rootVuid;
   const TreeCanvasScreen({super.key, required this.rootVuid});
+
+  /// Evaluates node color based on civil status and gender:
+  /// - Gray if died (status == 'Deceased')
+  /// - Blue for male
+  /// - Pink for female
+  /// - Purple for other all genders
+  static Color getNodeColor(TreeCitizenNode node) {
+    final status = node.status.toLowerCase();
+    final gender = node.gender.toLowerCase();
+
+    // Priority 1: Gray if died
+    if (status == 'deceased') {
+      return const Color(0xFF6B7280);
+    }
+    // Priority 2: Blue for male
+    if (gender == 'male') {
+      return const Color(0xFF2563EB);
+    }
+    // Priority 3: Pink for female
+    if (gender == 'female') {
+      return const Color(0xFFEC4899);
+    }
+    // Priority 4: Purple for other all genders
+    return const Color(0xFFA855F7);
+  }
+
+  /// Returns the corresponding bundled avatar portrait asset
+  static String getAvatarAsset(TreeCitizenNode node) {
+    final status = node.status.toLowerCase();
+    final gender = node.gender.toLowerCase();
+
+    if (status == 'deceased') {
+      return 'assets/images/deceased_avatar.jpg';
+    }
+    if (gender == 'male') {
+      return 'assets/images/male_avatar.jpg';
+    }
+    if (gender == 'female') {
+      return 'assets/images/female_avatar.jpg';
+    }
+    return 'assets/images/other_avatar.jpg';
+  }
 
   @override
   ConsumerState<TreeCanvasScreen> createState() => _TreeCanvasScreenState();
@@ -49,12 +89,49 @@ class _TreeCanvasScreenState extends ConsumerState<TreeCanvasScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                Container(
+                  width: 52,
+                  height: 52,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: TreeCanvasScreen.getNodeColor(node), width: 3),
+                    boxShadow: [
+                      BoxShadow(
+                        color: TreeCanvasScreen.getNodeColor(node).withOpacity(0.35),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: ClipOval(
+                    child: Image.asset(
+                      TreeCanvasScreen.getAvatarAsset(node),
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Icon(
+                        node.status.toLowerCase() == 'deceased'
+                            ? Icons.person_off_outlined
+                            : Icons.person,
+                        color: TreeCanvasScreen.getNodeColor(node),
+                        size: 28,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 14),
                 Expanded(
-                  child: Text(
-                    node.name,
-                    style: Theme.of(ctx).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        node.name,
+                        style: Theme.of(ctx).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        'VUID: ${node.formattedVuid}',
+                        style: const TextStyle(fontFamily: 'monospace', color: Colors.blueGrey, fontWeight: FontWeight.bold),
+                      ),
+                    ],
                   ),
                 ),
                 if (node.isVerified)
@@ -65,11 +142,6 @@ class _TreeCanvasScreenState extends ConsumerState<TreeCanvasScreen> {
               ],
             ),
             const SizedBox(height: 8),
-            Text(
-              'VUID: ${node.formattedVuid}',
-              style: const TextStyle(fontFamily: 'monospace', color: Colors.blueGrey, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 4),
             Text('Gender: ${node.gender} • Category: ${node.category} • Status: ${node.status}'),
             const Divider(height: 24),
             // Life Events Action Row
@@ -536,52 +608,178 @@ class _TreeCanvasScreenState extends ConsumerState<TreeCanvasScreen> {
   }
 
   Widget _buildNodeCard(TreeCitizenNode node) {
-    final isMale = node.gender == 'Male';
+    final nodeColor = TreeCanvasScreen.getNodeColor(node);
+    final avatarAsset = TreeCanvasScreen.getAvatarAsset(node);
     final isRoot = node.vuid == widget.rootVuid;
+    final isDeceased = node.status.toLowerCase() == 'deceased';
 
-    return Container(
+    return SizedBox(
       width: 170,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: isRoot
-              ? const Color(0xFF38BDF8)
-              : (isMale ? const Color(0xFF1E3A8A) : const Color(0xFFBE185D)),
-          width: isRoot ? 2.5 : 1.5,
-        ),
-        boxShadow: const [
-          BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 4))
-        ],
-      ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          // 1. Round Leaf Node with Image & Gender/Status Border
+          Stack(
+            clipBehavior: Clip.none,
+            alignment: Alignment.center,
             children: [
-              Expanded(
-                child: Text(
-                  node.name,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+              Container(
+                width: 68,
+                height: 68,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: nodeColor.withOpacity(0.12),
+                  border: Border.all(
+                    color: nodeColor,
+                    width: 3.5,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: nodeColor.withOpacity(0.35),
+                      blurRadius: 10,
+                      spreadRadius: 1.5,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: ClipOval(
+                  child: Image.asset(
+                    avatarAsset,
+                    width: 60,
+                    height: 60,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      color: nodeColor.withOpacity(0.15),
+                      child: Icon(
+                        isDeceased
+                            ? Icons.person_off_outlined
+                            : (node.gender.toLowerCase() == 'male'
+                                ? Icons.face
+                                : (node.gender.toLowerCase() == 'female'
+                                    ? Icons.face_3
+                                    : Icons.person)),
+                        size: 32,
+                        color: nodeColor,
+                      ),
+                    ),
+                  ),
                 ),
               ),
-              if (node.isVerified)
-                const Icon(Icons.verified, size: 14, color: Colors.greenAccent),
+              // Root Indicator Crown/Star Badge
+              if (isRoot)
+                Positioned(
+                  top: -2,
+                  right: -2,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFF59E0B),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(color: Colors.black38, blurRadius: 4),
+                      ],
+                    ),
+                    child: const Icon(Icons.star, size: 12, color: Colors.white),
+                  ),
+                ),
+              // Deceased Ribbon Badge
+              if (isDeceased)
+                Positioned(
+                  bottom: -3,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1F2937),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: const Color(0xFF9CA3AF), width: 1),
+                    ),
+                    child: const Text(
+                      'DECEASED',
+                      style: TextStyle(
+                        fontSize: 8,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFFE5E7EB),
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
-          const SizedBox(height: 2),
-          Text(
-            node.gender,
-            style: TextStyle(color: Colors.grey[400], fontSize: 11),
-          ),
           const SizedBox(height: 6),
-          Text(
-            node.formattedVuid,
-            style: const TextStyle(fontFamily: 'monospace', fontSize: 11, color: Colors.blueGrey),
+          // 2. Below Round Image: Details in Rectangle
+          Container(
+            width: 170,
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: isRoot ? const Color(0xFFF59E0B) : nodeColor.withOpacity(0.5),
+                width: isRoot ? 2.0 : 1.2,
+              ),
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black26,
+                  blurRadius: 6,
+                  offset: Offset(0, 3),
+                )
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        node.name,
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (node.isVerified)
+                      const Icon(Icons.verified, size: 14, color: Colors.greenAccent),
+                  ],
+                ),
+                const SizedBox(height: 2),
+                Row(
+                  children: [
+                    Container(
+                      width: 7,
+                      height: 7,
+                      decoration: BoxDecoration(
+                        color: nodeColor,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        '${node.gender} • ${node.category}',
+                        style: TextStyle(color: Colors.grey[400], fontSize: 10.5),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  node.formattedVuid,
+                  style: const TextStyle(
+                    fontFamily: 'monospace',
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.blueGrey,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -615,19 +813,19 @@ class KinshipLinePainter extends CustomPainter {
       if (source == null || target == null) continue;
 
       if (edge.type == 'Spouse') {
-        // Horizontal connecting line between spouses
+        // Horizontal connecting line between spouses at round avatar center height (34px)
         canvas.drawLine(
-          Offset(source.position.dx + 170, source.position.dy + 42),
-          Offset(target.position.dx, target.position.dy + 42),
+          Offset(source.position.dx + 170, source.position.dy + 34),
+          Offset(target.position.dx, target.position.dy + 34),
           spousePaint,
         );
       } else {
-        // Smooth cubic Bezier from parent down to child
+        // Smooth cubic Bezier from bottom of parent rectangle down to top of child round avatar
         final path = Path();
         final startX = source.position.dx + 85;
-        final startY = source.position.dy + 85;
+        final startY = source.position.dy + 140; // bottom of rectangle card
         final endX = target.position.dx + 85;
-        final endY = target.position.dy;
+        final endY = target.position.dy; // top of round avatar
 
         path.moveTo(startX, startY);
         path.cubicTo(
