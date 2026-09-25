@@ -76,8 +76,9 @@ function makeVUID(layer, index) {
   return `${layerStr}${indexStr}${suffix}`;
 }
 
-// Birth years per layer (5 layers)
-const birthYears = [1945, 1970, 1995, 2015, 2035];
+// Birth years per layer (5 layers). Inter-layer spacing (23y) guarantees every
+// parent is strictly >18 at each child's birth, and the last layer stays <= today.
+const birthYears = [1932, 1955, 1978, 2001, 2024];
 
 // ============================================================================
 // Layer 0: Root generation — 8 members (4 couples), one per category
@@ -112,7 +113,7 @@ for (let c = 0; c < categories.length; c++) {
   });
 
   relationships.push({ source: husbandVuid, target: wifeVuid, type: 'Spouse', status: 'Mutual_Confirmed' });
-  layer0Couples.push({ fatherVuid: husbandVuid, motherVuid: wifeVuid, category: cat, familyId: c });
+  layer0Couples.push({ fatherVuid: husbandVuid, motherVuid: wifeVuid, category: cat, familyId: c, fatherLastName: lastName });
   globalIdx += 2;
 }
 
@@ -129,45 +130,51 @@ for (let layer = 1; layer <= 4; layer++) {
     const parent = currentLayerCouples[pc];
     const cat = parent.category;
     const caste = castesMap[cat][(layer + pc) % castesMap[cat].length];
-    const lastName = lastNameMap[cat][(layer + pc) % lastNameMap[cat].length];
+    const fatherLastName = parent.fatherLastName;
     const city = cities[(layer * 4 + pc) % cities.length];
+
+    // Last-layer members are minors — they stay Single and are never paired.
+    const isLeafLayer = layer === birthYears.length - 1;
 
     // Son
     const sonVuid = makeVUID(layer, globalIdx);
     globalIdx++;
     citizens.push({
       vuid: sonVuid, first_name: nextMaleName(), middle_name: null,
-      last_name: lastName, gender: 'Male', dob: `${birthYears[layer]}-0${2 + (pc % 6)}-${10 + pc}`,
+      last_name: fatherLastName, gender: 'Male', dob: `${birthYears[layer]}-0${2 + (pc % 6)}-${10 + pc}`,
       caste, category: cat, gotra: gotras[(layer + pc) % gotras.length], religion: religions[(layer + pc) % religions.length],
-      marital_status: 'Married', blood_group: bloodGroups[(layer * 3 + pc) % bloodGroups.length],
+      marital_status: isLeafLayer ? 'Single' : 'Married', blood_group: bloodGroups[(layer * 3 + pc) % bloodGroups.length],
       address_line1: city.addr, pin_code: city.pin, district: city.district, state: city.state, country: 'India',
       is_claimed: 1, status: 'Active', created_at: '2026-01-01T00:00:00.000Z'
     });
 
     relationships.push({ source: parent.fatherVuid, target: sonVuid, type: 'Father', status: 'Document_Backed' });
     relationships.push({ source: parent.motherVuid, target: sonVuid, type: 'Mother', status: 'Document_Backed' });
-    sons.push({ vuid: sonVuid, category: cat, familyId: parent.familyId, parentIdx: pc });
+    sons.push({ vuid: sonVuid, lastName: fatherLastName, category: cat, familyId: parent.familyId, parentIdx: pc });
 
-    // Daughter
+    // Daughter — born with father's surname; on marriage it moves to
+    // middle_name and the husband's surname becomes her last_name.
     const dauVuid = makeVUID(layer, globalIdx);
     globalIdx++;
-    citizens.push({
+    const dauCitizen = {
       vuid: dauVuid, first_name: nextFemaleName(), middle_name: null,
-      last_name: lastName, gender: 'Female', dob: `${birthYears[layer] + 2}-0${5 + (pc % 4)}-${12 + pc}`,
+      last_name: fatherLastName, gender: 'Female', dob: `${birthYears[layer] + 2}-0${5 + (pc % 4)}-${12 + pc}`,
       caste, category: cat, gotra: gotras[(layer + pc + 1) % gotras.length], religion: religions[(layer + pc) % religions.length],
-      marital_status: 'Married', blood_group: bloodGroups[(layer * 3 + pc + 1) % bloodGroups.length],
+      marital_status: isLeafLayer ? 'Single' : 'Married', blood_group: bloodGroups[(layer * 3 + pc + 1) % bloodGroups.length],
       address_line1: city.addr, pin_code: city.pin, district: city.district, state: city.state, country: 'India',
       is_claimed: 1, status: 'Active', created_at: '2026-01-01T00:00:00.000Z'
-    });
+    };
+    citizens.push(dauCitizen);
 
     relationships.push({ source: parent.fatherVuid, target: dauVuid, type: 'Father', status: 'Document_Backed' });
     relationships.push({ source: parent.motherVuid, target: dauVuid, type: 'Mother', status: 'Document_Backed' });
-    daughters.push({ vuid: dauVuid, category: cat, familyId: parent.familyId, parentIdx: pc });
+    daughters.push({ vuid: dauVuid, citizen: dauCitizen, fatherLastName, category: cat, familyId: parent.familyId, parentIdx: pc });
   }
 
-  // Pair sons with daughters from DIFFERENT families (no sibling marriages)
+  // Pair sons with daughters from DIFFERENT families (no sibling marriages).
+  // Skip pairing on the leaf layer — those members are minors.
   const nextLayerCouples = [];
-  const numPairs = Math.min(sons.length, daughters.length);
+  const numPairs = layer < birthYears.length - 1 ? Math.min(sons.length, daughters.length) : 0;
 
   for (let i = 0; i < numPairs; i++) {
     const son = sons[i];
@@ -179,6 +186,12 @@ for (let layer = 1; layer <= 4; layer++) {
     }
 
     const daughter = daughters[dauIdx];
+
+    // Married-name convention: father's surname -> middle_name,
+    // husband's surname -> last_name
+    daughter.citizen.middle_name = daughter.fatherLastName;
+    daughter.citizen.last_name = son.lastName;
+
     relationships.push({ source: son.vuid, target: daughter.vuid, type: 'Spouse', status: 'Mutual_Confirmed' });
 
     nextLayerCouples.push({
@@ -186,10 +199,70 @@ for (let layer = 1; layer <= 4; layer++) {
       motherVuid: daughter.vuid,
       category: son.category,
       familyId: son.familyId,
+      fatherLastName: son.lastName,
     });
   }
 
   currentLayerCouples = nextLayerCouples;
+}
+
+// ============================================================================
+// Integrity validation — a parent must be strictly >18 at a child's birth,
+// no DOB may be in the future, and minors may not be marked Married.
+// ============================================================================
+const dobByVuid = new Map(citizens.map(c => [c.vuid, new Date(c.dob)]));
+const maritalByVuid = new Map(citizens.map(c => [c.vuid, c.marital_status]));
+const now = new Date();
+for (const c of citizens) {
+  if (dobByVuid.get(c.vuid) > now) {
+    throw new Error(`Future DOB: ${c.first_name} ${c.last_name} (${c.vuid}) born ${c.dob}`);
+  }
+  const age = (now - dobByVuid.get(c.vuid)) / (365.25 * 24 * 3600 * 1000);
+  if (age <= 18 && maritalByVuid.get(c.vuid) === 'Married') {
+    throw new Error(`Minor marked Married: ${c.first_name} ${c.last_name} (${c.vuid})`);
+  }
+}
+for (const r of relationships) {
+  if (r.type !== 'Father' && r.type !== 'Mother') continue;
+  const parentDob = dobByVuid.get(r.source);
+  const childDob = dobByVuid.get(r.target);
+  if (!parentDob || !childDob) throw new Error(`Dangling parent edge ${r.source} -> ${r.target}`);
+  const parentAgeAtBirth = (childDob - parentDob) / (365.25 * 24 * 3600 * 1000);
+  if (parentAgeAtBirth <= 18) {
+    throw new Error(`Parent ${r.source} was ${parentAgeAtBirth.toFixed(1)} at birth of ${r.target} (must be >18)`);
+  }
+}
+
+// Naming convention: sons keep the father's surname; married daughters carry
+// father's surname as middle_name and husband's surname as last_name.
+const citizenByVuid = new Map(citizens.map(c => [c.vuid, c]));
+const spouseOf = new Map();
+for (const r of relationships) {
+  if (r.type === 'Spouse') {
+    spouseOf.set(r.source, r.target);
+    spouseOf.set(r.target, r.source);
+  }
+}
+for (const r of relationships) {
+  if (r.type !== 'Father') continue;
+  const father = citizenByVuid.get(r.source);
+  const child = citizenByVuid.get(r.target);
+  const label = `${child.first_name} (${r.target})`;
+  if (child.gender === 'Male') {
+    if (child.last_name !== father.last_name) {
+      throw new Error(`Surname mismatch: son ${label} has '${child.last_name}', father has '${father.last_name}'`);
+    }
+  } else {
+    const husbandVuid = spouseOf.get(r.target);
+    if (husbandVuid) {
+      const husband = citizenByVuid.get(husbandVuid);
+      if (child.middle_name !== father.last_name || child.last_name !== husband.last_name) {
+        throw new Error(`Married-name mismatch: ${label} should be '${child.first_name} ${father.last_name} ${husband.last_name}', got '${[child.first_name, child.middle_name, child.last_name].filter(Boolean).join(' ')}'`);
+      }
+    } else if (child.last_name !== father.last_name) {
+      throw new Error(`Unmarried daughter ${label} should keep father's surname '${father.last_name}', got '${child.last_name}'`);
+    }
+  }
 }
 
 // ============================================================================

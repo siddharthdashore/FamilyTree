@@ -1854,6 +1854,7 @@ class KinshipLinePainter extends CustomPainter {
 
     // 1. Process Unique Spouse Pairs
     final processedSpouses = <String>{};
+    final coupleJunctions = <String, Offset>{};
     for (final edge in edges) {
       if (edge.type == 'Spouse') {
         final source = nodeMap[edge.source];
@@ -1904,6 +1905,7 @@ class KinshipLinePainter extends CustomPainter {
             : endCenter;
 
         final Offset midPos = Offset((startCenter.dx + endCenter.dx) / 2, (startCenter.dy + endCenter.dy) / 2);
+        coupleJunctions[pairId] = midPos;
 
         // Styling based on active vs former marriage
         final Paint currentLinePaint = isFormer
@@ -1987,8 +1989,10 @@ class KinshipLinePainter extends CustomPainter {
       }
     }
 
-    // 2. Process Individual Parent-to-Child & Adoption Lineage Connections (Color matches starting parent node)
+    // 2. Lineage Connections — children of a married couple descend from a single
+    //    union junction (genogram style) instead of two overlapping arrows.
     final childToParents = <String, Set<String>>{};
+    final childParentEdges = <String, List<KinshipEdge>>{};
     for (final edge in edges) {
       final isParentEdge = edge.type == 'Father' ||
           edge.type == 'Mother' ||
@@ -1997,99 +2001,154 @@ class KinshipLinePainter extends CustomPainter {
 
       if (isParentEdge) {
         childToParents.putIfAbsent(edge.target, () => {}).add(edge.source);
+        childParentEdges.putIfAbsent(edge.target, () => []).add(edge);
+      }
+    }
 
-        final parentNode = nodeMap[edge.source];
-        final childNode = nodeMap[edge.target];
-        if (parentNode == null || childNode == null) continue;
+    // Individual parent → child arrow (fallback for single parents, adoption,
+    // guardianship, or parents who aren't linked as spouses on the canvas).
+    void drawParentArrow(KinshipEdge edge) {
+      final parentNode = nodeMap[edge.source];
+      final childNode = nodeMap[edge.target];
+      if (parentNode == null || childNode == null) return;
 
-        // Starting parent node color dictates arrow line & arrow head color!
-        final parentColor = TreeCanvasScreen.getNodeColor(parentNode);
+      // Child node color dictates arrow line & arrow head color (male/female/other)!
+      final childColor = TreeCanvasScreen.getNodeColor(childNode);
 
-        final linePaint = Paint()
-          ..color = parentColor
-          ..strokeWidth = 2.5
-          ..style = PaintingStyle.stroke
-          ..strokeCap = StrokeCap.round;
+      final linePaint = Paint()
+        ..color = childColor
+        ..strokeWidth = 2.5
+        ..style = PaintingStyle.stroke
+        ..strokeCap = StrokeCap.round;
 
-        // Origin at bottom-center of parent card details box
-        final parentOrigin = Offset(
-          parentNode.position.dx + cardWidth / 2,
-          parentNode.position.dy + cardHeight,
-        );
+      // Origin at bottom-center of parent card details box
+      final parentOrigin = Offset(
+        parentNode.position.dx + cardWidth / 2,
+        parentNode.position.dy + cardHeight,
+      );
 
-        // Target top-center of child card
-        final isFather = edge.type == 'Father' || parentNode.gender.toLowerCase() == 'male';
-        final offsetShift = isFather ? -12.0 : 12.0;
-        final childTarget = Offset(
-          childNode.position.dx + cardWidth / 2 + offsetShift,
-          childNode.position.dy,
-        );
+      // Target top-center of child card
+      final isFather = edge.type == 'Father' || parentNode.gender.toLowerCase() == 'male';
+      final offsetShift = isFather ? -12.0 : 12.0;
+      final childTarget = Offset(
+        childNode.position.dx + cardWidth / 2 + offsetShift,
+        childNode.position.dy,
+      );
 
-        // Drop 12px straight down from box bottom mid border to clear container border & drop shadow cleanly
-        final routedDropPoint = Offset(parentOrigin.dx, parentOrigin.dy + 12.0);
-        canvas.drawLine(parentOrigin, routedDropPoint, linePaint);
+      // Drop 12px straight down from box bottom mid border to clear container border & drop shadow cleanly
+      final routedDropPoint = Offset(parentOrigin.dx, parentOrigin.dy + 12.0);
+      canvas.drawLine(parentOrigin, routedDropPoint, linePaint);
 
-        final isAdopted = edge.type.contains('Adopt') || edge.status == 'Adopted';
+      final isAdopted = edge.type.contains('Adopt') || edge.status == 'Adopted';
 
-        if (isAdopted) {
-          // Draw dashed inclined line for adoption
-          const dashWidth = 8.0;
-          const dashGap = 5.0;
-          final dx = childTarget.dx - routedDropPoint.dx;
-          final dy = childTarget.dy - routedDropPoint.dy;
-          final distance = sqrt(dx * dx + dy * dy);
-          final unitX = distance > 0 ? dx / distance : 0.0;
-          final unitY = distance > 0 ? dy / distance : 0.0;
+      if (isAdopted) {
+        // Draw dashed inclined line for adoption
+        const dashWidth = 8.0;
+        const dashGap = 5.0;
+        final dx = childTarget.dx - routedDropPoint.dx;
+        final dy = childTarget.dy - routedDropPoint.dy;
+        final distance = sqrt(dx * dx + dy * dy);
+        final unitX = distance > 0 ? dx / distance : 0.0;
+        final unitY = distance > 0 ? dy / distance : 0.0;
 
-          double drawn = 0.0;
-          while (drawn < distance) {
-            final startDist = drawn;
-            final endDist = min(drawn + dashWidth, distance);
-            canvas.drawLine(
-              Offset(routedDropPoint.dx + unitX * startDist, routedDropPoint.dy + unitY * startDist),
-              Offset(routedDropPoint.dx + unitX * endDist, routedDropPoint.dy + unitY * endDist),
-              linePaint,
-            );
-            drawn += dashWidth + dashGap;
-          }
-
-          // Draw "Adopted" / "दत्तक" Pill Badge on midpoint of adoption arrow
-          final midX = (routedDropPoint.dx + childTarget.dx) / 2;
-          final midY = (routedDropPoint.dy + childTarget.dy) / 2;
-          final badgeRect = RRect.fromLTRBR(
-            midX - 24, midY - 9, midX + 24, midY + 9, const Radius.circular(9)
+        double drawn = 0.0;
+        while (drawn < distance) {
+          final startDist = drawn;
+          final endDist = min(drawn + dashWidth, distance);
+          canvas.drawLine(
+            Offset(routedDropPoint.dx + unitX * startDist, routedDropPoint.dy + unitY * startDist),
+            Offset(routedDropPoint.dx + unitX * endDist, routedDropPoint.dy + unitY * endDist),
+            linePaint,
           );
-
-          final badgeBgPaint = Paint()
-            ..color = const Color(0xFF064E3B) // Dark Emerald Green
-            ..style = PaintingStyle.fill;
-          final badgeBorderPaint = Paint()
-            ..color = const Color(0xFF10B981) // Emerald Green Accent
-            ..strokeWidth = 1.2
-            ..style = PaintingStyle.stroke;
-
-          canvas.drawRRect(badgeRect, badgeBgPaint);
-          canvas.drawRRect(badgeRect, badgeBorderPaint);
-
-          final badgeTextPainter = TextPainter(
-            text: const TextSpan(
-              text: 'Adopted',
-              style: TextStyle(color: Color(0xFF6EE7B7), fontSize: 9.5, fontWeight: FontWeight.bold),
-            ),
-            textDirection: TextDirection.ltr,
-          );
-          badgeTextPainter.layout();
-          badgeTextPainter.paint(
-            canvas,
-            Offset(midX - badgeTextPainter.width / 2, midY - badgeTextPainter.height / 2),
-          );
-        } else {
-          // Draw solid inclined line from routedDropPoint to childTarget
-          canvas.drawLine(routedDropPoint, childTarget, linePaint);
+          drawn += dashWidth + dashGap;
         }
 
-        // Draw Arrow Head matching starting parent node color!
-        _drawArrowHead(canvas, routedDropPoint, childTarget, parentColor);
+        // Draw "Adopted" / "दत्तक" Pill Badge on midpoint of adoption arrow
+        final midX = (routedDropPoint.dx + childTarget.dx) / 2;
+        final midY = (routedDropPoint.dy + childTarget.dy) / 2;
+        final badgeRect = RRect.fromLTRBR(
+          midX - 24, midY - 9, midX + 24, midY + 9, const Radius.circular(9)
+        );
+
+        final badgeBgPaint = Paint()
+          ..color = const Color(0xFF064E3B) // Dark Emerald Green
+          ..style = PaintingStyle.fill;
+        final badgeBorderPaint = Paint()
+          ..color = const Color(0xFF10B981) // Emerald Green Accent
+          ..strokeWidth = 1.2
+          ..style = PaintingStyle.stroke;
+
+        canvas.drawRRect(badgeRect, badgeBgPaint);
+        canvas.drawRRect(badgeRect, badgeBorderPaint);
+
+        final badgeTextPainter = TextPainter(
+          text: const TextSpan(
+            text: 'Adopted',
+            style: TextStyle(color: Color(0xFF6EE7B7), fontSize: 9.5, fontWeight: FontWeight.bold),
+          ),
+          textDirection: TextDirection.ltr,
+        );
+        badgeTextPainter.layout();
+        badgeTextPainter.paint(
+          canvas,
+          Offset(midX - badgeTextPainter.width / 2, midY - badgeTextPainter.height / 2),
+        );
+      } else {
+        // Draw solid inclined line from routedDropPoint to childTarget
+        canvas.drawLine(routedDropPoint, childTarget, linePaint);
+      }
+
+      // Draw Arrow Head matching the child node color!
+      _drawArrowHead(canvas, routedDropPoint, childTarget, childColor);
+    }
+
+    // Group children by their shared parent set
+    final childrenByParentSet = <String, List<String>>{};
+    for (final entry in childParentEdges.entries) {
+      final parentKey = (entry.value.map((e) => e.source).toSet().toList()..sort()).join('-');
+      childrenByParentSet.putIfAbsent(parentKey, () => []).add(entry.key);
+    }
+
+    for (final entry in childrenByParentSet.entries) {
+      final children = entry.value;
+      final hasAdoptedChild = children.any((c) =>
+          childParentEdges[c]!.any((e) => e.type.contains('Adopt') || e.status == 'Adopted'));
+      final junction = coupleJunctions[entry.key];
+
+      if (junction != null && !hasAdoptedChild) {
+        // Union descent: a single angled line from the marriage badge to each
+        // child top-center — no shared bus or overlapping horizontal segments.
+        final childNodes = children
+            .map((v) => nodeMap[v])
+            .whereType<TreeCitizenNode>()
+            .toList();
+        if (childNodes.isEmpty) continue;
+
+        // Start just below the badge pill so lines emanate from it cleanly
+        final junctionOrigin = Offset(junction.dx, junction.dy + 12);
+        for (final childNode in childNodes) {
+          final childTarget = Offset(
+            childNode.position.dx + cardWidth / 2,
+            childNode.position.dy,
+          );
+          // Line color follows the child's gender (male/female/other); amber if unverified
+          final isUnverified = childParentEdges[childNode.vuid]!
+              .every((e) => e.status == 'Unverified');
+          final childPaint = isUnverified
+              ? unverifiedLinePaint
+              : (Paint()
+                ..color = TreeCanvasScreen.getNodeColor(childNode)
+                ..strokeWidth = 2.5
+                ..style = PaintingStyle.stroke
+                ..strokeCap = StrokeCap.round);
+          canvas.drawLine(junctionOrigin, childTarget, childPaint);
+        }
+      } else {
+        for (final child in children) {
+          for (final edge in childParentEdges[child]!) {
+            drawParentArrow(edge);
+          }
+        }
       }
     }
 

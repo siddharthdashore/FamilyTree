@@ -1,5 +1,6 @@
 -- ============================================================================
--- VanshaSetu (वन्शसेतु) — Multi-Generational Seed Data (10-Layer Hierarchy)
+-- VanshaSetu (वन्शसेतु) — Multi-Generational Seed Data (5-Layer Hierarchy)
+-- Generated: 2026-09-25T19:06:25.160Z
 -- ============================================================================
 
 USE `vanshasetu_db`;
@@ -15,7 +16,7 @@ TRUNCATE TABLE `citizens`;
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- ----------------------------------------------------------------------------
--- 1. Insert 10-Layer Citizens
+-- 1. Insert 5-Layer Citizens
 -- ----------------------------------------------------------------------------
 INSERT INTO `citizens` (
     `vuid`, `first_name`, `middle_name`, `last_name`, `gender`, `dob`,
@@ -23,50 +24,46 @@ INSERT INTO `citizens` (
     `address_line1`, `pin_code`, `district`, `state`, `country`,
     `is_claimed`, `status`
 ) VALUES
-('109284729102', 'Kailash', 'Prasad', 'Sharma', 'Male', '1945-03-10', 'Brahmin', 'GEN', 'Bharadwaj', 'Hindu', 'Married', 'A+', '42 Heritage Colony', '452001', 'Indore', 'Madhya Pradesh', 'India', TRUE, 'Active'),
-('109284729103', 'Savitri', 'Devi', 'Sharma', 'Female', '1948-06-15', 'Brahmin', 'GEN', 'Kashyap', 'Hindu', 'Married', 'A-', '42 Heritage Colony', '452001', 'Indore', 'Madhya Pradesh', 'India', TRUE, 'Active'),
-('000021000274', 'Ramesh', 'Kumar', 'Jatav', 'Male', '1945-04-11', 'Jatav', 'SC', 'Kashyap', 'Hindu', 'Married', 'B+', '15 Shyamla Hills', '462001', 'Bhopal', 'Madhya Pradesh', 'India', TRUE, 'Active'),
-('000031000411', 'Sunita', 'Kumari', 'Jatav', 'Female', '1948-07-16', 'Jatav', 'SC', 'Gautam', 'Hindu', 'Married', 'B-', '15 Shyamla Hills', '462001', 'Bhopal', 'Madhya Pradesh', 'India', TRUE, 'Active'),
-('000041000548', 'Deepak', 'Singh', 'Bhil', 'Male', '1945-05-12', 'Meena', 'ST', 'Gautam', 'Hindu', 'Married', 'O+', '89 Malviya Nagar', '302001', 'Jaipur', 'Rajasthan', 'India', TRUE, 'Active'),
-('000051000685', 'Meena', 'Bai', 'Bhil', 'Female', '1948-08-17', 'Meena', 'ST', 'Vashishta', 'Hindu', 'Married', 'O-', '89 Malviya Nagar', '302001', 'Jaipur', 'Rajasthan', 'India', TRUE, 'Active'),
-('000061000822', 'Vikram', 'Lal', 'Sahu', 'Male', '1945-06-13', 'Teli', 'OBC', 'Vashishta', 'Jain', 'Married', 'AB+', '34 Gomti Nagar', '226001', 'Lucknow', 'Uttar Pradesh', 'India', TRUE, 'Active'),
-('000071000959', 'Anita', 'Rani', 'Sahu', 'Female', '1948-09-18', 'Teli', 'OBC', 'Vatsa', 'Jain', 'Married', 'AB-', '34 Gomti Nagar', '226001', 'Lucknow', 'Uttar Pradesh', 'India', TRUE, 'Active'),
-('010081011096', 'Aarav', NULL, 'Mishra', 'Male', '1970-02-10', 'Rajput', 'GEN', 'Kashyap', 'Hindu', 'Married', 'B-', '7 Koregaon Park', '411001', 'Pune', 'Maharashtra', 'India', TRUE, 'Active'),
-('010091011233', 'Pooja', NULL, 'Mishra', 'Female', '1972-05-12', 'Rajput', 'GEN', 'Gautam', 'Hindu', 'Married', 'O+', '7 Koregaon Park', '411001', 'Pune', 'Maharashtra', 'India', TRUE, 'Active'),
-('010101011370', 'Ishaan', NULL, 'Gautan', 'Male', '1970-03-11', 'Mahar', 'SC', 'Gautam', 'Hindu', 'Married', 'O+', '22 Navrangpura', '380001', 'Ahmedabad', 'Gujarat', 'India', TRUE, 'Active'),
-('010111011507', 'Ananya', NULL, 'Gautan', 'Female', '1972-06-13', 'Mahar', 'SC', 'Vashishta', 'Hindu', 'Married', 'O-', '22 Navrangpura', '380001', 'Ahmedabad', 'Gujarat', 'India', TRUE, 'Active'),
-('010121011644', 'Rahul', NULL, 'Munda', 'Male', '1970-04-12', 'Santhal', 'ST', 'Vashishta', 'Jain', 'Married', 'O-', '56 Lanka', '221001', 'Varanasi', 'Uttar Pradesh', 'India', TRUE, 'Active'),
-('010131011781', 'Priya', NULL, 'Munda', 'Female', '1972-07-14', 'Santhal', 'ST', 'Vatsa', 'Jain', 'Married', 'AB+', '56 Lanka', '221001', 'Varanasi', 'Uttar Pradesh', 'India', TRUE, 'Active'),
-('010141011918', 'Kabir', NULL, 'Verma', 'Male', '1970-05-13', 'Gujar', 'OBC', 'Vatsa', 'Buddhist', 'Married', 'AB+', '3 Mahakal Rd', '456001', 'Ujjain', 'Madhya Pradesh', 'India', TRUE, 'Active'),
-('010151012055', 'Diya', NULL, 'Verma', 'Female', '1972-08-15', 'Gujar', 'OBC', 'Shandilya', 'Buddhist', 'Married', 'AB-', '3 Mahakal Rd', '456001', 'Ujjain', 'Madhya Pradesh', 'India', TRUE, 'Active'),
-('020161022192', 'Rohan', NULL, 'Trivedi', 'Male', '1995-02-10', 'Kayastha', 'GEN', 'Gautam', 'Hindu', 'Married', 'AB+', '42 Heritage Colony', '452001', 'Indore', 'Madhya Pradesh', 'India', TRUE, 'Active'),
-('020171022329', 'Kavita', NULL, 'Trivedi', 'Female', '1997-05-12', 'Kayastha', 'GEN', 'Vashishta', 'Hindu', 'Married', 'AB-', '42 Heritage Colony', '452001', 'Indore', 'Madhya Pradesh', 'India', TRUE, 'Active'),
-('020181022466', 'Vihaan', NULL, 'Kumar', 'Male', '1995-03-11', 'Valmiki', 'SC', 'Vashishta', 'Jain', 'Married', 'AB-', '15 Shyamla Hills', '462001', 'Bhopal', 'Madhya Pradesh', 'India', TRUE, 'Active'),
-('020191022603', 'Riya', NULL, 'Kumar', 'Female', '1997-06-13', 'Valmiki', 'SC', 'Vatsa', 'Jain', 'Married', 'A+', '15 Shyamla Hills', '462001', 'Bhopal', 'Madhya Pradesh', 'India', TRUE, 'Active'),
-('020201022740', 'Advait', NULL, 'Kol', 'Male', '1995-04-12', 'Oraon', 'ST', 'Vatsa', 'Buddhist', 'Married', 'A+', '89 Malviya Nagar', '302001', 'Jaipur', 'Rajasthan', 'India', TRUE, 'Active'),
-('020211022877', 'Kavya', NULL, 'Kol', 'Female', '1997-07-14', 'Oraon', 'ST', 'Shandilya', 'Buddhist', 'Married', 'A-', '89 Malviya Nagar', '302001', 'Jaipur', 'Rajasthan', 'India', TRUE, 'Active'),
-('020221023014', 'Devendra', NULL, 'Patel', 'Male', '1995-05-13', 'Yadav', 'OBC', 'Shandilya', 'Sikh', 'Married', 'A-', '34 Gomti Nagar', '226001', 'Lucknow', 'Uttar Pradesh', 'India', TRUE, 'Active'),
-('020231023151', 'Phoolmati', NULL, 'Patel', 'Female', '1997-08-15', 'Yadav', 'OBC', 'Atri', 'Sikh', 'Married', 'B+', '34 Gomti Nagar', '226001', 'Lucknow', 'Uttar Pradesh', 'India', TRUE, 'Active'),
-('030241033288', 'Suresh', NULL, 'Pandey', 'Male', '2015-02-10', 'Khatri', 'GEN', 'Vashishta', 'Jain', 'Married', 'A-', '7 Koregaon Park', '411001', 'Pune', 'Maharashtra', 'India', TRUE, 'Active'),
-('030251033425', 'Neha', NULL, 'Pandey', 'Female', '2017-05-12', 'Khatri', 'GEN', 'Vatsa', 'Jain', 'Married', 'B+', '7 Koregaon Park', '411001', 'Pune', 'Maharashtra', 'India', TRUE, 'Active'),
-('030261033562', 'Ramcharan', NULL, 'Rathore', 'Male', '2015-03-11', 'Dhobi', 'SC', 'Vatsa', 'Buddhist', 'Married', 'B+', '22 Navrangpura', '380001', 'Ahmedabad', 'Gujarat', 'India', TRUE, 'Active'),
-('030271033699', 'Ritu', NULL, 'Rathore', 'Female', '2017-06-13', 'Dhobi', 'SC', 'Shandilya', 'Buddhist', 'Married', 'B-', '22 Navrangpura', '380001', 'Ahmedabad', 'Gujarat', 'India', TRUE, 'Active'),
-('030281033836', 'Amit', NULL, 'Gond', 'Male', '2015-04-12', 'Gond', 'ST', 'Shandilya', 'Sikh', 'Married', 'B-', '56 Lanka', '221001', 'Varanasi', 'Uttar Pradesh', 'India', TRUE, 'Active'),
-('030291033973', 'Shweta', NULL, 'Gond', 'Female', '2017-07-14', 'Gond', 'ST', 'Atri', 'Sikh', 'Married', 'O+', '56 Lanka', '221001', 'Varanasi', 'Uttar Pradesh', 'India', TRUE, 'Active'),
-('030301034110', 'Sanjay', NULL, 'Yadav', 'Male', '2015-05-13', 'Kurmi', 'OBC', 'Atri', 'Hindu', 'Married', 'O+', '3 Mahakal Rd', '456001', 'Ujjain', 'Madhya Pradesh', 'India', TRUE, 'Active'),
-('030311034247', 'Nisha', NULL, 'Yadav', 'Female', '2017-08-15', 'Kurmi', 'OBC', 'Kaushik', 'Hindu', 'Married', 'O-', '3 Mahakal Rd', '456001', 'Ujjain', 'Madhya Pradesh', 'India', TRUE, 'Active'),
-('040321044384', 'Manish', NULL, 'Dubey', 'Male', '2035-02-10', 'Vaishya', 'GEN', 'Vatsa', 'Buddhist', 'Married', 'O+', '42 Heritage Colony', '452001', 'Indore', 'Madhya Pradesh', 'India', TRUE, 'Active'),
-('040331044521', 'Aarti', NULL, 'Dubey', 'Female', '2037-05-12', 'Vaishya', 'GEN', 'Shandilya', 'Buddhist', 'Married', 'O-', '42 Heritage Colony', '452001', 'Indore', 'Madhya Pradesh', 'India', TRUE, 'Active'),
-('040341044658', 'Karan', NULL, 'Paswan', 'Male', '2035-03-11', 'Chamar', 'SC', 'Shandilya', 'Sikh', 'Married', 'O-', '15 Shyamla Hills', '462001', 'Bhopal', 'Madhya Pradesh', 'India', TRUE, 'Active'),
-('040351044795', 'Sanya', NULL, 'Paswan', 'Female', '2037-06-13', 'Chamar', 'SC', 'Atri', 'Sikh', 'Married', 'AB+', '15 Shyamla Hills', '462001', 'Bhopal', 'Madhya Pradesh', 'India', TRUE, 'Active'),
-('040361044932', 'Aditya', NULL, 'Meena', 'Male', '2035-04-12', 'Bhil', 'ST', 'Atri', 'Hindu', 'Married', 'AB+', '89 Malviya Nagar', '302001', 'Jaipur', 'Rajasthan', 'India', TRUE, 'Active'),
-('040371045069', 'Tanvi', NULL, 'Meena', 'Female', '2037-07-14', 'Bhil', 'ST', 'Kaushik', 'Hindu', 'Married', 'AB-', '89 Malviya Nagar', '302001', 'Jaipur', 'Rajasthan', 'India', TRUE, 'Active'),
-('040381045206', 'Arjun', NULL, 'Gupta', 'Male', '2035-05-13', 'Jat', 'OBC', 'Kaushik', 'Hindu', 'Married', 'AB-', '34 Gomti Nagar', '226001', 'Lucknow', 'Uttar Pradesh', 'India', TRUE, 'Active'),
-('040391045343', 'Isha', NULL, 'Gupta', 'Female', '2037-08-15', 'Jat', 'OBC', 'Bharadwaj', 'Hindu', 'Married', 'A+', '34 Gomti Nagar', '226001', 'Lucknow', 'Uttar Pradesh', 'India', TRUE, 'Active'),
-('157661075151', 'Devendra', NULL, 'Patel', 'Male', '1985-11-20', 'Patidar', 'OBC', 'Kashyap', 'Hindu', 'Married', 'B+', '12 Shanti Nagar', '452001', 'Indore', 'Madhya Pradesh', 'India', TRUE, 'Active'),
-('889156869996', 'Devendra', NULL, 'Pandey', 'Male', '1995-08-15', 'Brahmin', 'GEN', 'Shandilya', 'Hindu', 'Single', 'O+', '', '452001', 'Indore', 'Madhya Pradesh', 'India', TRUE, 'Active'),
-('416814198919', 'Devendra', NULL, 'Patel', 'Male', '1985-11-20', 'Patidar', 'OBC', 'Kashyap', 'Hindu', 'Married', 'B+', '12 Shanti Nagar', '452001', 'Indore', 'Madhya Pradesh', 'India', TRUE, 'Active'),
-('136563984627', 'Devendra', NULL, 'Pandey', 'Male', '1995-08-15', 'Brahmin', 'GEN', 'Shandilya', 'Hindu', 'Single', 'O+', '', '452001', 'Indore', 'Madhya Pradesh', 'India', TRUE, 'Active');
+('109284729102', 'Kailash', 'Prasad', 'Sharma', 'Male', '1932-03-10', 'Brahmin', 'GEN', 'Bharadwaj', 'Hindu', 'Married', 'A+', '42 Heritage Colony', '452001', 'Indore', 'Madhya Pradesh', 'India', TRUE, 'Active'),
+('109284729103', 'Savitri', 'Devi', 'Sharma', 'Female', '1935-06-15', 'Brahmin', 'GEN', 'Kashyap', 'Hindu', 'Married', 'A-', '42 Heritage Colony', '452001', 'Indore', 'Madhya Pradesh', 'India', TRUE, 'Active'),
+('000021000274', 'Ramesh', 'Kumar', 'Jatav', 'Male', '1932-04-11', 'Jatav', 'SC', 'Kashyap', 'Hindu', 'Married', 'B+', '15 Shyamla Hills', '462001', 'Bhopal', 'Madhya Pradesh', 'India', TRUE, 'Active'),
+('000031000411', 'Sunita', 'Kumari', 'Jatav', 'Female', '1935-07-16', 'Jatav', 'SC', 'Gautam', 'Hindu', 'Married', 'B-', '15 Shyamla Hills', '462001', 'Bhopal', 'Madhya Pradesh', 'India', TRUE, 'Active'),
+('000041000548', 'Deepak', 'Singh', 'Bhil', 'Male', '1932-05-12', 'Meena', 'ST', 'Gautam', 'Hindu', 'Married', 'O+', '89 Malviya Nagar', '302001', 'Jaipur', 'Rajasthan', 'India', TRUE, 'Active'),
+('000051000685', 'Meena', 'Bai', 'Bhil', 'Female', '1935-08-17', 'Meena', 'ST', 'Vashishta', 'Hindu', 'Married', 'O-', '89 Malviya Nagar', '302001', 'Jaipur', 'Rajasthan', 'India', TRUE, 'Active'),
+('000061000822', 'Vikram', 'Lal', 'Sahu', 'Male', '1932-06-13', 'Teli', 'OBC', 'Vashishta', 'Jain', 'Married', 'AB+', '34 Gomti Nagar', '226001', 'Lucknow', 'Uttar Pradesh', 'India', TRUE, 'Active'),
+('000071000959', 'Anita', 'Rani', 'Sahu', 'Female', '1935-09-18', 'Teli', 'OBC', 'Vatsa', 'Jain', 'Married', 'AB-', '34 Gomti Nagar', '226001', 'Lucknow', 'Uttar Pradesh', 'India', TRUE, 'Active'),
+('010081011096', 'Aarav', NULL, 'Sharma', 'Male', '1955-02-10', 'Rajput', 'GEN', 'Kashyap', 'Hindu', 'Married', 'B-', '7 Koregaon Park', '411001', 'Pune', 'Maharashtra', 'India', TRUE, 'Active'),
+('010091011233', 'Pooja', 'Sharma', 'Sahu', 'Female', '1957-05-12', 'Rajput', 'GEN', 'Gautam', 'Hindu', 'Married', 'O+', '7 Koregaon Park', '411001', 'Pune', 'Maharashtra', 'India', TRUE, 'Active'),
+('010101011370', 'Ishaan', NULL, 'Jatav', 'Male', '1955-03-11', 'Mahar', 'SC', 'Gautam', 'Hindu', 'Married', 'O+', '22 Navrangpura', '380001', 'Ahmedabad', 'Gujarat', 'India', TRUE, 'Active'),
+('010111011507', 'Ananya', 'Jatav', 'Sharma', 'Female', '1957-06-13', 'Mahar', 'SC', 'Vashishta', 'Hindu', 'Married', 'O-', '22 Navrangpura', '380001', 'Ahmedabad', 'Gujarat', 'India', TRUE, 'Active'),
+('010121011644', 'Rahul', NULL, 'Bhil', 'Male', '1955-04-12', 'Santhal', 'ST', 'Vashishta', 'Jain', 'Married', 'O-', '56 Lanka', '221001', 'Varanasi', 'Uttar Pradesh', 'India', TRUE, 'Active'),
+('010131011781', 'Priya', 'Bhil', 'Jatav', 'Female', '1957-07-14', 'Santhal', 'ST', 'Vatsa', 'Jain', 'Married', 'AB+', '56 Lanka', '221001', 'Varanasi', 'Uttar Pradesh', 'India', TRUE, 'Active'),
+('010141011918', 'Kabir', NULL, 'Sahu', 'Male', '1955-05-13', 'Gujar', 'OBC', 'Vatsa', 'Buddhist', 'Married', 'AB+', '3 Mahakal Rd', '456001', 'Ujjain', 'Madhya Pradesh', 'India', TRUE, 'Active'),
+('010151012055', 'Diya', 'Sahu', 'Bhil', 'Female', '1957-08-15', 'Gujar', 'OBC', 'Shandilya', 'Buddhist', 'Married', 'AB-', '3 Mahakal Rd', '456001', 'Ujjain', 'Madhya Pradesh', 'India', TRUE, 'Active'),
+('020161022192', 'Rohan', NULL, 'Sharma', 'Male', '1978-02-10', 'Kayastha', 'GEN', 'Gautam', 'Hindu', 'Married', 'AB+', '42 Heritage Colony', '452001', 'Indore', 'Madhya Pradesh', 'India', TRUE, 'Active'),
+('020171022329', 'Kavita', 'Sharma', 'Sahu', 'Female', '1980-05-12', 'Kayastha', 'GEN', 'Vashishta', 'Hindu', 'Married', 'AB-', '42 Heritage Colony', '452001', 'Indore', 'Madhya Pradesh', 'India', TRUE, 'Active'),
+('020181022466', 'Vihaan', NULL, 'Jatav', 'Male', '1978-03-11', 'Valmiki', 'SC', 'Vashishta', 'Jain', 'Married', 'AB-', '15 Shyamla Hills', '462001', 'Bhopal', 'Madhya Pradesh', 'India', TRUE, 'Active'),
+('020191022603', 'Riya', 'Jatav', 'Sharma', 'Female', '1980-06-13', 'Valmiki', 'SC', 'Vatsa', 'Jain', 'Married', 'A+', '15 Shyamla Hills', '462001', 'Bhopal', 'Madhya Pradesh', 'India', TRUE, 'Active'),
+('020201022740', 'Advait', NULL, 'Bhil', 'Male', '1978-04-12', 'Oraon', 'ST', 'Vatsa', 'Buddhist', 'Married', 'A+', '89 Malviya Nagar', '302001', 'Jaipur', 'Rajasthan', 'India', TRUE, 'Active'),
+('020211022877', 'Kavya', 'Bhil', 'Jatav', 'Female', '1980-07-14', 'Oraon', 'ST', 'Shandilya', 'Buddhist', 'Married', 'A-', '89 Malviya Nagar', '302001', 'Jaipur', 'Rajasthan', 'India', TRUE, 'Active'),
+('020221023014', 'Devendra', NULL, 'Sahu', 'Male', '1978-05-13', 'Yadav', 'OBC', 'Shandilya', 'Sikh', 'Married', 'A-', '34 Gomti Nagar', '226001', 'Lucknow', 'Uttar Pradesh', 'India', TRUE, 'Active'),
+('020231023151', 'Phoolmati', 'Sahu', 'Bhil', 'Female', '1980-08-15', 'Yadav', 'OBC', 'Atri', 'Sikh', 'Married', 'B+', '34 Gomti Nagar', '226001', 'Lucknow', 'Uttar Pradesh', 'India', TRUE, 'Active'),
+('030241033288', 'Suresh', NULL, 'Sharma', 'Male', '2001-02-10', 'Khatri', 'GEN', 'Vashishta', 'Jain', 'Married', 'A-', '7 Koregaon Park', '411001', 'Pune', 'Maharashtra', 'India', TRUE, 'Active'),
+('030251033425', 'Neha', 'Sharma', 'Sahu', 'Female', '2003-05-12', 'Khatri', 'GEN', 'Vatsa', 'Jain', 'Married', 'B+', '7 Koregaon Park', '411001', 'Pune', 'Maharashtra', 'India', TRUE, 'Active'),
+('030261033562', 'Ramcharan', NULL, 'Jatav', 'Male', '2001-03-11', 'Dhobi', 'SC', 'Vatsa', 'Buddhist', 'Married', 'B+', '22 Navrangpura', '380001', 'Ahmedabad', 'Gujarat', 'India', TRUE, 'Active'),
+('030271033699', 'Ritu', 'Jatav', 'Sharma', 'Female', '2003-06-13', 'Dhobi', 'SC', 'Shandilya', 'Buddhist', 'Married', 'B-', '22 Navrangpura', '380001', 'Ahmedabad', 'Gujarat', 'India', TRUE, 'Active'),
+('030281033836', 'Amit', NULL, 'Bhil', 'Male', '2001-04-12', 'Gond', 'ST', 'Shandilya', 'Sikh', 'Married', 'B-', '56 Lanka', '221001', 'Varanasi', 'Uttar Pradesh', 'India', TRUE, 'Active'),
+('030291033973', 'Shweta', 'Bhil', 'Jatav', 'Female', '2003-07-14', 'Gond', 'ST', 'Atri', 'Sikh', 'Married', 'O+', '56 Lanka', '221001', 'Varanasi', 'Uttar Pradesh', 'India', TRUE, 'Active'),
+('030301034110', 'Sanjay', NULL, 'Sahu', 'Male', '2001-05-13', 'Kurmi', 'OBC', 'Atri', 'Hindu', 'Married', 'O+', '3 Mahakal Rd', '456001', 'Ujjain', 'Madhya Pradesh', 'India', TRUE, 'Active'),
+('030311034247', 'Nisha', 'Sahu', 'Bhil', 'Female', '2003-08-15', 'Kurmi', 'OBC', 'Kaushik', 'Hindu', 'Married', 'O-', '3 Mahakal Rd', '456001', 'Ujjain', 'Madhya Pradesh', 'India', TRUE, 'Active'),
+('040321044384', 'Manish', NULL, 'Sharma', 'Male', '2024-02-10', 'Vaishya', 'GEN', 'Vatsa', 'Buddhist', 'Single', 'O+', '42 Heritage Colony', '452001', 'Indore', 'Madhya Pradesh', 'India', TRUE, 'Active'),
+('040331044521', 'Aarti', NULL, 'Sharma', 'Female', '2026-05-12', 'Vaishya', 'GEN', 'Shandilya', 'Buddhist', 'Single', 'O-', '42 Heritage Colony', '452001', 'Indore', 'Madhya Pradesh', 'India', TRUE, 'Active'),
+('040341044658', 'Karan', NULL, 'Jatav', 'Male', '2024-03-11', 'Chamar', 'SC', 'Shandilya', 'Sikh', 'Single', 'O-', '15 Shyamla Hills', '462001', 'Bhopal', 'Madhya Pradesh', 'India', TRUE, 'Active'),
+('040351044795', 'Sanya', NULL, 'Jatav', 'Female', '2026-06-13', 'Chamar', 'SC', 'Atri', 'Sikh', 'Single', 'AB+', '15 Shyamla Hills', '462001', 'Bhopal', 'Madhya Pradesh', 'India', TRUE, 'Active'),
+('040361044932', 'Aditya', NULL, 'Bhil', 'Male', '2024-04-12', 'Bhil', 'ST', 'Atri', 'Hindu', 'Single', 'AB+', '89 Malviya Nagar', '302001', 'Jaipur', 'Rajasthan', 'India', TRUE, 'Active'),
+('040371045069', 'Tanvi', NULL, 'Bhil', 'Female', '2026-07-14', 'Bhil', 'ST', 'Kaushik', 'Hindu', 'Single', 'AB-', '89 Malviya Nagar', '302001', 'Jaipur', 'Rajasthan', 'India', TRUE, 'Active'),
+('040381045206', 'Arjun', NULL, 'Sahu', 'Male', '2024-05-13', 'Jat', 'OBC', 'Kaushik', 'Hindu', 'Single', 'AB-', '34 Gomti Nagar', '226001', 'Lucknow', 'Uttar Pradesh', 'India', TRUE, 'Active'),
+('040391045343', 'Isha', NULL, 'Sahu', 'Female', '2026-08-15', 'Jat', 'OBC', 'Bharadwaj', 'Hindu', 'Single', 'A+', '34 Gomti Nagar', '226001', 'Lucknow', 'Uttar Pradesh', 'India', TRUE, 'Active');
 
 -- ----------------------------------------------------------------------------
 -- 2. Insert Lineage Kinship Relationships
@@ -153,8 +150,4 @@ INSERT INTO `relationships` (
 ('030301034110', '040381045206', 'Father', 'Document_Backed'),
 ('030251033425', '040381045206', 'Mother', 'Document_Backed'),
 ('030301034110', '040391045343', 'Father', 'Document_Backed'),
-('030251033425', '040391045343', 'Mother', 'Document_Backed'),
-('040321044384', '040351044795', 'Spouse', 'Mutual_Confirmed'),
-('040341044658', '040371045069', 'Spouse', 'Mutual_Confirmed'),
-('040361044932', '040391045343', 'Spouse', 'Mutual_Confirmed'),
-('040381045206', '040331044521', 'Spouse', 'Mutual_Confirmed');
+('030251033425', '040391045343', 'Mother', 'Document_Backed');

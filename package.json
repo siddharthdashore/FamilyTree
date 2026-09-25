@@ -2,6 +2,7 @@
   "name": "vanshasetu-root",
   "version": "1.0.0",
   "description": "VanshaSetu Root Workspace",
+  "license": "MIT",
   "scripts": {
     "start": "node backend/server.js",
     "sync:models": "node scripts/sync_models.js",

@@ -3,7 +3,7 @@
 > **A Production-Grade, Minimalist, Material 3 Digital Public Infrastructure (DPI) Kinship Platform for Global Lineage Mapping, OCP Document Vaulting, Indian Civil Life Events, Matrimony with Gotra Exogamy, Census Demographic Analytics, and WhatsApp-Verifiable Vansha Cards.**
 
 [![Platform Version](https://img.shields.io/badge/version-1.2.0--PROD-blue.svg)](Docs/constitution.md)
-[![License: Proprietary / DPI](https://img.shields.io/badge/License-DPI%20Sovereign-green.svg)](README.md)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Flutter](https://img.shields.io/badge/Flutter-3.20%2B-02569B?logo=flutter)](https://flutter.dev)
 [![Node.js](https://img.shields.io/badge/Node.js-18%2F20%20LTS-339933?logo=node.js)](https://nodejs.org)
 [![MySQL](https://img.shields.io/badge/MySQL-8.0%20InnoDB%20TDE-4479A1?logo=mysql)](https://mysql.com)
@@ -263,4 +263,6 @@ npm run validate:db
 
 ## 9. License & Governance
 
-VanshaSetu is developed under Digital Public Infrastructure (DPI) sovereign guidelines for kinship governance, socio-economic research, civil registry assistance, and demographic transparency. All platform modifications are governed unconditionally by the [Sovereign Constitution](Docs/constitution.md).
+VanshaSetu is released under the [MIT License](LICENSE).
+
+The platform is developed under Digital Public Infrastructure (DPI) sovereign guidelines for kinship governance, socio-economic research, civil registry assistance, and demographic transparency. All platform modifications are governed unconditionally by the [Sovereign Constitution](Docs/constitution.md).
