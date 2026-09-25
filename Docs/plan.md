@@ -361,7 +361,7 @@ The VanshaSetu platform is hardened with a multi-tiered automated testing matrix
 | **Civil Events & Matrimony** | `backend/tests/extended_features.test.js` | `node:test` + `node:assert` | **8** | `PASS (100%)` | Child birth VUID allocation, death registration, civil marriage, education records, matrimony search with Gotra exogamy, demographics census pyramid, blockchain audit chain verification. |
 | **Backend Cryptography** | `backend/tests/crypto.test.js` | `node:test` + `node:assert` | **6** | `PASS (100%)` | AES-256-GCM field encryption/decryption, tampered auth tag rejection, salted SHA-256 doc hashing, masked formatting, JWE payload envelope, HMAC signatures. |
 | **Anti-Tampering & Security** | `backend/tests/security_middleware.test.js` | `node:test` + `node:assert` | **5** | `PASS (100%)` | Expired timestamp rejection (>60s), replay nonce cache rejection, modified payload detection, transparent JWE decryption, rate limit burst blocking. |
-| **Multilingual Parity** | `client/test/localization_test.dart` | `flutter_test` | **5** | `PASS (100%)` | English, Hindi, Gujarati, and Marathi UI translations, 72 kinship localized terms, localized civil models, and LanguageSelectorButton rendering. |
+| **Multilingual Parity** | `client/test/localization_test.dart` | `flutter_test` | **6** | `PASS (100%)` | English, Hindi, Gujarati, and Marathi UI translations, 72 kinship localized terms, localized civil models, LanguageSelectorButton rendering, and runtime MaterialLocalizations resolution across all 4 languages. |
 | **Client Models & State** | `client/test/models_test.dart` | `flutter_test` | **5** | `PASS (100%)` | JSON serialization/deserialization, strict canonical model validation, OCP verification flags, directed kinship graph edges, dynamic tree hydration. |
 | **VUID Standard Engine** | `backend/tests/vuid.test.js` | `node:test` + `node:assert` | **3** | `PASS (100%)` | 12-digit CSPRNG integer range `[100000000000, 999999999999]`, format regex validation, 3-cluster space formatting (`XXXX XXXX XXXX`). |
 | **Client Extended UI** | `client/test/extended_features_test.dart` | `flutter_test` (Widget) | **3** | `PASS (100%)` | Demographics census analytics dashboard, Matrimony search with Gotra alert badges, Audit logs screen with live blockchain verification. |
@@ -373,7 +373,7 @@ The VanshaSetu platform is hardened with a multi-tiered automated testing matrix
 | **Kinship Canvas UI** | `client/test/tree_canvas_test.dart` | `flutter_test` (Widget) | **3** | `PASS (100%)` | App bar rendering, canvas container, recenter action, `KinshipLinePainter.shouldRepaint` evaluation on layout changes, and two-tier leaf node chromatic invariants (blue for male, pink for female, gray if died, purple for other genders). |
 | **Vansha Card UI** | `client/test/vansha_card_widget_test.dart` | `flutter_test` (Widget) | **1** | `PASS (100%)` | ISO/IEC 7810 ID-1 card aspect ratio (1.586), QR code generation, OCP verified badge, formatted VUID display. |
 | **App Smoke Test** | `client/test/widget_test.dart` | `flutter_test` (Widget) | **1** | `PASS (100%)` | Full root MaterialApp startup smoke test, registration navigation. |
-| **TOTAL** | **Entire Codebase** | **All Runners** | **108 / 108** | **100% PASS** | **Zero failures, zero regressions, full end-to-end verification.** |
+| **TOTAL** | **Entire Codebase** | **All Runners** | **109 / 109** | **100% PASS** | **Zero failures, zero regressions, full end-to-end verification.** |
 
 ### 14.2 Automated Testing Runbook Commands
 

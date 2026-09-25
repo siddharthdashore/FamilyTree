@@ -201,8 +201,8 @@ Every pull request, architectural design, database migration, and cryptographic 
 2. The entire test suite across all subsystems MUST execute cleanly with zero errors, zero uncaught exceptions, and zero skipped core assertions:
    - **Database DDL & Schema Validator:** 30/30 assertions passed.
    - **Backend API, Crypto, Security & E2E Suites:** 48/48 tests passed across 7 suites.
-   - **Client Unit & Widget Suite:** 30/30 tests passed across 10 suites.
-   - **Total Sovereign Test Suite:** **108/108 assertions passed (100% pass rate)**.
+   - **Client Unit & Widget Suite:** 31/31 tests passed across 10 suites.
+   - **Total Sovereign Test Suite:** **109/109 assertions passed (100% pass rate)**.
 3. Total workspace testing is enforced via:
    ```bash
    npm run test:all && node database/validate_ddl.js
@@ -346,6 +346,7 @@ Every pull request, architectural design, database migration, and cryptographic 
 3. **API & Client Implementation Requirements:**
    - The metadata endpoint `GET /api/v1/meta/civil-models` MUST accept `?lang=en|hi|gu|mr` and return localized dictionaries for categories, relationships, and metadata.
    - The Flutter client MUST incorporate reactive localization via `AppLocalizations`, `localeProvider`, and prominent `LanguageSelectorButton` interactive widgets allowing instant switching between English, Hindi, Gujarati, and Marathi across all screens.
+   - Flutter application entry points (`MaterialApp`) MUST declare `GlobalMaterialLocalizations.delegate`, `GlobalWidgetsLocalizations.delegate`, and `GlobalCupertinoLocalizations.delegate` alongside `AppLocalizationsDelegate` to ensure seamless runtime language selection without `No MaterialLocalizations found` crashes across all 4 official languages.
 
 ### Section 10.4: Cross-Layer Enforcement Matrix
 1. **Database Layer:** MySQL schema enforces strict `CHECK` constraints on all enumerated columns (`gender`, `category`, `religion`, `marital_status`, `blood_group`, `status`, `relationship type`, `document type`).

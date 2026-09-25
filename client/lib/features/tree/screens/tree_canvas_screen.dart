@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/civil_models.dart';
@@ -64,7 +65,7 @@ class _TreeCanvasScreenState extends ConsumerState<TreeCanvasScreen> {
   @override
   void initState() {
     super.initState();
-    _transformationController.value = Matrix4.translationValues(-300.0, -250.0, 0.0);
+    _transformationController.value = Matrix4.translationValues(0.0, 0.0, 0.0);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(treeProvider.notifier).fetchTree(widget.rootVuid);
     });
@@ -76,75 +77,288 @@ class _TreeCanvasScreenState extends ConsumerState<TreeCanvasScreen> {
     super.dispose();
   }
 
+  String _calculateAge(String dobStr) {
+    if (dobStr.isEmpty) return '';
+    try {
+      final dob = DateTime.parse(dobStr);
+      final today = DateTime.now();
+      int age = today.year - dob.year;
+      if (today.month < dob.month || (today.month == dob.month && today.day < dob.day)) {
+        age--;
+      }
+      return age >= 0 ? '$age yrs' : '';
+    } catch (_) {
+      return '';
+    }
+  }
+
+  Widget _buildDetailRow({required IconData icon, required String label, required String value}) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: const Color(0xFF38BDF8)),
+        const SizedBox(width: 8),
+        SizedBox(
+          width: 130,
+          child: Text(
+            label,
+            style: const TextStyle(color: Colors.white54, fontSize: 12, fontWeight: FontWeight.w500),
+          ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: const TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.w600),
+            textAlign: TextAlign.end,
+          ),
+        ),
+      ],
+    );
+  }
+
   void _showNodeDetails(TreeCitizenNode node) {
+    final ageText = _calculateAge(node.dob);
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 52,
-                  height: 52,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: TreeCanvasScreen.getNodeColor(node), width: 3),
-                    boxShadow: [
-                      BoxShadow(
-                        color: TreeCanvasScreen.getNodeColor(node).withOpacity(0.35),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: ClipOval(
-                    child: Image.asset(
-                      TreeCanvasScreen.getAvatarAsset(node),
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Icon(
-                        node.status.toLowerCase() == 'deceased'
-                            ? Icons.person_off_outlined
-                            : Icons.person,
-                        color: TreeCanvasScreen.getNodeColor(node),
-                        size: 28,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        margin: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
+        decoration: BoxDecoration(
+          color: const Color(0xFF1E293B),
+          borderRadius: BorderRadius.circular(24.0),
+          border: Border.all(color: TreeCanvasScreen.getNodeColor(node), width: 1.5),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.6),
+              blurRadius: 16,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: TreeCanvasScreen.getNodeColor(node), width: 3),
+                      boxShadow: [
+                        BoxShadow(
+                          color: TreeCanvasScreen.getNodeColor(node).withOpacity(0.4),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: ClipOval(
+                      child: Image.asset(
+                        TreeCanvasScreen.getAvatarAsset(node),
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Icon(
+                          node.status.toLowerCase() == 'deceased'
+                              ? Icons.person_off_outlined
+                              : Icons.person,
+                          color: TreeCanvasScreen.getNodeColor(node),
+                          size: 28,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          node.name,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'VUID: ${node.formattedVuid}',
+                          style: const TextStyle(
+                            fontFamily: 'monospace',
+                            color: Color(0xFF38BDF8),
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        node.name,
-                        style: Theme.of(ctx).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        'VUID: ${node.formattedVuid}',
-                        style: const TextStyle(fontFamily: 'monospace', color: Colors.blueGrey, fontWeight: FontWeight.bold),
-                      ),
+                      if (node.isVerified)
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 4),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: Colors.green.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: Colors.greenAccent),
+                          ),
+                          child: const Text(
+                            'VERIFIED',
+                            style: TextStyle(fontSize: 10, color: Colors.greenAccent, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      if (node.isClaimed)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: Colors.blueAccent),
+                          ),
+                          child: const Text(
+                            'CLAIMED',
+                            style: TextStyle(fontSize: 10, color: Colors.blueAccent, fontWeight: FontWeight.bold),
+                          ),
+                        ),
                     ],
                   ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              
+              // Member Full Details Card
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0F172A),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.white10),
                 ),
-                if (node.isVerified)
-                  const Chip(
-                    label: Text('OCP VERIFIED', style: TextStyle(fontSize: 10, color: Colors.green)),
-                    backgroundColor: Color(0xFFE8F5E9),
+                child: Column(
+                  children: [
+                    _buildDetailRow(
+                      icon: Icons.person_outline,
+                      label: 'Gender & Status',
+                      value: '${node.gender} • ${node.status}',
+                    ),
+                    const Divider(height: 12, color: Colors.white10),
+                    _buildDetailRow(
+                      icon: Icons.cake_outlined,
+                      label: 'DOB / Age',
+                      value: '${node.dob}${ageText.isNotEmpty ? ' ($ageText)' : ''}',
+                    ),
+                    const Divider(height: 12, color: Colors.white10),
+                    _buildDetailRow(
+                      icon: Icons.groups_outlined,
+                      label: 'Gotra & Caste',
+                      value: '${node.gotra} • ${node.caste} (${node.category})',
+                    ),
+                    const Divider(height: 12, color: Colors.white10),
+                    _buildDetailRow(
+                      icon: Icons.auto_awesome_outlined,
+                      label: 'Religion',
+                      value: node.religion,
+                    ),
+                    const Divider(height: 12, color: Colors.white10),
+                    _buildDetailRow(
+                      icon: Icons.favorite_border,
+                      label: 'Marital & Blood Group',
+                      value: '${node.maritalStatus} • Blood: ${node.bloodGroup}',
+                    ),
+                    const Divider(height: 12, color: Colors.white10),
+                    _buildDetailRow(
+                      icon: Icons.location_on_outlined,
+                      label: 'Residence',
+                      value: '${node.district}, ${node.state}',
+                    ),
+                  ],
+                ),
+              ),
+
+              const Divider(height: 24, color: Colors.white12),
+
+            const Text(
+              'LEAF ACTIONS',
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white38, letterSpacing: 1.1),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  child: FilledButton.icon(
+                    style: FilledButton.styleFrom(backgroundColor: const Color(0xFF10B981)),
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      _showAddKinDialog(node);
+                    },
+                    icon: const Icon(Icons.person_add, size: 18),
+                    label: const Text('Add Kin'),
                   ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: FilledButton.icon(
+                    style: FilledButton.styleFrom(backgroundColor: const Color(0xFF3B82F6)),
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      _showModifyNodeDialog(node);
+                    },
+                    icon: const Icon(Icons.edit, size: 18),
+                    label: const Text('Modify'),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: FilledButton.icon(
+                    style: FilledButton.styleFrom(backgroundColor: const Color(0xFFEF4444)),
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      _confirmDeleteNode(node);
+                    },
+                    icon: const Icon(Icons.delete_outline, size: 18),
+                    label: const Text('Delete'),
+                  ),
+                ),
               ],
             ),
+            const SizedBox(height: 10),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Color(0xFF38BDF8)),
+                  foregroundColor: const Color(0xFF38BDF8),
+                ),
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  Navigator.pushNamed(context, '/card', arguments: {
+                    'vuid': node.vuid,
+                    'fullName': node.name,
+                    'dob': node.dob,
+                    'gender': node.gender,
+                    'category': node.category,
+                    'state': 'India',
+                  });
+                },
+                icon: const Icon(Icons.credit_card, size: 18),
+                label: const Text('View Vansha Card Credential'),
+              ),
+            ),
+
+            const SizedBox(height: 16),
+            const Text(
+              'LIFE EVENTS',
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white38, letterSpacing: 1.1),
+            ),
             const SizedBox(height: 8),
-            Text('Gender: ${node.gender} • Category: ${node.category} • Status: ${node.status}'),
-            const Divider(height: 24),
-            // Life Events Action Row
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
@@ -168,6 +382,15 @@ class _TreeCanvasScreenState extends ConsumerState<TreeCanvasScreen> {
                   ),
                   const SizedBox(width: 8),
                   ActionChip(
+                    avatar: const Icon(Icons.family_restroom, size: 16, color: Color(0xFF10B981)),
+                    label: const Text('Adopt Child'),
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      _showAdoptionDialog(node);
+                    },
+                  ),
+                  const SizedBox(width: 8),
+                  ActionChip(
                     avatar: const Icon(Icons.favorite, size: 16, color: Color(0xFFF472B6)),
                     label: const Text('Marriage'),
                     onPressed: () {
@@ -187,39 +410,123 @@ class _TreeCanvasScreenState extends ConsumerState<TreeCanvasScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 16),
-            Row(
+          ],
+        ),
+      ),
+      ),
+    );
+  }
+
+  void _confirmDeleteNode(TreeCitizenNode node) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Leaf Node'),
+        content: Text('Are you sure you want to remove ${node.name} (${node.formattedVuid}) from the lineage canvas?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Colors.redAccent),
+            onPressed: () {
+              Navigator.pop(ctx);
+              ref.read(treeProvider.notifier).removeNode(node.vuid);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Removed ${node.name} from tree canvas.')),
+              );
+            },
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showModifyNodeDialog(TreeCitizenNode node) {
+    final nameController = TextEditingController(text: node.name);
+    final dobController = TextEditingController(text: node.dob);
+    String gender = node.gender;
+    String category = node.category;
+    String status = node.status;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text('Modify Leaf: ${node.name}'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      Navigator.pop(ctx);
-                      Navigator.pushNamed(context, '/card', arguments: {
-                        'vuid': node.vuid,
-                        'fullName': node.name,
-                        'dob': node.dob,
-                        'gender': node.gender,
-                        'category': node.category,
-                        'state': 'India',
-                      });
-                    },
-                    icon: const Icon(Icons.credit_card),
-                    label: const Text('Vansha Card'),
-                  ),
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(labelText: 'Full Name *'),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: FilledButton.icon(
-                    onPressed: () {
-                      Navigator.pop(ctx);
-                      _showAddKinDialog(node);
-                    },
-                    icon: const Icon(Icons.add),
-                    label: const Text('Add Kin'),
-                  ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: dobController,
+                  decoration: const InputDecoration(labelText: 'DOB (YYYY-MM-DD)'),
+                ),
+                const SizedBox(height: 12),
+                DropdownButtonFormField<String>(
+                  value: CivilGenders.all.contains(gender) ? gender : 'Male',
+                  items: CivilGenders.all
+                      .map((g) => DropdownMenuItem(value: g, child: Text(g)))
+                      .toList(),
+                  onChanged: (v) => setDialogState(() => gender = v!),
+                  decoration: const InputDecoration(labelText: 'Gender'),
+                ),
+                const SizedBox(height: 12),
+                DropdownButtonFormField<String>(
+                  value: CivilCategories.all.contains(category) ? category : 'GEN',
+                  items: CivilCategories.all
+                      .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                      .toList(),
+                  onChanged: (v) => setDialogState(() => category = v!),
+                  decoration: const InputDecoration(labelText: 'Category'),
+                ),
+                const SizedBox(height: 12),
+                DropdownButtonFormField<String>(
+                  value: status,
+                  items: const [
+                    DropdownMenuItem(value: 'Active', child: Text('Active (Living)')),
+                    DropdownMenuItem(value: 'Deceased', child: Text('Deceased')),
+                  ],
+                  onChanged: (v) => setDialogState(() => status = v!),
+                  decoration: const InputDecoration(labelText: 'Civil Status'),
                 ),
               ],
-            )
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () {
+                final updated = TreeCitizenNode(
+                  vuid: node.vuid,
+                  formattedVuid: node.formattedVuid,
+                  name: nameController.text.trim(),
+                  gender: gender,
+                  dob: dobController.text.trim(),
+                  category: category,
+                  isVerified: node.isVerified,
+                  isClaimed: node.isClaimed,
+                  status: status,
+                  position: node.position,
+                );
+                Navigator.pop(ctx);
+                ref.read(treeProvider.notifier).updateNode(updated);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Updated ${updated.name} details.')),
+                );
+              },
+              child: const Text('Save Changes'),
+            ),
           ],
         ),
       ),
@@ -248,12 +555,16 @@ class _TreeCanvasScreenState extends ConsumerState<TreeCanvasScreen> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
+                isExpanded: true,
                 initialValue: relationship,
                 items: CivilRelationships.all
                     .take(30)
                     .map((r) => DropdownMenuItem(
                           value: r,
-                          child: Text('${CivilRelationships.getLocalizedLabel(r, ref.read(localeProvider).languageCode)} ($r)'),
+                          child: Text(
+                            '${CivilRelationships.getLocalizedLabel(r, ref.read(localeProvider).languageCode)} ($r)',
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ))
                     .toList(),
                 onChanged: (v) => setDialogState(() => relationship = v!),
@@ -408,6 +719,78 @@ class _TreeCanvasScreenState extends ConsumerState<TreeCanvasScreen> {
     ).then((_) => nameController.dispose());
   }
 
+  void _showAdoptionDialog(TreeCitizenNode parentNode) {
+    final nameController = TextEditingController();
+    String childGender = 'Male';
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          title: Text('Adopt Child — ${parentNode.name}'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: const InputDecoration(labelText: 'Adopted Child First Name', hintText: 'Aarav'),
+              ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                isExpanded: true,
+                initialValue: childGender,
+                items: ['Male', 'Female', 'Other'].map((g) => DropdownMenuItem(value: g, child: Text(g))).toList(),
+                onChanged: (v) => setDialogState(() => childGender = v!),
+                decoration: const InputDecoration(labelText: 'Child Gender'),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+            FilledButton(
+              style: FilledButton.styleFrom(backgroundColor: const Color(0xFF10B981)),
+              onPressed: () async {
+                if (nameController.text.isNotEmpty) {
+                  Navigator.pop(ctx);
+                  final client = ref.read(apiClientProvider);
+                  final regRes = await client.post(
+                    ApiEndpoints.citizenRegister,
+                    body: {
+                      'first_name': nameController.text.trim(),
+                      'last_name': parentNode.name.split(' ').last,
+                      'gender': childGender,
+                      'dob': DateTime.now().toIso8601String().split('T').first,
+                      'pin_code': '452001',
+                      'district': 'Indore',
+                      'state': 'Madhya Pradesh',
+                    },
+                  );
+                  final newVuid = regRes['vuid'] ?? regRes['data']?['vuid'];
+                  if (newVuid != null) {
+                    final relationshipType = childGender == 'Male'
+                        ? 'Adopted_Son'
+                        : (childGender == 'Female' ? 'Adopted_Daughter' : 'Adopted_Child');
+                    await ref.read(treeProvider.notifier).connectKinship(
+                      sourceVuid: parentNode.vuid,
+                      targetVuid: newVuid.toString(),
+                      relationshipType: relationshipType,
+                    );
+                  } else {
+                    ref.read(treeProvider.notifier).fetchTree(widget.rootVuid);
+                  }
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Adopted child registered and linked!')));
+                  }
+                }
+              },
+              child: const Text('Record Adoption'),
+            ),
+          ],
+        ),
+      ),
+    ).then((_) => nameController.dispose());
+  }
+
   void _showMarriageDialog(TreeCitizenNode node) {
     final spouseVuidController = TextEditingController();
 
@@ -497,6 +880,49 @@ class _TreeCanvasScreenState extends ConsumerState<TreeCanvasScreen> {
     ).then((_) => reasonController.dispose());
   }
 
+  bool _hasAutoCentered = false;
+  double _lastViewportWidth = 1200.0;
+  double _lastViewportHeight = 800.0;
+
+  void _centerAndFitCanvas(double viewportWidth, double viewportHeight) {
+    _lastViewportWidth = viewportWidth;
+    _lastViewportHeight = viewportHeight;
+
+    final graph = ref.read(treeProvider).graphData;
+    if (graph == null || graph.nodes.isEmpty) {
+      _transformationController.value = Matrix4.identity();
+      return;
+    }
+
+    const double cardWidth = 170.0;
+    const double cardHeight = 180.0;
+    const double margin = 40.0;
+
+    final double minX = graph.nodes.map((n) => n.position.dx).reduce(min);
+    final double maxX = graph.nodes.map((n) => n.position.dx).reduce(max);
+    final double minY = graph.nodes.map((n) => n.position.dy).reduce(min);
+    final double maxY = graph.nodes.map((n) => n.position.dy).reduce(max);
+
+    final double treeWidth = (maxX - minX) + cardWidth;
+    final double treeHeight = (maxY - minY) + cardHeight;
+
+    final double availW = max(300.0, viewportWidth - margin * 2);
+    final double availH = max(300.0, viewportHeight - margin * 2);
+
+    double scale = min(availW / treeWidth, availH / treeHeight);
+    scale = scale.clamp(0.25, 1.0);
+
+    final double scaledW = treeWidth * scale;
+    final double scaledH = treeHeight * scale;
+
+    final double tx = (viewportWidth - scaledW) / 2 - (minX * scale);
+    final double ty = max(20.0, (viewportHeight - scaledH) / 2 - (minY * scale));
+
+    _transformationController.value = Matrix4.identity()
+      ..translate(tx, ty, 0.0)
+      ..scale(scale);
+  }
+
   @override
   Widget build(BuildContext context) {
     final treeState = ref.watch(treeProvider);
@@ -507,13 +933,16 @@ class _TreeCanvasScreenState extends ConsumerState<TreeCanvasScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.center_focus_strong),
-            tooltip: 'Center Canvas',
-            onPressed: () => _transformationController.value = Matrix4.translationValues(-300.0, -250.0, 0.0),
+            tooltip: 'Center & Fit Canvas',
+            onPressed: () => _centerAndFitCanvas(_lastViewportWidth, _lastViewportHeight),
           ),
           IconButton(
             icon: const Icon(Icons.refresh),
             tooltip: 'Reload Lineage',
-            onPressed: () => ref.read(treeProvider.notifier).fetchTree(widget.rootVuid),
+            onPressed: () {
+              _hasAutoCentered = false;
+              ref.read(treeProvider.notifier).fetchTree(widget.rootVuid);
+            },
           ),
           const LanguageSelectorButton(),
           const SizedBox(width: 4),
@@ -523,6 +952,16 @@ class _TreeCanvasScreenState extends ConsumerState<TreeCanvasScreen> {
               Navigator.pushNamed(context, val);
             },
             itemBuilder: (ctx) => const [
+              PopupMenuItem(
+                value: '/registration',
+                child: Row(
+                  children: [
+                    Icon(Icons.person_add_alt_1, color: Color(0xFF10B981), size: 20),
+                    SizedBox(width: 10),
+                    Text('New Citizen Registration'),
+                  ],
+                ),
+              ),
               PopupMenuItem(
                 value: '/demographics',
                 child: Row(
@@ -573,36 +1012,61 @@ class _TreeCanvasScreenState extends ConsumerState<TreeCanvasScreen> {
                     ],
                   ),
                 )
-              : InteractiveViewer(
-                  transformationController: _transformationController,
-                  boundaryMargin: const EdgeInsets.all(1000),
-                  minScale: 0.2,
-                  maxScale: 2.5,
-                  child: SizedBox(
-                    width: 2000,
-                    height: 2000,
-                    child: Stack(
-                      children: [
-                        if (treeState.graphData != null)
-                          CustomPaint(
-                            size: const Size(2000, 2000),
-                            painter: KinshipLinePainter(
-                              nodes: treeState.graphData!.nodes,
-                              edges: treeState.graphData!.edges,
-                            ),
-                          ),
-                        if (treeState.graphData != null)
-                          ...treeState.graphData!.nodes.map((node) => Positioned(
-                            left: node.position.dx,
-                            top: node.position.dy,
-                            child: GestureDetector(
-                              onTap: () => _showNodeDetails(node),
-                              child: _buildNodeCard(node),
-                            ),
-                          )),
-                      ],
-                    ),
-                  ),
+              : LayoutBuilder(
+                  builder: (context, constraints) {
+                    _lastViewportWidth = constraints.maxWidth;
+                    _lastViewportHeight = constraints.maxHeight;
+
+                    double canvasW = 3200.0;
+                    double canvasH = 2600.0;
+                    if (treeState.graphData != null && treeState.graphData!.nodes.isNotEmpty) {
+                      for (final n in treeState.graphData!.nodes) {
+                        if (n.position.dx + 450.0 > canvasW) canvasW = n.position.dx + 450.0;
+                        if (n.position.dy + 450.0 > canvasH) canvasH = n.position.dy + 450.0;
+                      }
+                    }
+
+                    if (!_hasAutoCentered && treeState.graphData != null) {
+                      _hasAutoCentered = true;
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        _centerAndFitCanvas(constraints.maxWidth, constraints.maxHeight);
+                      });
+                    }
+
+                    return InteractiveViewer(
+                      transformationController: _transformationController,
+                      boundaryMargin: const EdgeInsets.all(double.infinity),
+                      clipBehavior: Clip.none,
+                      minScale: 0.05,
+                      maxScale: 5.0,
+                      child: SizedBox(
+                        width: canvasW,
+                        height: canvasH,
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            if (treeState.graphData != null)
+                              CustomPaint(
+                                size: Size(canvasW, canvasH),
+                                painter: KinshipLinePainter(
+                                  nodes: treeState.graphData!.nodes,
+                                  edges: treeState.graphData!.edges,
+                                ),
+                              ),
+                            if (treeState.graphData != null)
+                              ...treeState.graphData!.nodes.map((node) => Positioned(
+                                left: node.position.dx,
+                                top: node.position.dy,
+                                child: _NodeTapWrapper(
+                                  onTap: () => _showNodeDetails(node),
+                                  child: _buildNodeCard(node),
+                                ),
+                              )),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
                 ),
     );
   }
@@ -612,6 +1076,7 @@ class _TreeCanvasScreenState extends ConsumerState<TreeCanvasScreen> {
     final avatarAsset = TreeCanvasScreen.getAvatarAsset(node);
     final isRoot = node.vuid == widget.rootVuid;
     final isDeceased = node.status.toLowerCase() == 'deceased';
+    final ageText = _calculateAge(node.dob);
 
     return SizedBox(
       width: 170,
@@ -708,7 +1173,7 @@ class _TreeCanvasScreenState extends ConsumerState<TreeCanvasScreen> {
             ],
           ),
           const SizedBox(height: 6),
-          // 2. Below Round Image: Details in Rectangle
+          // 2. Below Round Image: Details in Rectangle (Name & Age Only)
           Container(
             width: 170,
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
@@ -728,56 +1193,35 @@ class _TreeCanvasScreenState extends ConsumerState<TreeCanvasScreen> {
               ],
             ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Expanded(
+                    Flexible(
                       child: Text(
                         node.name,
                         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
                       ),
                     ),
-                    if (node.isVerified)
+                    if (node.isVerified) ...[
+                      const SizedBox(width: 4),
                       const Icon(Icons.verified, size: 14, color: Colors.greenAccent),
+                    ],
                   ],
                 ),
-                const SizedBox(height: 2),
-                Row(
-                  children: [
-                    Container(
-                      width: 7,
-                      height: 7,
-                      decoration: BoxDecoration(
-                        color: nodeColor,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Expanded(
-                      child: Text(
-                        '${node.gender} • ${node.category}',
-                        style: TextStyle(color: Colors.grey[400], fontSize: 10.5),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  node.formattedVuid,
-                  style: const TextStyle(
-                    fontFamily: 'monospace',
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.blueGrey,
+                if (ageText.isNotEmpty) ...[
+                  const SizedBox(height: 3),
+                  Text(
+                    ageText,
+                    style: TextStyle(color: Colors.grey[400], fontSize: 11, fontWeight: FontWeight.w500),
+                    textAlign: TextAlign.center,
                   ),
-                ),
+                ],
               ],
             ),
           ),
@@ -795,54 +1239,293 @@ class KinshipLinePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final parentPaint = Paint()
-      ..color = const Color(0xFF64748B)
-      ..strokeWidth = 2.0
-      ..style = PaintingStyle.stroke;
+    const double cardWidth = 170.0;
+    const double cardHeight = 124.0; // Bottom mid border of details box (68px avatar + 6px gap + ~50px details box)
 
-    final spousePaint = Paint()
-      ..color = const Color(0xFF9333EA)
+    final mainLinePaint = Paint()
+      ..color = const Color(0xFF38BDF8) // Vibrant cyan/sky blue
+      ..strokeWidth = 2.5
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    final unverifiedLinePaint = Paint()
+      ..color = const Color(0xFFF59E0B) // Amber warning color
       ..strokeWidth = 2.0
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+
+    final spouseLinePaint = Paint()
+      ..color = const Color(0xFFEC4899) // Hot pink / Rose
+      ..strokeWidth = 2.5
       ..style = PaintingStyle.stroke;
 
     final nodeMap = {for (var n in nodes) n.vuid: n};
 
+    // 1. Process Unique Spouse Pairs
+    final processedSpouses = <String>{};
     for (final edge in edges) {
-      final source = nodeMap[edge.source];
-      final target = nodeMap[edge.target];
-      if (source == null || target == null) continue;
-
       if (edge.type == 'Spouse') {
-        // Horizontal connecting line between spouses at round avatar center height (34px)
-        canvas.drawLine(
-          Offset(source.position.dx + 170, source.position.dy + 34),
-          Offset(target.position.dx, target.position.dy + 34),
-          spousePaint,
-        );
-      } else {
-        // Smooth cubic Bezier from bottom of parent rectangle down to top of child round avatar
-        final path = Path();
-        final startX = source.position.dx + 85;
-        final startY = source.position.dy + 140; // bottom of rectangle card
-        final endX = target.position.dx + 85;
-        final endY = target.position.dy; // top of round avatar
+        final source = nodeMap[edge.source];
+        final target = nodeMap[edge.target];
+        if (source == null || target == null) continue;
 
-        path.moveTo(startX, startY);
-        path.cubicTo(
-          startX,
-          startY + (endY - startY) * 0.5,
-          endX,
-          startY + (endY - startY) * 0.5,
-          endX,
-          endY,
+        final pairKey = [source.vuid, target.vuid]..sort();
+        final pairId = pairKey.join('-');
+        if (processedSpouses.contains(pairId)) continue;
+        processedSpouses.add(pairId);
+
+        // Determine left and right spouse
+        final left = source.position.dx < target.position.dx ? source : target;
+        final right = source.position.dx < target.position.dx ? target : source;
+
+        final startX = left.position.dx + cardWidth;
+        final endX = right.position.dx;
+        final y = left.position.dy + 34.0; // vertical center of 68px node avatar
+
+        // Draw spouse connector line
+        canvas.drawLine(Offset(startX, y), Offset(endX, y), spouseLinePaint);
+
+        // Draw Marriage Badge (⚭) in the middle of spouse line
+        final midX = (startX + endX) / 2;
+        final badgeRect = RRect.fromLTRBR(
+          midX - 11, y - 9, midX + 11, y + 9, const Radius.circular(9)
         );
-        canvas.drawPath(path, parentPaint);
+
+        final badgeBgPaint = Paint()
+          ..color = const Color(0xFF1E1B4B)
+          ..style = PaintingStyle.fill;
+        final badgeBorderPaint = Paint()
+          ..color = const Color(0xFFEC4899)
+          ..strokeWidth = 1.5
+          ..style = PaintingStyle.stroke;
+
+        canvas.drawRRect(badgeRect, badgeBgPaint);
+        canvas.drawRRect(badgeRect, badgeBorderPaint);
+
+        final textPainter = TextPainter(
+          text: const TextSpan(
+            text: '⚭',
+            style: TextStyle(color: Color(0xFFF472B6), fontSize: 12, fontWeight: FontWeight.bold),
+          ),
+          textDirection: TextDirection.ltr,
+        );
+        textPainter.layout();
+        textPainter.paint(canvas, Offset(midX - textPainter.width / 2, y - textPainter.height / 2));
       }
     }
+
+    // 2. Process Individual Parent-to-Child & Adoption Lineage Connections (Color matches starting parent node)
+    final childToParents = <String, Set<String>>{};
+    for (final edge in edges) {
+      final isParentEdge = edge.type == 'Father' ||
+          edge.type == 'Mother' ||
+          edge.type == 'Guardian' ||
+          edge.type.contains('Adopt');
+
+      if (isParentEdge) {
+        childToParents.putIfAbsent(edge.target, () => {}).add(edge.source);
+
+        final parentNode = nodeMap[edge.source];
+        final childNode = nodeMap[edge.target];
+        if (parentNode == null || childNode == null) continue;
+
+        // Starting parent node color dictates arrow line & arrow head color!
+        final parentColor = TreeCanvasScreen.getNodeColor(parentNode);
+
+        final linePaint = Paint()
+          ..color = parentColor
+          ..strokeWidth = 2.5
+          ..style = PaintingStyle.stroke
+          ..strokeCap = StrokeCap.round;
+
+        // Origin at bottom-center of parent card details box
+        final parentOrigin = Offset(
+          parentNode.position.dx + cardWidth / 2,
+          parentNode.position.dy + cardHeight,
+        );
+
+        // Target top-center of child card
+        final isFather = edge.type == 'Father' || parentNode.gender.toLowerCase() == 'male';
+        final offsetShift = isFather ? -12.0 : 12.0;
+        final childTarget = Offset(
+          childNode.position.dx + cardWidth / 2 + offsetShift,
+          childNode.position.dy,
+        );
+
+        // Drop 12px straight down from box bottom mid border to clear container border & drop shadow cleanly
+        final routedDropPoint = Offset(parentOrigin.dx, parentOrigin.dy + 12.0);
+        canvas.drawLine(parentOrigin, routedDropPoint, linePaint);
+
+        final isAdopted = edge.type.contains('Adopt') || edge.status == 'Adopted';
+
+        if (isAdopted) {
+          // Draw dashed inclined line for adoption
+          const dashWidth = 8.0;
+          const dashGap = 5.0;
+          final dx = childTarget.dx - routedDropPoint.dx;
+          final dy = childTarget.dy - routedDropPoint.dy;
+          final distance = sqrt(dx * dx + dy * dy);
+          final unitX = distance > 0 ? dx / distance : 0.0;
+          final unitY = distance > 0 ? dy / distance : 0.0;
+
+          double drawn = 0.0;
+          while (drawn < distance) {
+            final startDist = drawn;
+            final endDist = min(drawn + dashWidth, distance);
+            canvas.drawLine(
+              Offset(routedDropPoint.dx + unitX * startDist, routedDropPoint.dy + unitY * startDist),
+              Offset(routedDropPoint.dx + unitX * endDist, routedDropPoint.dy + unitY * endDist),
+              linePaint,
+            );
+            drawn += dashWidth + dashGap;
+          }
+
+          // Draw "Adopted" / "दत्तक" Pill Badge on midpoint of adoption arrow
+          final midX = (routedDropPoint.dx + childTarget.dx) / 2;
+          final midY = (routedDropPoint.dy + childTarget.dy) / 2;
+          final badgeRect = RRect.fromLTRBR(
+            midX - 24, midY - 9, midX + 24, midY + 9, const Radius.circular(9)
+          );
+
+          final badgeBgPaint = Paint()
+            ..color = const Color(0xFF064E3B) // Dark Emerald Green
+            ..style = PaintingStyle.fill;
+          final badgeBorderPaint = Paint()
+            ..color = const Color(0xFF10B981) // Emerald Green Accent
+            ..strokeWidth = 1.2
+            ..style = PaintingStyle.stroke;
+
+          canvas.drawRRect(badgeRect, badgeBgPaint);
+          canvas.drawRRect(badgeRect, badgeBorderPaint);
+
+          final badgeTextPainter = TextPainter(
+            text: const TextSpan(
+              text: 'Adopted',
+              style: TextStyle(color: Color(0xFF6EE7B7), fontSize: 9.5, fontWeight: FontWeight.bold),
+            ),
+            textDirection: TextDirection.ltr,
+          );
+          badgeTextPainter.layout();
+          badgeTextPainter.paint(
+            canvas,
+            Offset(midX - badgeTextPainter.width / 2, midY - badgeTextPainter.height / 2),
+          );
+        } else {
+          // Draw solid inclined line from routedDropPoint to childTarget
+          canvas.drawLine(routedDropPoint, childTarget, linePaint);
+        }
+
+        // Draw Arrow Head matching starting parent node color!
+        _drawArrowHead(canvas, routedDropPoint, childTarget, parentColor);
+      }
+    }
+
+    // 3. Process Non-Parental Sibling Links
+    for (final edge in edges) {
+      if (edge.type == 'Sibling') {
+        final source = nodeMap[edge.source];
+        final target = nodeMap[edge.target];
+        if (source == null || target == null) continue;
+
+        final sourceHasParents = childToParents.containsKey(source.vuid);
+        final targetHasParents = childToParents.containsKey(target.vuid);
+        if (!sourceHasParents || !targetHasParents) {
+          final startX = source.position.dx + cardWidth;
+          final endX = target.position.dx;
+          final y = source.position.dy + 34.0; // vertical center of 68px node avatar
+
+          final edgePaint = edge.status == 'Unverified' ? unverifiedLinePaint : mainLinePaint;
+
+          // Draw dashed horizontal line for sibling connection
+          const dashWidth = 6.0;
+          const dashGap = 4.0;
+          double x = startX;
+          while (x < endX) {
+            canvas.drawLine(
+              Offset(x, y),
+              Offset((x + dashWidth).clamp(startX, endX), y),
+              edgePaint,
+            );
+            x += dashWidth + dashGap;
+          }
+        }
+      }
+    }
+  }
+
+  void _drawArrowHead(Canvas canvas, Offset from, Offset to, Color color) {
+    final angle = atan2(to.dy - from.dy, to.dx - from.dx);
+    const arrowSize = 10.0;
+    final arrowAngle = pi / 6;
+
+    final path = Path();
+    path.moveTo(to.dx, to.dy);
+    path.lineTo(
+      to.dx - arrowSize * cos(angle - arrowAngle),
+      to.dy - arrowSize * sin(angle - arrowAngle),
+    );
+    path.lineTo(
+      to.dx - arrowSize * cos(angle + arrowAngle),
+      to.dy - arrowSize * sin(angle + arrowAngle),
+    );
+    path.close();
+
+    final fillPaint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+    canvas.drawPath(path, fillPaint);
   }
 
   @override
   bool shouldRepaint(covariant KinshipLinePainter oldDelegate) {
     return oldDelegate.nodes != nodes || oldDelegate.edges != edges;
+  }
+}
+
+class _NodeTapWrapper extends StatefulWidget {
+  final VoidCallback onTap;
+  final Widget child;
+
+  const _NodeTapWrapper({
+    super.key,
+    required this.onTap,
+    required this.child,
+  });
+
+  @override
+  State<_NodeTapWrapper> createState() => _NodeTapWrapperState();
+}
+
+class _NodeTapWrapperState extends State<_NodeTapWrapper> {
+  Offset? _downLocalPos;
+
+  @override
+  Widget build(BuildContext context) {
+    return Listener(
+      behavior: HitTestBehavior.opaque,
+      onPointerDown: (event) {
+        _downLocalPos = event.localPosition;
+      },
+      onPointerUp: (event) {
+        if (_downLocalPos != null) {
+          final renderBox = context.findRenderObject() as RenderBox?;
+          if (renderBox != null && renderBox.hasSize) {
+            final size = renderBox.size;
+            final localUp = renderBox.globalToLocal(event.position);
+            if (localUp.dx >= 0 &&
+                localUp.dx <= size.width &&
+                localUp.dy >= 0 &&
+                localUp.dy <= size.height) {
+              final dist = (localUp - _downLocalPos!).distance;
+              if (dist < 15.0) {
+                widget.onTap();
+              }
+            }
+          }
+        }
+      },
+      child: widget.child,
+    );
   }
 }

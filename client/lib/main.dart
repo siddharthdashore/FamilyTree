@@ -8,6 +8,7 @@ import 'features/analytics/screens/demographics_screen.dart';
 import 'features/matrimony/screens/matrimony_search_screen.dart';
 import 'features/audit/screens/audit_logs_screen.dart';
 
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'core/localization/app_localizations.dart';
 import 'core/localization/locale_provider.dart';
 
@@ -30,6 +31,9 @@ class VanshaSetuApp extends ConsumerWidget {
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: const [
         AppLocalizationsDelegate(),
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
       ],
       themeMode: ThemeMode.dark,
       theme: AppTheme.lightTheme,
@@ -37,6 +41,12 @@ class VanshaSetuApp extends ConsumerWidget {
       initialRoute: '/',
       onGenerateRoute: (settings) {
         if (settings.name == '/') {
+          return MaterialPageRoute(
+            builder: (_) => const TreeCanvasScreen(rootVuid: '109284729102'),
+          );
+        }
+
+        if (settings.name == '/registration') {
           return MaterialPageRoute(builder: (_) => const RegistrationScreen());
         }
 
@@ -73,7 +83,9 @@ class VanshaSetuApp extends ConsumerWidget {
           return MaterialPageRoute(builder: (_) => const AuditLogsScreen());
         }
 
-        return MaterialPageRoute(builder: (_) => const RegistrationScreen());
+        return MaterialPageRoute(
+          builder: (_) => const TreeCanvasScreen(rootVuid: '109284729102'),
+        );
       },
     );
   }

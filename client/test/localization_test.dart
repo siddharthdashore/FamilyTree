@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:vanshasetu/core/constants/civil_models.dart';
 import 'package:vanshasetu/core/localization/app_localizations.dart';
 import 'package:vanshasetu/core/widgets/language_selector_button.dart';
@@ -92,6 +93,43 @@ void main() {
       // Renders default English flag
       expect(find.byType(LanguageSelectorButton), findsOneWidget);
       expect(find.text('English'), findsOneWidget);
+    });
+
+    testWidgets('Choosing languages (English, Hindi, Gujarati, Marathi) resolves MaterialLocalizations cleanly', (WidgetTester tester) async {
+      for (final code in ['en', 'hi', 'gu', 'mr']) {
+        await tester.pumpWidget(
+          ProviderScope(
+            child: Consumer(
+              builder: (context, ref, _) {
+                return MaterialApp(
+                  locale: Locale(code),
+                  supportedLocales: AppLocalizations.supportedLocales,
+                  localizationsDelegates: const [
+                    AppLocalizationsDelegate(),
+                    GlobalMaterialLocalizations.delegate,
+                    GlobalWidgetsLocalizations.delegate,
+                    GlobalCupertinoLocalizations.delegate,
+                  ],
+                  home: Scaffold(
+                    body: Builder(
+                      builder: (innerContext) {
+                        final materialLoc = MaterialLocalizations.of(innerContext);
+                        final appLoc = AppLocalizations.of(innerContext);
+                        return Text('${materialLoc.okButtonLabel} | ${appLoc.translate("app_title")}');
+                      },
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // Must successfully locate MaterialLocalizations without throwing
+        expect(tester.takeException(), isNull);
+        expect(find.byType(Text), findsWidgets);
+      }
     });
   });
 }

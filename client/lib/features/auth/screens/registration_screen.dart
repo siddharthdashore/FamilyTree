@@ -175,8 +175,9 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
-    final loc = AppLocalizations.of(context);
-    final currentLang = ref.watch(localeProvider).languageCode;
+    final currentLocale = ref.watch(localeProvider);
+    final loc = AppLocalizations(currentLocale);
+    final currentLang = currentLocale.languageCode;
 
     return Scaffold(
       appBar: AppBar(
@@ -214,23 +215,23 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
                     style: const TextStyle(color: Colors.redAccent),
                   ),
                 ),
-              Text('Personal Details', style: Theme.of(context).textTheme.titleMedium),
+              Text(loc.translate('personal_details'), style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 12),
               Row(
                 children: [
                   Expanded(
                     child: TextFormField(
                       controller: _firstNameController,
-                      decoration: const InputDecoration(labelText: 'First Name *'),
-                      validator: (v) => v!.trim().isEmpty ? 'Required' : null,
+                      decoration: InputDecoration(labelText: '${loc.translate('first_name')} *'),
+                      validator: (v) => v!.trim().isEmpty ? loc.translate('required') : null,
                     ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: TextFormField(
                       controller: _lastNameController,
-                      decoration: const InputDecoration(labelText: 'Last Name *'),
-                      validator: (v) => v!.trim().isEmpty ? 'Required' : null,
+                      decoration: InputDecoration(labelText: '${loc.translate('last_name')} *'),
+                      validator: (v) => v!.trim().isEmpty ? loc.translate('required') : null,
                     ),
                   ),
                 ],
@@ -243,21 +244,24 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
                       initialValue: _gender,
                       isExpanded: true,
                       items: CivilGenders.all
-                          .map((g) => DropdownMenuItem(value: g, child: Text(g)))
+                          .map((g) => DropdownMenuItem(
+                                value: g,
+                                child: Text(CivilGenders.getLocalizedLabel(g, currentLang)),
+                              ))
                           .toList(),
                       onChanged: (v) => setState(() => _gender = v!),
-                      decoration: const InputDecoration(labelText: 'Gender'),
+                      decoration: InputDecoration(labelText: loc.translate('gender')),
                     ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: TextFormField(
                       controller: _dobController,
-                      decoration: const InputDecoration(
-                        labelText: 'DOB (YYYY-MM-DD) *',
+                      decoration: InputDecoration(
+                        labelText: '${loc.translate('dob_label')} *',
                         hintText: '1998-05-18',
                       ),
-                      validator: (v) => v!.trim().isEmpty ? 'Required' : null,
+                      validator: (v) => v!.trim().isEmpty ? loc.translate('required') : null,
                     ),
                   ),
                 ],
@@ -270,17 +274,20 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
                       initialValue: _category,
                       isExpanded: true,
                       items: CivilCategories.all
-                          .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                          .map((c) => DropdownMenuItem(
+                                value: c,
+                                child: Text(CivilCategories.getLocalizedLabel(c, currentLang)),
+                              ))
                           .toList(),
                       onChanged: (v) => setState(() => _category = v!),
-                      decoration: const InputDecoration(labelText: 'Category'),
+                      decoration: InputDecoration(labelText: loc.translate('category')),
                     ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: TextFormField(
                       controller: _casteController,
-                      decoration: const InputDecoration(labelText: 'Caste (Optional)'),
+                      decoration: InputDecoration(labelText: loc.translate('caste_optional')),
                     ),
                   ),
                 ],
@@ -292,7 +299,7 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
                     child: TextFormField(
                       controller: _heightController,
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(labelText: 'Height (cm)'),
+                      decoration: InputDecoration(labelText: loc.translate('height_cm')),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -300,7 +307,7 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
                     child: TextFormField(
                       controller: _weightController,
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(labelText: 'Weight (kg)'),
+                      decoration: InputDecoration(labelText: loc.translate('weight_kg')),
                     ),
                   ),
                 ],
@@ -311,9 +318,11 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
                   Expanded(
                     child: TextFormField(
                       controller: _gotraController,
-                      decoration: const InputDecoration(
-                        labelText: 'Gotra / Clan (गोत्र)',
-                        hintText: 'Bharadwaj / Kashyap',
+                      decoration: InputDecoration(
+                        labelText: loc.translate('gotra'),
+                        hintText: currentLang == 'hi' || currentLang == 'mr'
+                            ? 'भारद्वाज / कश्यप'
+                            : (currentLang == 'gu' ? 'ભારદ્વાજ / કશ્યપ' : 'Bharadwaj / Kashyap'),
                       ),
                     ),
                   ),
@@ -323,10 +332,13 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
                       initialValue: _religion,
                       isExpanded: true,
                       items: CivilReligions.all
-                          .map((r) => DropdownMenuItem(value: r, child: Text(r)))
+                          .map((r) => DropdownMenuItem(
+                                value: r,
+                                child: Text(CivilReligions.getLocalizedLabel(r, currentLang)),
+                              ))
                           .toList(),
                       onChanged: (v) => setState(() => _religion = v!),
-                      decoration: const InputDecoration(labelText: 'Religion (धर्म)'),
+                      decoration: InputDecoration(labelText: loc.translate('religion')),
                     ),
                   ),
                 ],
@@ -339,10 +351,13 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
                       initialValue: _maritalStatus,
                       isExpanded: true,
                       items: CivilMaritalStatuses.all
-                          .map((m) => DropdownMenuItem(value: m, child: Text(m)))
+                          .map((m) => DropdownMenuItem(
+                                value: m,
+                                child: Text(CivilMaritalStatuses.getLocalizedLabel(m, currentLang)),
+                              ))
                           .toList(),
                       onChanged: (v) => setState(() => _maritalStatus = v!),
-                      decoration: const InputDecoration(labelText: 'Marital Status (वैवाहिक स्थिति)'),
+                      decoration: InputDecoration(labelText: loc.translate('marital_status')),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -354,7 +369,7 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
                           .map((b) => DropdownMenuItem(value: b, child: Text(b)))
                           .toList(),
                       onChanged: (v) => setState(() => _bloodGroup = v),
-                      decoration: const InputDecoration(labelText: 'Blood Group (रक्त समूह)'),
+                      decoration: InputDecoration(labelText: loc.translate('blood_group')),
                     ),
                   ),
                 ],
@@ -363,26 +378,26 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Residential Address', style: Theme.of(context).textTheme.titleMedium),
+                  Text(loc.translate('residential_address'), style: Theme.of(context).textTheme.titleMedium),
                   TextButton.icon(
                     onPressed: _isLoadingLocation ? null : _autofillLocation,
                     icon: _isLoadingLocation
                         ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
                         : const Icon(Icons.my_location),
-                    label: const Text('Autofill GPS'),
+                    label: Text(loc.translate('autofill_gps_label')),
                   )
                 ],
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _addr1Controller,
-                decoration: const InputDecoration(labelText: 'Address Line 1 (House/Street) *'),
-                validator: (v) => v!.trim().isEmpty ? 'Required' : null,
+                decoration: InputDecoration(labelText: '${loc.translate('address_line1_label')} *'),
+                validator: (v) => v!.trim().isEmpty ? loc.translate('required') : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _addr2Controller,
-                decoration: const InputDecoration(labelText: 'Address Line 2 (Locality/Area)'),
+                decoration: InputDecoration(labelText: loc.translate('address_line2_label')),
               ),
               const SizedBox(height: 12),
               Row(
@@ -391,16 +406,16 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
                     child: TextFormField(
                       controller: _pinController,
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(labelText: 'PIN Code *'),
-                      validator: (v) => v!.trim().length != 6 ? '6 Digits' : null,
+                      decoration: InputDecoration(labelText: '${loc.translate('pin_code_req')} *'),
+                      validator: (v) => v!.trim().length != 6 ? loc.translate('six_digits') : null,
                     ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: TextFormField(
                       controller: _districtController,
-                      decoration: const InputDecoration(labelText: 'District *'),
-                      validator: (v) => v!.trim().isEmpty ? 'Required' : null,
+                      decoration: InputDecoration(labelText: '${loc.translate('district')} *'),
+                      validator: (v) => v!.trim().isEmpty ? loc.translate('required') : null,
                     ),
                   ),
                 ],
@@ -411,15 +426,15 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
                   Expanded(
                     child: TextFormField(
                       controller: _stateController,
-                      decoration: const InputDecoration(labelText: 'State *'),
-                      validator: (v) => v!.trim().isEmpty ? 'Required' : null,
+                      decoration: InputDecoration(labelText: '${loc.translate('state')} *'),
+                      validator: (v) => v!.trim().isEmpty ? loc.translate('required') : null,
                     ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: TextFormField(
                       controller: _countryController,
-                      decoration: const InputDecoration(labelText: 'Country'),
+                      decoration: InputDecoration(labelText: loc.translate('country')),
                     ),
                   ),
                 ],
@@ -436,7 +451,7 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
                           height: 24,
                           child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                         )
-                      : const Text('Register & Allocate 12-Digit VUID'),
+                      : Text(loc.translate('submit_registration_btn')),
                 ),
               ),
             ],

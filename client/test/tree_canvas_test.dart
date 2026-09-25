@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vanshasetu/features/tree/screens/tree_canvas_screen.dart';
 import 'package:vanshasetu/features/tree/models/tree_graph_model.dart';
+import 'package:vanshasetu/features/tree/providers/tree_provider.dart';
 
 void main() {
   group('TreeCanvasScreen & KinshipLinePainter Tests', () {
@@ -147,6 +148,54 @@ void main() {
       expect(TreeCanvasScreen.getAvatarAsset(femaleNode), 'assets/images/female_avatar.jpg');
       expect(TreeCanvasScreen.getAvatarAsset(deceasedMaleNode), 'assets/images/deceased_avatar.jpg');
       expect(TreeCanvasScreen.getAvatarAsset(nonBinaryNode), 'assets/images/other_avatar.jpg');
+    });
+
+    test('TreeNotifier: removeNode and updateNode update state graph cleanly', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      final node = TreeCitizenNode(
+        vuid: '109284729102',
+        formattedVuid: '1092 8472 9102',
+        name: 'Kailash Sharma',
+        gender: 'Male',
+        dob: '1948-03-12',
+        category: 'GEN',
+        isVerified: true,
+        isClaimed: true,
+        status: 'Active',
+      );
+
+      final graph = TreeGraphData(
+        rootVuid: '109284729102',
+        formattedRootVuid: '1092 8472 9102',
+        nodes: [node],
+        edges: [],
+      );
+
+      final notifier = container.read(treeProvider.notifier);
+      notifier.state = TreeState(graphData: graph);
+
+      // Modify node
+      final updatedNode = TreeCitizenNode(
+        vuid: '109284729102',
+        formattedVuid: '1092 8472 9102',
+        name: 'Kailash Sharma (Modified)',
+        gender: 'Male',
+        dob: '1948-03-12',
+        category: 'GEN',
+        isVerified: true,
+        isClaimed: true,
+        status: 'Deceased',
+      );
+
+      notifier.updateNode(updatedNode);
+      expect(container.read(treeProvider).graphData?.nodes.first.name, 'Kailash Sharma (Modified)');
+      expect(container.read(treeProvider).graphData?.nodes.first.status, 'Deceased');
+
+      // Remove node
+      notifier.removeNode('109284729102');
+      expect(container.read(treeProvider).graphData?.nodes.isEmpty, true);
     });
   });
 }

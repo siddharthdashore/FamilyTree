@@ -92,6 +92,12 @@
       "gu": "વસ્તી વિષયક અને નાગરિક ઓળખ વિગતો દાખલ કરો",
       "mr": "लोकसंख्या विषयक व ओळख माहिती प्रविष्ट करा"
     },
+    "personal_details": {
+      "en": "Personal Details",
+      "hi": "व्यक्तिगत विवरण",
+      "gu": "વ્યક્તિગત વિગતો",
+      "mr": "वैयक्तिक तपशील"
+    },
     "first_name": {
       "en": "First Name",
       "hi": "प्रथम नाम",
@@ -113,11 +119,17 @@
     "gender": {
       "en": "Gender",
       "hi": "लिंग",
-      "gu": "જાતિ (લિંગ)",
+      "gu": "લિંગ",
       "mr": "लिंग"
     },
     "dob": {
       "en": "Date of Birth (YYYY-MM-DD)",
+      "hi": "जन्म तिथि (YYYY-MM-DD)",
+      "gu": "જન્મ તારીખ (YYYY-MM-DD)",
+      "mr": "जन्मतारीख (YYYY-MM-DD)"
+    },
+    "dob_label": {
+      "en": "DOB (YYYY-MM-DD)",
       "hi": "जन्म तिथि (YYYY-MM-DD)",
       "gu": "જન્મ તારીખ (YYYY-MM-DD)",
       "mr": "जन्मतारीख (YYYY-MM-DD)"
@@ -152,6 +164,12 @@
       "gu": "જ્ઞાતિ / જાતિ",
       "mr": "जात / समुदाय"
     },
+    "caste_optional": {
+      "en": "Caste (Optional)",
+      "hi": "जाति (वैकल्पिक)",
+      "gu": "જ્ઞાતિ (વૈકલ્પિક)",
+      "mr": "जात (पर्यायी)"
+    },
     "category": {
       "en": "Social Category",
       "hi": "सामाजिक वर्ग",
@@ -161,7 +179,7 @@
     "blood_group": {
       "en": "Blood Group",
       "hi": "रक्त समूह",
-      "gu": "બ્લડ ગ્રૂપ (રક્ત જૂથ)",
+      "gu": "બ્લડ ગ્રૂપ",
       "mr": "रक्तगट"
     },
     "marital_status": {
@@ -170,11 +188,23 @@
       "gu": "વૈવાહિક સ્થિતિ",
       "mr": "वैवाहिक स्थिती"
     },
+    "residential_address": {
+      "en": "Residential Address",
+      "hi": "आवासीय पता",
+      "gu": "રહેઠાણનું સરનામું",
+      "mr": "निवासी पत्ता"
+    },
     "address_line1": {
       "en": "Address Line 1",
       "hi": "पता पंक्ति 1",
       "gu": "સરનામું લીટી ૧",
       "mr": "पत्ता ओळ १"
+    },
+    "address_line1_label": {
+      "en": "Address Line 1 (House/Street)",
+      "hi": "पता पंक्ति 1 (मकान/सड़क)",
+      "gu": "સરનામું લીટી ૧ (ઘર/શેરી)",
+      "mr": "पत्ता ओळ १ (घर/रस्ता)"
     },
     "address_line2": {
       "en": "Address Line 2 (Optional)",
@@ -182,11 +212,23 @@
       "gu": "સરનામું લીટી ૨ (વૈકલ્પિક)",
       "mr": "पत्ता ओळ २ (पर्यायी)"
     },
+    "address_line2_label": {
+      "en": "Address Line 2 (Locality/Area)",
+      "hi": "पता पंक्ति 2 (इलाका/क्षेत्र)",
+      "gu": "સરનામું લીટી ૨ (વિસ્તાર)",
+      "mr": "पत्ता ओळ २ (परिसर)"
+    },
     "pin_code": {
       "en": "6-Digit PIN Code",
       "hi": "6-अंकीय पिन कोड",
       "gu": "૬-અંકનો પિન કોડ",
       "mr": "६-अंकी पिन कोड"
+    },
+    "pin_code_req": {
+      "en": "PIN Code",
+      "hi": "पिन कोड",
+      "gu": "પિન કોડ",
+      "mr": "पिन कोड"
     },
     "district": {
       "en": "District",
@@ -212,11 +254,35 @@
       "gu": "લાઈવ જીપીએસ ઓટો-ફિલ",
       "mr": "थेट GPS द्वारे पत्ता भरा"
     },
+    "autofill_gps_label": {
+      "en": "Autofill GPS",
+      "hi": "जीपीएस स्वतः भरें",
+      "gu": "જીપીએસ ઓટો-ફિલ",
+      "mr": "GPS द्वारे भरा"
+    },
     "submit_registration": {
       "en": "Register Citizen & Generate VUID",
       "hi": "नागरिक पंजीकृत करें एवं VUID बनाएं",
       "gu": "નાગરિક નોંધણી કરો અને VUID મેળવો",
       "mr": "नागरिक नोंदणी करा व VUID मिळवा"
+    },
+    "submit_registration_btn": {
+      "en": "Register & Allocate 12-Digit VUID",
+      "hi": "पंजीकृत करें एवं 12-अंकीय VUID प्राप्त करें",
+      "gu": "નોંધણી કરો અને ૧૨-અંકનો VUID મેળવો",
+      "mr": "नोंदणी करा आणि १२-अंकी VUID मिळवा"
+    },
+    "required": {
+      "en": "Required",
+      "hi": "आवश्यक",
+      "gu": "જરૂરી",
+      "mr": "आवश्यक"
+    },
+    "six_digits": {
+      "en": "6 Digits",
+      "hi": "6 अंक",
+      "gu": "૬ અંક",
+      "mr": "६ अंक"
     },
     "required_field": {
       "en": "This field is mandatory",

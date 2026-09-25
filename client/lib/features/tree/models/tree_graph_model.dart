@@ -6,7 +6,14 @@ class TreeCitizenNode {
   final String name;
   final String gender;
   final String dob;
+  final String caste;
   final String category;
+  final String gotra;
+  final String religion;
+  final String maritalStatus;
+  final String bloodGroup;
+  final String district;
+  final String state;
   final bool isVerified;
   final bool isClaimed;
   final String status;
@@ -18,7 +25,14 @@ class TreeCitizenNode {
     required this.name,
     required this.gender,
     required this.dob,
+    this.caste = 'Brahmin',
     required this.category,
+    this.gotra = 'Bharadwaj',
+    this.religion = 'Hindu',
+    this.maritalStatus = 'Single',
+    this.bloodGroup = 'O+',
+    this.district = 'Indore',
+    this.state = 'Madhya Pradesh',
     required this.isVerified,
     required this.isClaimed,
     required this.status,
@@ -32,7 +46,14 @@ class TreeCitizenNode {
       name: json['name'] ?? '',
       gender: json['gender'] ?? 'Male',
       dob: json['dob'] ?? '',
+      caste: json['caste'] ?? 'Brahmin',
       category: json['category'] ?? 'GEN',
+      gotra: json['gotra'] ?? 'Bharadwaj',
+      religion: json['religion'] ?? 'Hindu',
+      maritalStatus: json['marital_status'] ?? json['maritalStatus'] ?? 'Single',
+      bloodGroup: json['blood_group'] ?? json['bloodGroup'] ?? 'O+',
+      district: json['district'] ?? 'Indore',
+      state: json['state'] ?? 'Madhya Pradesh',
       isVerified: json['is_verified'] == true || json['is_verified'] == 1,
       isClaimed: json['is_claimed'] == true || json['is_claimed'] == 1,
       status: json['status'] ?? 'Active',

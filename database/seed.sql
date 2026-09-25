@@ -25,13 +25,18 @@ INSERT INTO `citizens` (
     `address_line1`, `address_line2`, `pin_code`, `district`, `state`, `country`,
     `latitude`, `longitude`, `is_claimed`, `status`
 ) VALUES
--- Gen 1: Paternal Grandfather
+-- Gen 1: Paternal Grandparents (Kailash Prasad Sharma & Savitri Devi Sharma)
 ('109284729102', 'Kailash', 'Prasad', 'Sharma', 'Male', '1948-03-12',
- 168.0, 65.0, 'Brahmin', 'GEN', 'Bharadwaj', 'Hindu', 'Widowed', 'O+',
+ 168.0, 65.0, 'Brahmin', 'GEN', 'Bharadwaj', 'Hindu', 'Married', 'O+',
  '42 Heritage Enclave', 'Civil Lines', '452001', 'Indore', 'Madhya Pradesh', 'India',
  22.7196, 75.8577, TRUE, 'Active'),
 
--- Gen 2: Parents
+('109284729103', 'Savitri', 'Devi', 'Sharma', 'Female', '1950-06-18',
+ 158.0, 58.0, 'Brahmin', 'GEN', 'Bharadwaj', 'Hindu', 'Married', 'A+',
+ '42 Heritage Enclave', 'Civil Lines', '452001', 'Indore', 'Madhya Pradesh', 'India',
+ 22.7196, 75.8577, TRUE, 'Active'),
+
+-- Gen 2: Parents & Couples (Ramesh & Sunita, Deepak & Meena, Vikram & Anita)
 ('510928340192', 'Ramesh', 'Chandra', 'Sharma', 'Male', '1972-07-24',
  175.5, 74.0, 'Brahmin', 'GEN', 'Bharadwaj', 'Hindu', 'Married', 'B+',
  '104 Lotus Heights', 'Vijay Nagar', '452010', 'Indore', 'Madhya Pradesh', 'India',
@@ -42,7 +47,27 @@ INSERT INTO `citizens` (
  '104 Lotus Heights', 'Vijay Nagar', '452010', 'Indore', 'Madhya Pradesh', 'India',
  22.7533, 75.8937, TRUE, 'Active'),
 
--- Gen 3: Self (Aarav Sharma) & Spouse (Pooja Sharma)
+('391029485710', 'Deepak', 'Kumar', 'Sharma', 'Male', '1976-02-14',
+ 172.0, 68.0, 'Brahmin', 'GEN', 'Bharadwaj', 'Hindu', 'Married', 'O-',
+ 'Old Market Ward 4', 'Ganj', '452002', 'Indore', 'Madhya Pradesh', 'India',
+ 22.7150, 75.8600, FALSE, 'Missing'),
+
+('391029485711', 'Meena', NULL, 'Sharma', 'Female', '1978-04-10',
+ 162.0, 59.0, 'Brahmin', 'GEN', 'Gautam', 'Hindu', 'Married', 'B+',
+ 'Old Market Ward 4', 'Ganj', '452002', 'Indore', 'Madhya Pradesh', 'India',
+ 22.7150, 75.8600, TRUE, 'Active'),
+
+('510928340194', 'Vikram', NULL, 'Sharma', 'Male', '1980-09-12',
+ 176.0, 72.0, 'Brahmin', 'GEN', 'Bharadwaj', 'Hindu', 'Married', 'AB+',
+ '202 Royal Palms', 'Palasia', '452001', 'Indore', 'Madhya Pradesh', 'India',
+ 22.7200, 75.8700, TRUE, 'Active'),
+
+('510928340195', 'Anita', NULL, 'Sharma', 'Female', '1982-12-01',
+ 164.0, 57.0, 'Brahmin', 'GEN', 'Shandilya', 'Hindu', 'Married', 'O+',
+ '202 Royal Palms', 'Palasia', '452001', 'Indore', 'Madhya Pradesh', 'India',
+ 22.7200, 75.8700, TRUE, 'Active'),
+
+-- Gen 3: Children & Spouses
 ('284910293847', 'Aarav', NULL, 'Sharma', 'Male', '1998-05-18',
  178.0, 71.0, 'Brahmin', 'GEN', 'Bharadwaj', 'Hindu', 'Married', 'B+',
  'Flat 302, Green Meadows', 'HSR Layout Sector 2', '560102', 'Bengaluru Urban', 'Karnataka', 'India',
@@ -53,43 +78,123 @@ INSERT INTO `citizens` (
  'Flat 302, Green Meadows', 'HSR Layout Sector 2', '560102', 'Bengaluru Urban', 'Karnataka', 'India',
  12.9116, 77.6499, TRUE, 'Active'),
 
--- Gen 4: Child (Vihaan Sharma)
+('710293849103', 'Ananya', NULL, 'Sharma', 'Female', '2001-08-14',
+ 163.0, 54.0, 'Brahmin', 'GEN', 'Bharadwaj', 'Hindu', 'Married', 'A+',
+ '104 Lotus Heights', 'Vijay Nagar', '452010', 'Indore', 'Madhya Pradesh', 'India',
+ 22.7533, 75.8937, TRUE, 'Active'),
+
+('710293849102', 'Rohan', NULL, 'Verma', 'Male', '1996-04-10',
+ 177.0, 70.0, 'Kshatriya', 'GEN', 'Vatsa', 'Hindu', 'Married', 'O+',
+ '55 M.G. Road', 'Freeganj', '456001', 'Ujjain', 'Madhya Pradesh', 'India',
+ 23.1765, 75.7885, TRUE, 'Active'),
+
+('284910293849', 'Ishaan', NULL, 'Sharma', 'Male', '2004-03-30',
+ 175.0, 68.0, 'Brahmin', 'GEN', 'Bharadwaj', 'Hindu', 'Married', 'B+',
+ '104 Lotus Heights', 'Vijay Nagar', '452010', 'Indore', 'Madhya Pradesh', 'India',
+ 22.7533, 75.8937, TRUE, 'Active'),
+
+('710293849104', 'Priya', NULL, 'Patel', 'Female', '1997-12-02',
+ 161.0, 55.0, 'Kurmi', 'OBC', 'Kashyap', 'Hindu', 'Married', 'AB-',
+ '78 Navlakha Main Road', 'Navlakha', '452001', 'Indore', 'Madhya Pradesh', 'India',
+ 22.7000, 75.8700, TRUE, 'Active'),
+
+('391029485712', 'Priyanshu', NULL, 'Sharma', 'Male', '2002-01-20',
+ 174.0, 66.0, 'Brahmin', 'GEN', 'Bharadwaj', 'Hindu', 'Single', 'O+',
+ 'Old Market Ward 4', 'Ganj', '452002', 'Indore', 'Madhya Pradesh', 'India',
+ 22.7150, 75.8600, TRUE, 'Active'),
+
+('391029485713', 'Riya', NULL, 'Sharma', 'Female', '2005-11-15',
+ 160.0, 52.0, 'Brahmin', 'GEN', 'Bharadwaj', 'Hindu', 'Single', 'A+',
+ 'Old Market Ward 4', 'Ganj', '452002', 'Indore', 'Madhya Pradesh', 'India',
+ 22.7150, 75.8600, TRUE, 'Active'),
+
+('510928340196', 'Kabir', NULL, 'Sharma', 'Male', '2006-07-04',
+ 172.0, 63.0, 'Brahmin', 'GEN', 'Bharadwaj', 'Hindu', 'Single', 'B+',
+ '202 Royal Palms', 'Palasia', '452001', 'Indore', 'Madhya Pradesh', 'India',
+ 22.7200, 75.8700, TRUE, 'Active'),
+
+('510928340197', 'Diya', NULL, 'Sharma', 'Female', '2008-05-22',
+ 158.0, 49.0, 'Brahmin', 'GEN', 'Bharadwaj', 'Hindu', 'Single', 'O+',
+ '202 Royal Palms', 'Palasia', '452001', 'Indore', 'Madhya Pradesh', 'India',
+ 22.7200, 75.8700, TRUE, 'Active'),
+
+-- Gen 4: Children (Vihaan & Advait)
 ('819204918274', 'Vihaan', NULL, 'Sharma', 'Male', '2024-01-15',
  54.0, 4.2, 'Brahmin', 'GEN', 'Bharadwaj', 'Hindu', 'Single', 'B+',
  'Flat 302, Green Meadows', 'HSR Layout Sector 2', '560102', 'Bengaluru Urban', 'Karnataka', 'India',
  12.9116, 77.6499, TRUE, 'Active'),
 
--- Missing Relative (Case for SIR Anomaly Workflow)
-('391029485710', 'Deepak', 'Kumar', 'Sharma', 'Male', '1976-02-14',
- 172.0, 68.0, 'Brahmin', 'GEN', 'Bharadwaj', 'Hindu', 'Single', 'O-',
- 'Old Market Ward 4', 'Ganj', '452002', 'Indore', 'Madhya Pradesh', 'India',
- 22.7150, 75.8600, FALSE, 'Missing');
+('819204918275', 'Advait', NULL, 'Sharma', 'Male', '2025-06-10',
+ 48.0, 3.8, 'Brahmin', 'GEN', 'Bharadwaj', 'Hindu', 'Single', 'O+',
+ 'Flat 302, Green Meadows', 'HSR Layout Sector 2', '560102', 'Bengaluru Urban', 'Karnataka', 'India',
+ 12.9116, 77.6499, TRUE, 'Active');
 
 -- ----------------------------------------------------------------------------
 -- 2. Insert Directed Kinship Relationships
 -- ----------------------------------------------------------------------------
 INSERT INTO `relationships` (`source_vuid`, `target_vuid`, `relationship_type`, `verification_status`) VALUES
--- Kailash -> Ramesh (Father)
-('109284729102', '510928340192', 'Father', 'Document_Backed'),
+-- Spouses
+('109284729102', '109284729103', 'Spouse', 'Mutual_Confirmed'),
+('109284729103', '109284729102', 'Spouse', 'Mutual_Confirmed'),
 
--- Ramesh <-> Sunita (Spouse)
 ('510928340192', '510928340193', 'Spouse', 'Mutual_Confirmed'),
 ('510928340193', '510928340192', 'Spouse', 'Mutual_Confirmed'),
 
--- Ramesh -> Aarav (Father), Sunita -> Aarav (Mother)
-('510928340192', '284910293847', 'Father', 'Mutual_Confirmed'),
-('510928340193', '284910293847', 'Mother', 'Mutual_Confirmed'),
+('391029485710', '391029485711', 'Spouse', 'Unverified'),
+('391029485711', '391029485710', 'Spouse', 'Unverified'),
 
--- Aarav <-> Pooja (Spouse)
+('510928340194', '510928340195', 'Spouse', 'Mutual_Confirmed'),
+('510928340195', '510928340194', 'Spouse', 'Mutual_Confirmed'),
+
 ('284910293847', '928174019284', 'Spouse', 'Mutual_Confirmed'),
 ('928174019284', '284910293847', 'Spouse', 'Mutual_Confirmed'),
 
--- Aarav -> Vihaan (Father), Pooja -> Vihaan (Mother)
+('710293849103', '710293849102', 'Spouse', 'Mutual_Confirmed'),
+('710293849102', '710293849103', 'Spouse', 'Mutual_Confirmed'),
+
+('284910293849', '710293849104', 'Spouse', 'Mutual_Confirmed'),
+('710293849104', '284910293849', 'Spouse', 'Mutual_Confirmed'),
+
+-- Gen 1 -> Gen 2 (Kailash & Savitri -> 3 Sons)
+('109284729102', '510928340192', 'Father', 'Document_Backed'),
+('109284729103', '510928340192', 'Mother', 'Document_Backed'),
+
+('109284729102', '391029485710', 'Father', 'Document_Backed'),
+('109284729103', '391029485710', 'Mother', 'Document_Backed'),
+
+('109284729102', '510928340194', 'Father', 'Document_Backed'),
+('109284729103', '510928340194', 'Mother', 'Document_Backed'),
+
+-- Gen 2 -> Gen 3 (Ramesh & Sunita -> 3 Kids)
+('510928340192', '284910293847', 'Father', 'Mutual_Confirmed'),
+('510928340193', '284910293847', 'Mother', 'Mutual_Confirmed'),
+
+('510928340192', '710293849103', 'Father', 'Mutual_Confirmed'),
+('510928340193', '710293849103', 'Mother', 'Mutual_Confirmed'),
+
+('510928340192', '284910293849', 'Father', 'Mutual_Confirmed'),
+('510928340193', '284910293849', 'Mother', 'Mutual_Confirmed'),
+
+-- Gen 2 -> Gen 3 (Deepak & Meena -> 2 Kids)
+('391029485710', '391029485712', 'Father', 'Unverified'),
+('391029485711', '391029485712', 'Mother', 'Mutual_Confirmed'),
+
+('391029485710', '391029485713', 'Father', 'Unverified'),
+('391029485711', '391029485713', 'Mother', 'Mutual_Confirmed'),
+
+-- Gen 2 -> Gen 3 (Vikram & Anita -> 2 Kids)
+('510928340194', '510928340196', 'Father', 'Mutual_Confirmed'),
+('510928340195', '510928340196', 'Mother', 'Mutual_Confirmed'),
+
+('510928340194', '510928340197', 'Father', 'Mutual_Confirmed'),
+('510928340195', '510928340197', 'Mother', 'Mutual_Confirmed'),
+
+-- Gen 3 -> Gen 4 (Aarav & Pooja -> 2 Kids)
 ('284910293847', '819204918274', 'Father', 'Mutual_Confirmed'),
 ('928174019284', '819204918274', 'Mother', 'Mutual_Confirmed'),
 
--- Ramesh -> Deepak (Sibling - Missing)
-('510928340192', '391029485710', 'Sibling', 'Unverified');
+('284910293847', '819204918275', 'Father', 'Mutual_Confirmed'),
+('928174019284', '819204918275', 'Mother', 'Mutual_Confirmed');
 
 -- ----------------------------------------------------------------------------
 -- 3. Insert Tokenized Zero-Knowledge Documents

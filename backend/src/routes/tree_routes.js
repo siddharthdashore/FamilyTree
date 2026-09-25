@@ -30,23 +30,36 @@ router.get('/:vuid', async (req, res) => {
 
         const root = rootRows[0];
 
-        // 2. Fetch Directed Kinship Edges
-        const [edges] = await pool.query(`
+        // 2. Fetch All Directed Kinship Edges to Traverse Connected Lineage Network
+        const [allEdges] = await pool.query(`
             SELECT 
                 source_vuid AS source, 
                 target_vuid AS target, 
                 relationship_type AS type, 
                 verification_status AS status
             FROM relationships
-            WHERE source_vuid = ? OR target_vuid = ?
-        `, [vuid, vuid]);
+        `);
 
-        // 3. Collect Connected VUIDs
+        // 3. BFS Graph Traversal to Collect All Connected Family Citizens
         const connectedVuids = new Set([vuid]);
-        edges.forEach(e => {
-            connectedVuids.add(e.source);
-            connectedVuids.add(e.target);
-        });
+        const queue = [vuid];
+        while (queue.length > 0) {
+            const curr = queue.shift();
+            for (const edge of allEdges) {
+                let nextVuid = null;
+                if (edge.source === curr && !connectedVuids.has(edge.target)) {
+                    nextVuid = edge.target;
+                } else if (edge.target === curr && !connectedVuids.has(edge.source)) {
+                    nextVuid = edge.source;
+                }
+                if (nextVuid) {
+                    connectedVuids.add(nextVuid);
+                    queue.push(nextVuid);
+                }
+            }
+        }
+
+        const edges = allEdges.filter(e => connectedVuids.has(e.source) && connectedVuids.has(e.target));
 
         // 4. Fetch All Connected Citizen Nodes
         let nodes = [];
@@ -57,7 +70,14 @@ router.get('/:vuid', async (req, res) => {
                     CONCAT(c.first_name, IF(c.middle_name IS NOT NULL AND c.middle_name != '', CONCAT(' ', c.middle_name), ''), ' ', c.last_name) AS name,
                     c.gender, 
                     c.dob, 
+                    c.caste,
                     c.category, 
+                    c.gotra,
+                    c.religion,
+                    c.marital_status,
+                    c.blood_group,
+                    c.district,
+                    c.state,
                     c.is_claimed, 
                     c.status,
                     (SELECT COUNT(*) FROM citizen_documents cd WHERE cd.vuid = c.vuid AND cd.is_ocp_verified = TRUE) > 0 AS is_verified
