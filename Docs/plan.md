@@ -1,7 +1,7 @@
 # VanshaSetu (वन्शसेतु) — Comprehensive Architectural & Implementation Plan
 
-> **Specification Reference:** [`vanshasetu_master_specification.md`](file:///Users/siddharthdashore/Workspace/FamilyTree/Docs/vanshasetu_master_specification.md)  
-> **Sovereign Constitution:** [`constitution.md`](file:///Users/siddharthdashore/Workspace/FamilyTree/Docs/constitution.md)  
+> **Specification Reference:** [`vanshasetu_master_specification.md`](vanshasetu_master_specification.md)  
+> **Sovereign Constitution:** [`constitution.md`](constitution.md)  
 > **Status:** Implementation Complete / 100% Verified  
 > **Platform Version:** 1.2.0-PROD  
 > **Target Domains:** `vanshasetu.in`, `api.vanshasetu.in`, `vanshasetu.org`, `vanshasetu.io`
@@ -22,7 +22,7 @@
 7. **Zero-Knowledge Document Vault:** Salted cryptographic tokenization (`SHA-256(doc + salt)`) for Indian national credentials (Aadhaar, PAN, Voter ID, Driving License, Passport, Ration Card) preventing plaintext leakage while enabling deduplication.
 8. **Special Investigation Registry (SIR) Anomaly Detection:** Real-time flagging of cross-tree duplication, ghost voting anomalies, and multi-ration claims.
 9. **Tamper-Proof Chained Auditing (HIPAA § 164.312(b) & DPDP):** SHA-256 blockchain hash chaining across all mutations, queries, and life events with cryptographic integrity verification.
-10. **Canonical Common Domain Models & Zero-Default Fail-Fast Invariant:** Common canonical models across backend and client for all civil attributes (`religion`, `marital_status`, `gotra`, `category`, `caste`, `blood_group`, etc.); absolute prohibition of default fallback values or placeholders in accordance with [Article X of the Sovereign Constitution](file:///Users/siddharthdashore/Workspace/FamilyTree/Docs/constitution.md#article-x-fail-fast-integrity-universal-prohibition-of-defaults--canonical-domain-models).
+10. **Canonical Common Domain Models & Zero-Default Fail-Fast Invariant:** Common canonical models across backend and client for all civil attributes (`religion`, `marital_status`, `gotra`, `category`, `caste`, `blood_group`, etc.); absolute prohibition of default fallback values or placeholders in accordance with [Article X of the Sovereign Constitution](constitution.md#article-x-fail-fast-integrity-universal-prohibition-of-defaults--canonical-domain-models).
 11. **Vansha Card Digital Credential:** ISO/IEC 7810 ID-1 standard card ($85.60\text{ mm} \times 53.98\text{ mm}$) featuring dynamic HMAC-signed QR codes and native WhatsApp sharing.
 
 ---

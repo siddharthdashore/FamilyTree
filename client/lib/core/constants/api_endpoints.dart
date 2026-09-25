@@ -29,6 +29,7 @@ class ApiEndpoints {
   static String get eventBirth => '$baseUrl/api/v1/events/birth';
   static String get eventDeath => '$baseUrl/api/v1/events/death';
   static String get eventMarriage => '$baseUrl/api/v1/events/marriage';
+  static String get eventDivorce => '$baseUrl/api/v1/events/divorce';
 
   // Education & Occupation
   static String get educationAdd => '$baseUrl/api/v1/education/add';

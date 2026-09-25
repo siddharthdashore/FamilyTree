@@ -1,4 +1,6 @@
 const mysql = require('mysql2/promise');
+const fs = require('fs');
+const path = require('path');
 require('dotenv').config();
 
 // Standard MySQL 8.0 Connection Pool
@@ -6,7 +8,7 @@ const mysqlPool = mysql.createPool({
     host: process.env.DB_HOST || '127.0.0.1',
     port: parseInt(process.env.DB_PORT || '3306', 10),
     user: process.env.DB_USER || 'vanshasetu_user',
-    password: process.env.DB_PASSWORD || 'ChangeThisPassword123!',
+    password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME || 'vanshasetu_db',
     waitForConnections: true,
     connectionLimit: parseInt(process.env.DB_CONNECTION_LIMIT || '15', 10),
@@ -18,215 +20,245 @@ const mysqlPool = mysql.createPool({
 // ============================================================================
 // Resilient In-Memory Storage Engine
 // Automatically activates when MySQL 8.0 daemon is not reachable (local dev / offline demo).
-// Pre-seeded with the exact multi-generational pedigree from database/seed.sql.
+// Seeds data from database/seed.sql (single source of truth).
+// Persists runtime modifications back to seed.sql for cross-restart durability.
 // ============================================================================
 
 const inMemoryStore = {
-    citizens: [
-        { id: 1, vuid: '109284729102', first_name: 'Kailash', middle_name: 'Prasad', last_name: 'Sharma', gender: 'Male', dob: '1948-03-12', caste: 'Brahmin', category: 'GEN', gotra: 'Bharadwaj', religion: 'Hindu', marital_status: 'Married', blood_group: 'O+', address_line1: '42 Heritage Enclave', pin_code: '452001', district: 'Indore', state: 'Madhya Pradesh', country: 'India', is_claimed: 1, status: 'Active', created_at: new Date('2026-01-01T00:00:00Z') },
-        { id: 2, vuid: '109284729103', first_name: 'Savitri', middle_name: 'Devi', last_name: 'Sharma', gender: 'Female', dob: '1950-06-18', caste: 'Brahmin', category: 'GEN', gotra: 'Bharadwaj', religion: 'Hindu', marital_status: 'Married', blood_group: 'A+', address_line1: '42 Heritage Enclave', pin_code: '452001', district: 'Indore', state: 'Madhya Pradesh', country: 'India', is_claimed: 1, status: 'Active', created_at: new Date('2026-01-01T00:00:00Z') },
-        { id: 3, vuid: '510928340192', first_name: 'Ramesh', middle_name: 'Chandra', last_name: 'Sharma', gender: 'Male', dob: '1972-07-24', caste: 'Brahmin', category: 'GEN', gotra: 'Bharadwaj', religion: 'Hindu', marital_status: 'Married', blood_group: 'B+', address_line1: '104 Lotus Heights', pin_code: '452010', district: 'Indore', state: 'Madhya Pradesh', country: 'India', is_claimed: 1, status: 'Active', created_at: new Date('2026-01-01T00:00:00Z') },
-        { id: 4, vuid: '510928340193', first_name: 'Sunita', middle_name: null, last_name: 'Sharma', gender: 'Female', dob: '1975-11-05', caste: 'Brahmin', category: 'GEN', gotra: 'Kashyap', religion: 'Hindu', marital_status: 'Married', blood_group: 'A+', address_line1: '104 Lotus Heights', pin_code: '452010', district: 'Indore', state: 'Madhya Pradesh', country: 'India', is_claimed: 1, status: 'Active', created_at: new Date('2026-01-01T00:00:00Z') },
-        { id: 5, vuid: '391029485710', first_name: 'Deepak', middle_name: 'Kumar', last_name: 'Sharma', gender: 'Male', dob: '1976-02-14', caste: 'Brahmin', category: 'GEN', gotra: 'Bharadwaj', religion: 'Hindu', marital_status: 'Married', blood_group: 'A+', address_line1: 'Old Market Ward 4', pin_code: '452002', district: 'Indore', state: 'Madhya Pradesh', country: 'India', is_claimed: 0, status: 'Missing', created_at: new Date('2026-01-01T00:00:00Z') },
-        { id: 6, vuid: '391029485711', first_name: 'Meena', middle_name: null, last_name: 'Sharma', gender: 'Female', dob: '1978-04-10', caste: 'Brahmin', category: 'GEN', gotra: 'Gautam', religion: 'Hindu', marital_status: 'Married', blood_group: 'B+', address_line1: 'Old Market Ward 4', pin_code: '452002', district: 'Indore', state: 'Madhya Pradesh', country: 'India', is_claimed: 1, status: 'Active', created_at: new Date('2026-01-01T00:00:00Z') },
-        { id: 7, vuid: '510928340194', first_name: 'Vikram', middle_name: null, last_name: 'Sharma', gender: 'Male', dob: '1980-09-12', caste: 'Brahmin', category: 'GEN', gotra: 'Bharadwaj', religion: 'Hindu', marital_status: 'Married', blood_group: 'O+', address_line1: '55 Modern Town', pin_code: '452012', district: 'Indore', state: 'Madhya Pradesh', country: 'India', is_claimed: 1, status: 'Active', created_at: new Date('2026-01-01T00:00:00Z') },
-        { id: 8, vuid: '510928340195', first_name: 'Anita', middle_name: null, last_name: 'Sharma', gender: 'Female', dob: '1982-12-01', caste: 'Brahmin', category: 'GEN', gotra: 'Vashishta', religion: 'Hindu', marital_status: 'Married', blood_group: 'AB+', address_line1: '55 Modern Town', pin_code: '452012', district: 'Indore', state: 'Madhya Pradesh', country: 'India', is_claimed: 1, status: 'Active', created_at: new Date('2026-01-01T00:00:00Z') },
-        { id: 9, vuid: '284910293847', first_name: 'Aarav', middle_name: null, last_name: 'Sharma', gender: 'Male', dob: '1998-05-18', caste: 'Brahmin', category: 'GEN', gotra: 'Bharadwaj', religion: 'Hindu', marital_status: 'Married', blood_group: 'B+', address_line1: 'Flat 302, Green Meadows', pin_code: '560102', district: 'Bengaluru Urban', state: 'Karnataka', country: 'India', is_claimed: 1, status: 'Active', created_at: new Date('2026-01-01T00:00:00Z') },
-        { id: 10, vuid: '928174019284', first_name: 'Pooja', middle_name: 'Kumari', last_name: 'Sharma', gender: 'Female', dob: '2000-09-22', caste: 'Brahmin', category: 'GEN', gotra: 'Vashishta', religion: 'Hindu', marital_status: 'Married', blood_group: 'AB+', address_line1: 'Flat 302, Green Meadows', pin_code: '560102', district: 'Bengaluru Urban', state: 'Karnataka', country: 'India', is_claimed: 1, status: 'Active', created_at: new Date('2026-01-01T00:00:00Z') },
-        { id: 11, vuid: '710293849103', first_name: 'Ananya', middle_name: null, last_name: 'Sharma', gender: 'Female', dob: '2001-08-14', caste: 'Brahmin', category: 'GEN', gotra: 'Bharadwaj', religion: 'Hindu', marital_status: 'Married', blood_group: 'O+', address_line1: '24 Silicon City', pin_code: '560100', district: 'Bengaluru Urban', state: 'Karnataka', country: 'India', is_claimed: 1, status: 'Active', created_at: new Date('2026-01-01T00:00:00Z') },
-        { id: 12, vuid: '710293849102', first_name: 'Rohan', middle_name: null, last_name: 'Verma', gender: 'Male', dob: '1996-04-10', caste: 'Kayastha', category: 'GEN', gotra: 'Gautam', religion: 'Hindu', marital_status: 'Married', blood_group: 'B+', address_line1: '24 Silicon City', pin_code: '560100', district: 'Bengaluru Urban', state: 'Karnataka', country: 'India', is_claimed: 1, status: 'Active', created_at: new Date('2026-01-01T00:00:00Z') },
-        { id: 13, vuid: '284910293849', first_name: 'Ishaan', middle_name: null, last_name: 'Sharma', gender: 'Male', dob: '2004-03-30', caste: 'Brahmin', category: 'GEN', gotra: 'Bharadwaj', religion: 'Hindu', marital_status: 'Married', blood_group: 'A+', address_line1: '104 Lotus Heights', pin_code: '452010', district: 'Indore', state: 'Madhya Pradesh', country: 'India', is_claimed: 1, status: 'Active', created_at: new Date('2026-01-01T00:00:00Z') },
-        { id: 14, vuid: '710293849104', first_name: 'Priya', middle_name: 'Devi', last_name: 'Patel', gender: 'Female', dob: '1997-12-02', caste: 'Patidar', category: 'OBC', gotra: 'Kashyap', religion: 'Hindu', marital_status: 'Married', blood_group: 'AB+', address_line1: '104 Lotus Heights', pin_code: '452010', district: 'Indore', state: 'Madhya Pradesh', country: 'India', is_claimed: 1, status: 'Active', created_at: new Date('2026-01-01T00:00:00Z') },
-        { id: 15, vuid: '391029485712', first_name: 'Priyanshu', middle_name: null, last_name: 'Sharma', gender: 'Male', dob: '2002-01-20', caste: 'Brahmin', category: 'GEN', gotra: 'Bharadwaj', religion: 'Hindu', marital_status: 'Single', blood_group: 'O+', address_line1: 'Old Market Ward 4', pin_code: '452002', district: 'Indore', state: 'Madhya Pradesh', country: 'India', is_claimed: 1, status: 'Active', created_at: new Date('2026-01-01T00:00:00Z') },
-        { id: 16, vuid: '391029485713', first_name: 'Riya', middle_name: null, last_name: 'Sharma', gender: 'Female', dob: '2005-11-15', caste: 'Brahmin', category: 'GEN', gotra: 'Bharadwaj', religion: 'Hindu', marital_status: 'Single', blood_group: 'B+', address_line1: 'Old Market Ward 4', pin_code: '452002', district: 'Indore', state: 'Madhya Pradesh', country: 'India', is_claimed: 1, status: 'Active', created_at: new Date('2026-01-01T00:00:00Z') },
-        { id: 17, vuid: '510928340196', first_name: 'Kabir', middle_name: null, last_name: 'Sharma', gender: 'Male', dob: '2006-07-04', caste: 'Brahmin', category: 'GEN', gotra: 'Bharadwaj', religion: 'Hindu', marital_status: 'Single', blood_group: 'A+', address_line1: '55 Modern Town', pin_code: '452012', district: 'Indore', state: 'Madhya Pradesh', country: 'India', is_claimed: 1, status: 'Active', created_at: new Date('2026-01-01T00:00:00Z') },
-        { id: 18, vuid: '510928340197', first_name: 'Diya', middle_name: null, last_name: 'Sharma', gender: 'Female', dob: '2008-05-22', caste: 'Brahmin', category: 'GEN', gotra: 'Bharadwaj', religion: 'Hindu', marital_status: 'Single', blood_group: 'O+', address_line1: '55 Modern Town', pin_code: '452012', district: 'Indore', state: 'Madhya Pradesh', country: 'India', is_claimed: 1, status: 'Active', created_at: new Date('2026-01-01T00:00:00Z') },
-        { id: 19, vuid: '819204918274', first_name: 'Vihaan', middle_name: null, last_name: 'Sharma', gender: 'Male', dob: '2024-01-15', caste: 'Brahmin', category: 'GEN', gotra: 'Bharadwaj', religion: 'Hindu', marital_status: 'Single', blood_group: 'B+', address_line1: 'Flat 302, Green Meadows', pin_code: '560102', district: 'Bengaluru Urban', state: 'Karnataka', country: 'India', is_claimed: 1, status: 'Active', created_at: new Date('2026-01-01T00:00:00Z') },
-        { id: 20, vuid: '819204918275', first_name: 'Advait', middle_name: null, last_name: 'Sharma', gender: 'Male', dob: '2025-06-10', caste: 'Brahmin', category: 'GEN', gotra: 'Bharadwaj', religion: 'Hindu', marital_status: 'Single', blood_group: 'O+', address_line1: 'Flat 302, Green Meadows', pin_code: '560102', district: 'Bengaluru Urban', state: 'Karnataka', country: 'India', is_claimed: 1, status: 'Active', created_at: new Date('2026-01-01T00:00:00Z') }
-    ],
-    relationships: [
-        // Spouses
-        { source: '109284729102', target: '109284729103', type: 'Spouse', status: 'Mutual_Confirmed' },
-        { source: '510928340192', target: '510928340193', type: 'Spouse', status: 'Mutual_Confirmed' },
-        { source: '391029485710', target: '391029485711', type: 'Spouse', status: 'Unverified' },
-        { source: '510928340194', target: '510928340195', type: 'Spouse', status: 'Mutual_Confirmed' },
-        { source: '284910293847', target: '928174019284', type: 'Spouse', status: 'Mutual_Confirmed' },
-        { source: '710293849103', target: '710293849102', type: 'Spouse', status: 'Mutual_Confirmed' },
-        { source: '284910293849', target: '710293849104', type: 'Spouse', status: 'Mutual_Confirmed' },
-
-        // Gen 1 -> Gen 2 (Kailash & Savitri -> 3 Sons)
-        { source: '109284729102', target: '510928340192', type: 'Father', status: 'Document_Backed' },
-        { source: '109284729103', target: '510928340192', type: 'Mother', status: 'Document_Backed' },
-        { source: '109284729102', target: '391029485710', type: 'Father', status: 'Document_Backed' },
-        { source: '109284729103', target: '391029485710', type: 'Mother', status: 'Document_Backed' },
-        { source: '109284729102', target: '510928340194', type: 'Father', status: 'Document_Backed' },
-        { source: '109284729103', target: '510928340194', type: 'Mother', status: 'Document_Backed' },
-
-        // Gen 2 -> Gen 3 (Ramesh & Sunita -> 3 Kids: Aarav, Ananya, Ishaan)
-        { source: '510928340192', target: '284910293847', type: 'Father', status: 'Mutual_Confirmed' },
-        { source: '510928340193', target: '284910293847', type: 'Mother', status: 'Mutual_Confirmed' },
-        { source: '510928340192', target: '710293849103', type: 'Father', status: 'Mutual_Confirmed' },
-        { source: '510928340193', target: '710293849103', type: 'Mother', status: 'Mutual_Confirmed' },
-        { source: '510928340192', target: '284910293849', type: 'Father', status: 'Mutual_Confirmed' },
-        { source: '510928340193', target: '284910293849', type: 'Mother', status: 'Mutual_Confirmed' },
-
-        // Gen 2 -> Gen 3 (Deepak & Meena -> 2 Kids: Priyanshu, Riya)
-        { source: '391029485710', target: '391029485712', type: 'Father', status: 'Unverified' },
-        { source: '391029485711', target: '391029485712', type: 'Mother', status: 'Mutual_Confirmed' },
-        { source: '391029485710', target: '391029485713', type: 'Father', status: 'Unverified' },
-        { source: '391029485711', target: '391029485713', type: 'Mother', status: 'Mutual_Confirmed' },
-
-        // Gen 2 -> Gen 3 (Vikram & Anita -> 2 Kids: Kabir, Diya)
-        { source: '510928340194', target: '510928340196', type: 'Father', status: 'Mutual_Confirmed' },
-        { source: '510928340195', target: '510928340196', type: 'Mother', status: 'Mutual_Confirmed' },
-        { source: '510928340194', target: '510928340197', type: 'Father', status: 'Mutual_Confirmed' },
-        { source: '510928340195', target: '510928340197', type: 'Mother', status: 'Mutual_Confirmed' },
-
-        // Gen 3 -> Gen 4 (Aarav & Pooja -> 2 Kids: Vihaan, Advait)
-        { source: '284910293847', target: '819204918274', type: 'Father', status: 'Mutual_Confirmed' },
-        { source: '928174019284', target: '819204918274', type: 'Mother', status: 'Mutual_Confirmed' },
-        { source: '284910293847', target: '819204918275', type: 'Father', status: 'Mutual_Confirmed' },
-        { source: '928174019284', target: '819204918275', type: 'Mother', status: 'Mutual_Confirmed' },
-    ],
-    citizen_documents: [
-        {
-            id: 1,
-            vuid: '284910293847',
-            doc_type: 'AADHAAR',
-            doc_hash: '22830f61fa9ef31d0411a766aa0813958045610ec871c5ec37d7c675306e902b',
-            doc_masked_value: 'XXXXXXXX4820',
-            issuer_authority: 'DigiLocker / UIDAI',
-            is_ocp_verified: 1,
-            verified_at: new Date('2026-01-10T10:30:00Z')
-        },
-        {
-            id: 2,
-            vuid: '109284729102',
-            doc_type: 'AADHAAR',
-            doc_hash: '3a985f61fa9ef31d0411a766aa0813958045610ec871c5ec37d7c675306e9099',
-            doc_masked_value: 'XXXXXXXX9102',
-            issuer_authority: 'UIDAI',
-            is_ocp_verified: 1,
-            verified_at: new Date('2026-01-01T00:00:00Z')
-        }
-    ],
-    duplicate_conflict_logs: [
-        {
-            id: 1,
-            flagged_vuid: '284910293847',
-            matched_vuid: '391029485710',
-            doc_type: 'RATION_CARD',
-            conflict_reason: 'Ration card identity collision detected across households',
-            severity: 'High',
-            status: 'Investigating',
-            created_at: new Date('2026-01-15T09:00:00Z')
-        }
-    ],
-    citizen_education: [
-        {
-            id: 1,
-            vuid: '284910293847',
-            qualification_level: 'Bachelors',
-            degree_name: 'B.Tech Computer Science & Engineering',
-            institution: 'Indian Institute of Technology Bombay',
-            year_of_passing: 2020,
-            occupation_sector: 'Private_IT_Corporate',
-            profession_title: 'Senior Software Engineer',
-            created_at: new Date('2026-01-01T00:00:00Z')
-        },
-        {
-            id: 2,
-            vuid: '510928340192',
-            qualification_level: 'Masters',
-            degree_name: 'M.Sc Mathematics',
-            institution: 'Holkar Science College Indore',
-            year_of_passing: 1995,
-            occupation_sector: 'Education_Research',
-            profession_title: 'Senior Education Administrator',
-            created_at: new Date('2026-01-01T00:00:00Z')
-        },
-        {
-            id: 3,
-            vuid: '928174019284',
-            qualification_level: 'Masters',
-            degree_name: 'MBA in Financial Analytics',
-            institution: 'Indian Institute of Management Indore',
-            year_of_passing: 2022,
-            occupation_sector: 'Banking_Finance',
-            profession_title: 'Senior Portfolio Manager',
-            created_at: new Date('2026-01-01T00:00:00Z')
-        },
-        {
-            id: 4,
-            vuid: '710293849103',
-            qualification_level: 'Bachelors',
-            degree_name: 'MBBS (Bachelor of Medicine)',
-            institution: 'All India Institute of Medical Sciences (AIIMS) Bhopal',
-            year_of_passing: 2023,
-            occupation_sector: 'Healthcare',
-            profession_title: 'Resident Medical Officer',
-            created_at: new Date('2026-01-01T00:00:00Z')
-        },
-        {
-            id: 5,
-            vuid: '710293849102',
-            qualification_level: 'Bachelors',
-            degree_name: 'B.Com & Chartered Accountancy (CA)',
-            institution: 'Institute of Chartered Accountants of India',
-            year_of_passing: 2019,
-            occupation_sector: 'Banking_Finance',
-            profession_title: 'Senior Financial Analyst',
-            created_at: new Date('2026-01-01T00:00:00Z')
-        }
-    ],
-    marriages: [
-        {
-            id: 1,
-            marriage_reg_no: 'MP-IND-2000-8492',
-            bride_vuid: '510928340193',
-            groom_vuid: '510928340192',
-            marriage_date: '2000-05-12',
-            venue_city: 'Indore',
-            venue_state: 'Madhya Pradesh',
-            priest_or_registrar: 'Registrar of Marriages, District Court Indore',
-            status: 'Registered',
-            created_at: new Date('2026-01-01T00:00:00Z')
-        },
-        {
-            id: 2,
-            marriage_reg_no: 'KA-BLR-2023-1104',
-            bride_vuid: '928174019284',
-            groom_vuid: '284910293847',
-            marriage_date: '2023-11-20',
-            venue_city: 'Bengaluru',
-            venue_state: 'Karnataka',
-            priest_or_registrar: 'Sub-Registrar Office, Koramangala',
-            status: 'Registered',
-            created_at: new Date('2026-01-01T00:00:00Z')
-        }
-    ],
-    audit_logs: [
-        {
-            id: 1,
-            actor_vuid: '109284729102',
-            action: 'CREATE',
-            resource_type: 'CITIZEN',
-            resource_id: '109284729102',
-            ip_address: '127.0.0.1',
-            user_agent: 'VanshaSetu Seed Engine',
-            status: 'SUCCESS',
-            details: '{"category":"GEN","district":"Indore","state":"Madhya Pradesh"}',
-            prev_log_hash: '0000000000000000000000000000000000000000000000000000000000000000',
-            log_hash: '9f83543b2f707a3e488e453e411b4528238f4d54715be7c7b4e830a210c42f29',
-            created_at: new Date('2026-01-01T00:00:00Z')
-        }
-    ]
+    citizens: [],
+    relationships: [],
+    citizen_documents: [],
+    duplicate_conflict_logs: [],
+    citizen_education: [],
+    marriages: [],
+    audit_logs: []
 };
+
+const SEED_SQL_PATH = path.join(__dirname, '../../../database/seed.sql');
+
+let lastMtimeMs = 0;
+
+// ============================================================================
+// SQL Parser — extracts INSERT rows from seed.sql into inMemoryStore
+// ============================================================================
+
+function parseSeedSQL(sqlContent) {
+    const citizens = [];
+    const relationships = [];
+
+    // ---- Parse citizens INSERT block ----
+    const citizenInsertMatch = sqlContent.match(
+        /INSERT INTO `citizens`\s*\([^)]+\)\s*VALUES\s*([\s\S]*?);/
+    );
+    if (citizenInsertMatch) {
+        const valuesBlock = citizenInsertMatch[1];
+        // Match each row tuple: ('val1', 'val2', ...)
+        const rowRegex = /\(([^)]+)\)/g;
+        let rowMatch;
+        let idCounter = 1;
+        while ((rowMatch = rowRegex.exec(valuesBlock)) !== null) {
+            const rawCols = rowMatch[1];
+            // Parse comma-separated values, respecting quotes
+            const vals = [];
+            let current = '';
+            let inQuote = false;
+            for (let i = 0; i < rawCols.length; i++) {
+                const ch = rawCols[i];
+                if (ch === "'" && (i === 0 || rawCols[i - 1] !== '\\')) {
+                    inQuote = !inQuote;
+                } else if (ch === ',' && !inQuote) {
+                    vals.push(current.trim());
+                    current = '';
+                } else {
+                    current += ch;
+                }
+            }
+            vals.push(current.trim()); // last value
+
+            // Map values to citizen fields
+            // Column order: vuid, first_name, middle_name, last_name, gender, dob,
+            //   caste, category, gotra, religion, marital_status, blood_group,
+            //   address_line1, pin_code, district, state, country, is_claimed, status
+            const parseVal = (v) => {
+                if (v === 'NULL' || v === 'null') return null;
+                if (v === 'TRUE' || v === 'true') return 1;
+                if (v === 'FALSE' || v === 'false') return 0;
+                return v;
+            };
+
+            if (vals.length >= 19) {
+                citizens.push({
+                    id: idCounter++,
+                    vuid: parseVal(vals[0]),
+                    first_name: parseVal(vals[1]),
+                    middle_name: parseVal(vals[2]),
+                    last_name: parseVal(vals[3]),
+                    gender: parseVal(vals[4]),
+                    dob: parseVal(vals[5]),
+                    caste: parseVal(vals[6]),
+                    category: parseVal(vals[7]),
+                    gotra: parseVal(vals[8]),
+                    religion: parseVal(vals[9]),
+                    marital_status: parseVal(vals[10]),
+                    blood_group: parseVal(vals[11]),
+                    address_line1: parseVal(vals[12]),
+                    pin_code: parseVal(vals[13]),
+                    district: parseVal(vals[14]),
+                    state: parseVal(vals[15]),
+                    country: parseVal(vals[16]),
+                    is_claimed: parseVal(vals[17]),
+                    status: parseVal(vals[18]),
+                    created_at: new Date('2026-01-01T00:00:00.000Z')
+                });
+            }
+        }
+    }
+
+    // ---- Parse relationships INSERT block ----
+    const relInsertMatch = sqlContent.match(
+        /INSERT INTO `relationships`\s*\([^)]+\)\s*VALUES\s*([\s\S]*?);/
+    );
+    if (relInsertMatch) {
+        const valuesBlock = relInsertMatch[1];
+        const rowRegex = /\(([^)]+)\)/g;
+        let rowMatch;
+        while ((rowMatch = rowRegex.exec(valuesBlock)) !== null) {
+            const rawCols = rowMatch[1];
+            const vals = [];
+            let current = '';
+            let inQuote = false;
+            for (let i = 0; i < rawCols.length; i++) {
+                const ch = rawCols[i];
+                if (ch === "'" && (i === 0 || rawCols[i - 1] !== '\\')) {
+                    inQuote = !inQuote;
+                } else if (ch === ',' && !inQuote) {
+                    vals.push(current.trim());
+                    current = '';
+                } else {
+                    current += ch;
+                }
+            }
+            vals.push(current.trim());
+
+            // Column order: source_vuid, target_vuid, relationship_type, verification_status
+            if (vals.length >= 4) {
+                relationships.push({
+                    source: vals[0],
+                    target: vals[1],
+                    type: vals[2],
+                    status: vals[3]
+                });
+            }
+        }
+    }
+
+    return { citizens, relationships };
+}
+
+// ============================================================================
+// SQL Writer — serializes inMemoryStore back to seed.sql format
+// ============================================================================
+
+function generateSeedSQL() {
+    let sql = `-- ============================================================================
+-- VanshaSetu (वन्शसेतु) — Multi-Generational Seed Data (10-Layer Hierarchy)
+-- ============================================================================
+
+USE \`vanshasetu_db\`;
+
+SET FOREIGN_KEY_CHECKS = 0;
+TRUNCATE TABLE \`audit_logs\`;
+TRUNCATE TABLE \`marriages\`;
+TRUNCATE TABLE \`citizen_education\`;
+TRUNCATE TABLE \`duplicate_conflict_logs\`;
+TRUNCATE TABLE \`citizen_documents\`;
+TRUNCATE TABLE \`relationships\`;
+TRUNCATE TABLE \`citizens\`;
+SET FOREIGN_KEY_CHECKS = 1;
+
+-- ----------------------------------------------------------------------------
+-- 1. Insert 10-Layer Citizens
+-- ----------------------------------------------------------------------------
+INSERT INTO \`citizens\` (
+    \`vuid\`, \`first_name\`, \`middle_name\`, \`last_name\`, \`gender\`, \`dob\`,
+    \`caste\`, \`category\`, \`gotra\`, \`religion\`, \`marital_status\`, \`blood_group\`,
+    \`address_line1\`, \`pin_code\`, \`district\`, \`state\`, \`country\`,
+    \`is_claimed\`, \`status\`
+) VALUES
+`;
+
+    const citizenValues = inMemoryStore.citizens.map(c => {
+        const mid = c.middle_name ? `'${c.middle_name}'` : 'NULL';
+        const dob = typeof c.dob === 'string' ? c.dob : (c.dob ? new Date(c.dob).toISOString().split('T')[0] : '1970-01-01');
+        return `('${c.vuid}', '${c.first_name}', ${mid}, '${c.last_name}', '${c.gender}', '${dob}', '${c.caste || 'Brahmin'}', '${c.category || 'GEN'}', '${c.gotra || 'Kashyap'}', '${c.religion || 'Hindu'}', '${c.marital_status || 'Single'}', '${c.blood_group || 'O+'}', '${c.address_line1 || ''}', '${c.pin_code || '452001'}', '${c.district || 'Indore'}', '${c.state || 'Madhya Pradesh'}', '${c.country || 'India'}', TRUE, '${c.status || 'Active'}')`;
+    });
+
+    sql += citizenValues.join(',\n') + ';\n\n';
+
+    if (inMemoryStore.relationships.length > 0) {
+        sql += `-- ----------------------------------------------------------------------------
+-- 2. Insert Lineage Kinship Relationships
+-- ----------------------------------------------------------------------------
+INSERT INTO \`relationships\` (
+    \`source_vuid\`, \`target_vuid\`, \`relationship_type\`, \`verification_status\`
+) VALUES
+`;
+        const relValues = inMemoryStore.relationships.map(r => {
+            const source = r.source_vuid || r.source || '';
+            const target = r.target_vuid || r.target || '';
+            const type = r.relationship_type || r.type || '';
+            const status = r.verification_status || r.status || 'Mutual_Confirmed';
+            return `('${source}', '${target}', '${type}', '${status}')`;
+        });
+
+        sql += relValues.join(',\n') + ';\n';
+    }
+
+    return sql;
+}
+
+function saveInMemoryStore() {
+    try {
+        const sql = generateSeedSQL();
+        fs.writeFileSync(SEED_SQL_PATH, sql, 'utf8');
+        if (fs.existsSync(SEED_SQL_PATH)) {
+            lastMtimeMs = fs.statSync(SEED_SQL_PATH).mtimeMs;
+        }
+    } catch (err) {
+        console.error('Failed to persist inMemoryStore to seed.sql:', err);
+    }
+}
+
+function loadInMemoryStore() {
+    try {
+        if (fs.existsSync(SEED_SQL_PATH)) {
+            const stat = fs.statSync(SEED_SQL_PATH);
+            if (lastMtimeMs > 0 && Math.abs(stat.mtimeMs - lastMtimeMs) < 50) return;
+            lastMtimeMs = stat.mtimeMs;
+            const sqlContent = fs.readFileSync(SEED_SQL_PATH, 'utf8');
+            const parsed = parseSeedSQL(sqlContent);
+
+            if (parsed.citizens.length > 0) {
+                inMemoryStore.citizens = parsed.citizens;
+            }
+            if (parsed.relationships.length > 0) {
+                inMemoryStore.relationships = parsed.relationships;
+            }
+            // citizen_documents, audit_logs, etc. are runtime-only (not in seed.sql)
+            // They start empty each session unless we add SQL sections for them later
+        }
+    } catch (err) {
+        console.error('Failed to load inMemoryStore from seed.sql:', err);
+    }
+}
+
+loadInMemoryStore();
 
 /**
  * In-memory query simulator matching SQL syntax used by routes.
  */
 function executeInMemoryQuery(sql, params = []) {
+    loadInMemoryStore();
     const s = sql.trim().replace(/\s+/g, ' ');
 
     // 1. SELECT id FROM citizens WHERE vuid = ? LIMIT 1
@@ -259,6 +291,7 @@ function executeInMemoryQuery(sql, params = []) {
         if (newCitizen.vuid) newCitizen.vuid = String(newCitizen.vuid);
 
         inMemoryStore.citizens.push(newCitizen);
+        saveInMemoryStore();
         return [{ insertId: newCitizen.id, affectedRows: 1 }, []];
     }
 
@@ -314,10 +347,10 @@ function executeInMemoryQuery(sql, params = []) {
     // 6. SELECT ... FROM relationships
     if (s.includes('FROM relationships')) {
         let edges = inMemoryStore.relationships.map(r => ({
-            source: String(r.source),
-            target: String(r.target),
-            type: r.type,
-            status: r.status
+            source: String(r.source_vuid || r.source || ''),
+            target: String(r.target_vuid || r.target || ''),
+            type: r.relationship_type || r.type || '',
+            status: r.verification_status || r.status || 'Mutual_Confirmed'
         }));
         if (s.includes('WHERE source_vuid = ? OR target_vuid = ?')) {
             const vuid = String(params[0]);
@@ -342,7 +375,29 @@ function executeInMemoryQuery(sql, params = []) {
                 status
             });
         }
+        saveInMemoryStore();
         return [{ affectedRows: 1 }, []];
+    }
+
+    // 7b. UPDATE relationships SET verification_status = ...
+    if (s.startsWith('UPDATE relationships')) {
+        const v1 = String(params[0]);
+        const v2 = String(params[1]);
+        const v3 = params[2] ? String(params[2]) : v1;
+        const v4 = params[3] ? String(params[3]) : v2;
+        let affected = 0;
+        inMemoryStore.relationships.forEach(r => {
+            const isPair = (r.source === v1 && r.target === v2) ||
+                           (r.source === v2 && r.target === v1) ||
+                           (r.source === v3 && r.target === v4) ||
+                           (r.source === v4 && r.target === v3);
+            if (isPair && r.type === 'Spouse') {
+                r.status = 'Divorced';
+                affected++;
+            }
+        });
+        saveInMemoryStore();
+        return [{ affectedRows: affected }, []];
     }
 
     // 8. SELECT vuid FROM citizen_documents WHERE doc_hash = ? AND vuid != ?
@@ -493,6 +548,7 @@ function executeInMemoryQuery(sql, params = []) {
             citizen.death_reason = params[1] || 'Natural';
             citizen.death_cert_number = params[2] || 'D-REC-VALID';
         }
+        saveInMemoryStore();
         return [{ affectedRows: 1 }, []];
     }
 
@@ -506,6 +562,7 @@ function executeInMemoryQuery(sql, params = []) {
                 c.marital_status = status;
             }
         });
+        saveInMemoryStore();
         return [{ affectedRows: v2 ? 2 : 1 }, []];
     }
 

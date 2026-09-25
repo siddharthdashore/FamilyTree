@@ -1,5 +1,9 @@
 const { test, describe } = require('node:test');
 const assert = require('node:assert/strict');
+
+// Test-only HMAC secret — must be set before security/crypto modules load.
+process.env.API_HMAC_SECRET = 'test_signature_secret';
+
 const { signatureGuard, e2eePayloadGuard } = require('../src/middleware/security_guard');
 const { computeSignature, encryptPayload } = require('../src/services/crypto_service');
 

@@ -295,9 +295,9 @@ Every pull request, architectural design, database migration, and cryptographic 
 1. **The Single Source of Truth (SSOT) Invariant:**
    - To eliminate divergence, redundancy, and maintenance hazards, all civil, demographic, and kinship models MUST be defined in **exactly ONE canonical file**:
      $$\text{SSOT File:} \quad \text{shared/civil_models.json}$$
-   - Maintaining separate manual, hand-maintained definition lists in [`backend/src/models/civil_models.js`](file:///Users/siddharthdashore/Workspace/FamilyTree/backend/src/models/civil_models.js) and [`client/lib/core/constants/civil_models.dart`](file:///Users/siddharthdashore/Workspace/FamilyTree/client/lib/core/constants/civil_models.dart) is **strictly unconstitutional**.
-   - **Backend Ingestion:** The Node.js API core directly imports [`shared/civil_models.json`](file:///Users/siddharthdashore/Workspace/FamilyTree/shared/civil_models.json) and dynamically constructs validator closures and lookup maps.
-   - **Client Synchronization:** The Flutter client constants [`client/lib/core/constants/civil_models.dart`](file:///Users/siddharthdashore/Workspace/FamilyTree/client/lib/core/constants/civil_models.dart) are automatically synchronized from [`shared/civil_models.json`](file:///Users/siddharthdashore/Workspace/FamilyTree/shared/civil_models.json) via `node scripts/sync_models.js`, which is chained into all test and build lifecycle pipelines (`npm test`, `npm run build:prod`).
+   - Maintaining separate manual, hand-maintained definition lists in [`backend/src/models/civil_models.js`](../backend/src/models/civil_models.js) and [`client/lib/core/constants/civil_models.dart`](../client/lib/core/constants/civil_models.dart) is **strictly unconstitutional**.
+   - **Backend Ingestion:** The Node.js API core directly imports [`shared/civil_models.json`](../shared/civil_models.json) and dynamically constructs validator closures and lookup maps.
+   - **Client Synchronization:** The Flutter client constants [`client/lib/core/constants/civil_models.dart`](../client/lib/core/constants/civil_models.dart) are automatically synchronized from [`shared/civil_models.json`](../shared/civil_models.json) via `node scripts/sync_models.js`, which is chained into all test and build lifecycle pipelines (`npm test`, `npm run build:prod`).
    - **Public Metadata Reflection:** The middleware MUST expose `GET /api/v1/meta/civil-models` serving the raw canonical models to client applications, audit tools, and third-party sovereign integrators.
 
 2. **String-Based Value & Label Specification for All Enum Items:**
@@ -341,7 +341,7 @@ Every pull request, architectural design, database migration, and cryptographic 
      - **ગુજરાતી / Gujarati (`gu`)**
      - **मराठी / Marathi (`mr`)**
 2. **Canonical Localization Invariants:**
-   - Every entry in [`shared/civil_models.json`](file:///Users/siddharthdashore/Workspace/FamilyTree/shared/civil_models.json) MUST provide accurate localized display values: `label` (English), `hindi_label` (हिन्दी), `gujarati_label` (ગુજરાતી), and `marathi_label` (मराठी).
+   - Every entry in [`shared/civil_models.json`](../shared/civil_models.json) MUST provide accurate localized display values: `label` (English), `hindi_label` (हिन्दी), `gujarati_label` (ગુજરાતી), and `marathi_label` (मराठी).
    - All 72 kinship relationships (`CivilRelationships`) MUST provide culturally accurate regional kin terms in Gujarati (e.g. `પિતા`, `માતા`, `કાકા`, `કાકી`, `ફોઈ`, `ફૂવા`, `મોટા પપ્પા`, `સસરા`, `જમાઈ`, `પુત્રવધૂ`) and Marathi (e.g. `वडील`, `आई`, `काका`, `काकू`, `आत्या`, `मामा`, `मोठे काका`, `सासरे`, `जावई`, `सून`).
 3. **API & Client Implementation Requirements:**
    - The metadata endpoint `GET /api/v1/meta/civil-models` MUST accept `?lang=en|hi|gu|mr` and return localized dictionaries for categories, relationships, and metadata.

@@ -1,6 +1,9 @@
+import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/constants/api_endpoints.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../models/tree_graph_model.dart';
@@ -34,96 +37,134 @@ class TreeNotifier extends StateNotifier<TreeState> {
 
   TreeNotifier(this._ref) : super(const TreeState());
 
+  /// Parses database/seed.sql to extract citizens and relationships for the tree.
+  static Future<TreeGraphData> loadSeedGraphFromJson() async {
+    try {
+      final String sqlStr = await rootBundle.loadString('../database/seed.sql');
+      return _parseSeedSQL(sqlStr);
+    } catch (_) {
+      return TreeGraphData(
+        rootVuid: '109284729102',
+        formattedRootVuid: '1092 8472 9102',
+        nodes: [],
+        edges: [],
+      );
+    }
+  }
+
+  /// Parses INSERT statements from seed.sql to build the graph data.
+  static TreeGraphData _parseSeedSQL(String sql) {
+    final List<Map<String, dynamic>> citizens = [];
+    final List<Map<String, dynamic>> relationships = [];
+
+    // Parse citizens INSERT block
+    final citizenMatch = RegExp(
+      r"INSERT INTO `citizens`\s*\([^)]+\)\s*VALUES\s*([\s\S]*?);",
+    ).firstMatch(sql);
+    if (citizenMatch != null) {
+      final valuesBlock = citizenMatch.group(1)!;
+      final rowRegex = RegExp(r"\(([^)]+)\)");
+      for (final match in rowRegex.allMatches(valuesBlock)) {
+        final vals = _parseSqlRow(match.group(1)!);
+        if (vals.length >= 19) {
+          citizens.add({
+            'vuid': vals[0],
+            'first_name': vals[1],
+            'middle_name': vals[2] == 'NULL' ? null : vals[2],
+            'last_name': vals[3],
+            'gender': vals[4],
+            'dob': vals[5],
+            'caste': vals[6],
+            'category': vals[7],
+            'gotra': vals[8],
+            'religion': vals[9],
+            'marital_status': vals[10],
+            'blood_group': vals[11],
+            'address_line1': vals[12],
+            'district': vals[14],
+            'state': vals[15],
+            'status': vals[18],
+          });
+        }
+      }
+    }
+
+    // Parse relationships INSERT block
+    final relMatch = RegExp(
+      r"INSERT INTO `relationships`\s*\([^)]+\)\s*VALUES\s*([\s\S]*?);",
+    ).firstMatch(sql);
+    if (relMatch != null) {
+      final valuesBlock = relMatch.group(1)!;
+      final rowRegex = RegExp(r"\(([^)]+)\)");
+      for (final match in rowRegex.allMatches(valuesBlock)) {
+        final vals = _parseSqlRow(match.group(1)!);
+        if (vals.length >= 4) {
+          relationships.add({
+            'source_vuid': vals[0],
+            'target_vuid': vals[1],
+            'relationship_type': vals[2],
+            'verification_status': vals[3],
+          });
+        }
+      }
+    }
+
+    return TreeGraphData.fromJson({
+      'root_vuid': '109284729102',
+      'citizens': citizens,
+      'relationships': relationships,
+    });
+  }
+
+  /// Parses a single SQL VALUES row, respecting quoted strings.
+  static List<String> _parseSqlRow(String raw) {
+    final List<String> vals = [];
+    String current = '';
+    bool inQuote = false;
+    for (int i = 0; i < raw.length; i++) {
+      final ch = raw[i];
+      if (ch == "'" && (i == 0 || raw[i - 1] != '\\')) {
+        inQuote = !inQuote;
+      } else if (ch == ',' && !inQuote) {
+        vals.add(current.trim());
+        current = '';
+      } else {
+        current += ch;
+      }
+    }
+    vals.add(current.trim());
+    return vals;
+  }
+
   static TreeGraphData createDatabaseSeedGraph() {
-    final nodes = [
-      // Gen 1: Paternal Grandparents
-      TreeCitizenNode(vuid: '109284729102', formattedVuid: '1092 8472 9102', name: 'Kailash Prasad Sharma', gender: 'Male', dob: '1948-03-12', caste: 'Brahmin', category: 'GEN', gotra: 'Bharadwaj', religion: 'Hindu', maritalStatus: 'Married', bloodGroup: 'O+', district: 'Indore', state: 'Madhya Pradesh', isVerified: true, isClaimed: true, status: 'Active'),
-      TreeCitizenNode(vuid: '109284729103', formattedVuid: '1092 8472 9103', name: 'Savitri Devi Sharma', gender: 'Female', dob: '1950-06-18', caste: 'Brahmin', category: 'GEN', gotra: 'Bharadwaj', religion: 'Hindu', maritalStatus: 'Married', bloodGroup: 'A+', district: 'Indore', state: 'Madhya Pradesh', isVerified: true, isClaimed: true, status: 'Active'),
-
-      // Gen 2: Children of Kailash & Savitri (3 Couples)
-      TreeCitizenNode(vuid: '510928340192', formattedVuid: '5109 2834 0192', name: 'Ramesh Chandra Sharma', gender: 'Male', dob: '1972-07-24', caste: 'Brahmin', category: 'GEN', gotra: 'Bharadwaj', religion: 'Hindu', maritalStatus: 'Married', bloodGroup: 'B+', district: 'Indore', state: 'Madhya Pradesh', isVerified: true, isClaimed: true, status: 'Active'),
-      TreeCitizenNode(vuid: '510928340193', formattedVuid: '5109 2834 0193', name: 'Sunita Sharma', gender: 'Female', dob: '1975-11-05', caste: 'Brahmin', category: 'GEN', gotra: 'Kashyap', religion: 'Hindu', maritalStatus: 'Married', bloodGroup: 'A+', district: 'Indore', state: 'Madhya Pradesh', isVerified: true, isClaimed: true, status: 'Active'),
-      
-      TreeCitizenNode(vuid: '391029485710', formattedVuid: '3910 2948 5710', name: 'Deepak Kumar Sharma', gender: 'Male', dob: '1976-02-14', caste: 'Brahmin', category: 'GEN', gotra: 'Bharadwaj', religion: 'Hindu', maritalStatus: 'Married', bloodGroup: 'O-', district: 'Indore', state: 'Madhya Pradesh', isVerified: false, isClaimed: false, status: 'Missing'),
-      TreeCitizenNode(vuid: '391029485711', formattedVuid: '3910 2948 5711', name: 'Meena Sharma', gender: 'Female', dob: '1978-04-10', caste: 'Brahmin', category: 'GEN', gotra: 'Gautam', religion: 'Hindu', maritalStatus: 'Married', bloodGroup: 'B+', district: 'Indore', state: 'Madhya Pradesh', isVerified: true, isClaimed: true, status: 'Active'),
-
-      TreeCitizenNode(vuid: '510928340194', formattedVuid: '5109 2834 0194', name: 'Vikram Sharma', gender: 'Male', dob: '1980-09-12', caste: 'Brahmin', category: 'GEN', gotra: 'Bharadwaj', religion: 'Hindu', maritalStatus: 'Married', bloodGroup: 'AB+', district: 'Indore', state: 'Madhya Pradesh', isVerified: true, isClaimed: true, status: 'Active'),
-      TreeCitizenNode(vuid: '510928340195', formattedVuid: '5109 2834 0195', name: 'Anita Sharma', gender: 'Female', dob: '1982-12-01', caste: 'Brahmin', category: 'GEN', gotra: 'Vashishta', religion: 'Hindu', maritalStatus: 'Married', bloodGroup: 'O+', district: 'Indore', state: 'Madhya Pradesh', isVerified: true, isClaimed: true, status: 'Active'),
-
-      // Gen 3: Children of Ramesh & Sunita (3 Kids: Aarav, Ananya, Ishaan + Spouses)
-      TreeCitizenNode(vuid: '284910293847', formattedVuid: '2849 1029 3847', name: 'Aarav Sharma', gender: 'Male', dob: '1998-05-18', caste: 'Brahmin', category: 'GEN', gotra: 'Bharadwaj', religion: 'Hindu', maritalStatus: 'Married', bloodGroup: 'B+', district: 'Bengaluru Urban', state: 'Karnataka', isVerified: true, isClaimed: true, status: 'Active'),
-      TreeCitizenNode(vuid: '928174019284', formattedVuid: '9281 7401 9284', name: 'Pooja Kumari Sharma', gender: 'Female', dob: '2000-09-22', caste: 'Brahmin', category: 'GEN', gotra: 'Vashishta', religion: 'Hindu', maritalStatus: 'Married', bloodGroup: 'AB+', district: 'Bengaluru Urban', state: 'Karnataka', isVerified: true, isClaimed: true, status: 'Active'),
-
-      TreeCitizenNode(vuid: '710293849103', formattedVuid: '7102 9384 9103', name: 'Ananya Sharma', gender: 'Female', dob: '2001-08-14', caste: 'Brahmin', category: 'GEN', gotra: 'Bharadwaj', religion: 'Hindu', maritalStatus: 'Married', bloodGroup: 'A+', district: 'Indore', state: 'Madhya Pradesh', isVerified: true, isClaimed: true, status: 'Active'),
-      TreeCitizenNode(vuid: '710293849102', formattedVuid: '7102 9384 9102', name: 'Rohan Verma', gender: 'Male', dob: '1996-04-10', caste: 'Kshatriya', category: 'GEN', gotra: 'Vatsa', religion: 'Hindu', maritalStatus: 'Married', bloodGroup: 'O+', district: 'Ujjain', state: 'Madhya Pradesh', isVerified: true, isClaimed: true, status: 'Active'),
-
-      TreeCitizenNode(vuid: '284910293849', formattedVuid: '2849 1029 3849', name: 'Ishaan Sharma', gender: 'Male', dob: '2004-03-30', caste: 'Brahmin', category: 'GEN', gotra: 'Bharadwaj', religion: 'Hindu', maritalStatus: 'Married', bloodGroup: 'B+', district: 'Indore', state: 'Madhya Pradesh', isVerified: true, isClaimed: true, status: 'Active'),
-      TreeCitizenNode(vuid: '710293849104', formattedVuid: '7102 9384 9104', name: 'Priya Patel', gender: 'Female', dob: '1997-12-02', caste: 'Kurmi', category: 'OBC', gotra: 'Kashyap', religion: 'Hindu', maritalStatus: 'Married', bloodGroup: 'AB-', district: 'Indore', state: 'Madhya Pradesh', isVerified: true, isClaimed: true, status: 'Active'),
-
-      // Gen 3: Children of Deepak & Meena (2 Cousins: Priyanshu & Riya)
-      TreeCitizenNode(vuid: '391029485712', formattedVuid: '3910 2948 5712', name: 'Priyanshu Sharma', gender: 'Male', dob: '2002-01-20', caste: 'Brahmin', category: 'GEN', gotra: 'Bharadwaj', religion: 'Hindu', maritalStatus: 'Single', bloodGroup: 'O+', district: 'Indore', state: 'Madhya Pradesh', isVerified: true, isClaimed: true, status: 'Active'),
-      TreeCitizenNode(vuid: '391029485713', formattedVuid: '3910 2948 5713', name: 'Riya Sharma', gender: 'Female', dob: '2005-11-15', caste: 'Brahmin', category: 'GEN', gotra: 'Bharadwaj', religion: 'Hindu', maritalStatus: 'Single', bloodGroup: 'A+', district: 'Indore', state: 'Madhya Pradesh', isVerified: true, isClaimed: true, status: 'Active'),
-
-      // Gen 3: Children of Vikram & Anita (2 Cousins: Kabir & Diya)
-      TreeCitizenNode(vuid: '510928340196', formattedVuid: '5109 2834 0196', name: 'Kabir Sharma', gender: 'Male', dob: '2006-07-04', caste: 'Brahmin', category: 'GEN', gotra: 'Bharadwaj', religion: 'Hindu', maritalStatus: 'Single', bloodGroup: 'B+', district: 'Indore', state: 'Madhya Pradesh', isVerified: true, isClaimed: true, status: 'Active'),
-      TreeCitizenNode(vuid: '510928340197', formattedVuid: '5109 2834 0197', name: 'Diya Sharma', gender: 'Female', dob: '2008-05-22', caste: 'Brahmin', category: 'GEN', gotra: 'Bharadwaj', religion: 'Hindu', maritalStatus: 'Single', bloodGroup: 'O+', district: 'Indore', state: 'Madhya Pradesh', isVerified: true, isClaimed: true, status: 'Active'),
-
-      // Gen 4: Children of Aarav & Pooja (2 Kids: Vihaan & Advait)
-      TreeCitizenNode(vuid: '819204918274', formattedVuid: '8192 0491 8274', name: 'Vihaan Sharma', gender: 'Male', dob: '2024-01-15', caste: 'Brahmin', category: 'GEN', gotra: 'Bharadwaj', religion: 'Hindu', maritalStatus: 'Single', bloodGroup: 'B+', district: 'Bengaluru Urban', state: 'Karnataka', isVerified: true, isClaimed: true, status: 'Active'),
-      TreeCitizenNode(vuid: '819204918275', formattedVuid: '8192 0491 8275', name: 'Advait Sharma', gender: 'Male', dob: '2025-06-10', caste: 'Brahmin', category: 'GEN', gotra: 'Bharadwaj', religion: 'Hindu', maritalStatus: 'Single', bloodGroup: 'O+', district: 'Bengaluru Urban', state: 'Karnataka', isVerified: true, isClaimed: true, status: 'Active'),
-    ];
-
-    final edges = [
-      // Spouses
-      KinshipEdge(source: '109284729102', target: '109284729103', type: 'Spouse', status: 'Mutual_Confirmed'),
-      KinshipEdge(source: '510928340192', target: '510928340193', type: 'Spouse', status: 'Mutual_Confirmed'),
-      KinshipEdge(source: '391029485710', target: '391029485711', type: 'Spouse', status: 'Unverified'),
-      KinshipEdge(source: '510928340194', target: '510928340195', type: 'Spouse', status: 'Mutual_Confirmed'),
-      KinshipEdge(source: '284910293847', target: '928174019284', type: 'Spouse', status: 'Mutual_Confirmed'),
-      KinshipEdge(source: '710293849103', target: '710293849102', type: 'Spouse', status: 'Mutual_Confirmed'),
-      KinshipEdge(source: '284910293849', target: '710293849104', type: 'Spouse', status: 'Mutual_Confirmed'),
-
-      // Gen 1 -> Gen 2 (Kailash & Savitri -> 3 Sons)
-      KinshipEdge(source: '109284729102', target: '510928340192', type: 'Father', status: 'Document_Backed'),
-      KinshipEdge(source: '109284729103', target: '510928340192', type: 'Mother', status: 'Document_Backed'),
-      KinshipEdge(source: '109284729102', target: '391029485710', type: 'Father', status: 'Document_Backed'),
-      KinshipEdge(source: '109284729103', target: '391029485710', type: 'Mother', status: 'Document_Backed'),
-      KinshipEdge(source: '109284729102', target: '510928340194', type: 'Father', status: 'Document_Backed'),
-      KinshipEdge(source: '109284729103', target: '510928340194', type: 'Mother', status: 'Document_Backed'),
-
-      // Gen 2 -> Gen 3 (Ramesh & Sunita -> 3 Kids: Aarav, Ananya, Ishaan)
-      KinshipEdge(source: '510928340192', target: '284910293847', type: 'Father', status: 'Mutual_Confirmed'),
-      KinshipEdge(source: '510928340193', target: '284910293847', type: 'Mother', status: 'Mutual_Confirmed'),
-      KinshipEdge(source: '510928340192', target: '710293849103', type: 'Father', status: 'Mutual_Confirmed'),
-      KinshipEdge(source: '510928340193', target: '710293849103', type: 'Mother', status: 'Mutual_Confirmed'),
-      KinshipEdge(source: '510928340192', target: '284910293849', type: 'Father', status: 'Mutual_Confirmed'),
-      KinshipEdge(source: '510928340193', target: '284910293849', type: 'Mother', status: 'Mutual_Confirmed'),
-
-      // Gen 2 -> Gen 3 (Deepak & Meena -> 2 Kids: Priyanshu, Riya)
-      KinshipEdge(source: '391029485710', target: '391029485712', type: 'Father', status: 'Unverified'),
-      KinshipEdge(source: '391029485711', target: '391029485712', type: 'Mother', status: 'Mutual_Confirmed'),
-      KinshipEdge(source: '391029485710', target: '391029485713', type: 'Father', status: 'Unverified'),
-      KinshipEdge(source: '391029485711', target: '391029485713', type: 'Mother', status: 'Mutual_Confirmed'),
-
-      // Gen 2 -> Gen 3 (Vikram & Anita -> 2 Kids: Kabir, Diya)
-      KinshipEdge(source: '510928340194', target: '510928340196', type: 'Father', status: 'Mutual_Confirmed'),
-      KinshipEdge(source: '510928340195', target: '510928340196', type: 'Mother', status: 'Mutual_Confirmed'),
-      KinshipEdge(source: '510928340194', target: '510928340197', type: 'Father', status: 'Mutual_Confirmed'),
-      KinshipEdge(source: '510928340195', target: '510928340197', type: 'Mother', status: 'Mutual_Confirmed'),
-
-      // Gen 3 -> Gen 4 (Aarav & Pooja -> 2 Kids: Vihaan, Advait)
-      KinshipEdge(source: '284910293847', target: '819204918274', type: 'Father', status: 'Mutual_Confirmed'),
-      KinshipEdge(source: '928174019284', target: '819204918274', type: 'Mother', status: 'Mutual_Confirmed'),
-      KinshipEdge(source: '284910293847', target: '819204918275', type: 'Father', status: 'Mutual_Confirmed'),
-      KinshipEdge(source: '928174019284', target: '819204918275', type: 'Mother', status: 'Mutual_Confirmed'),
-    ];
-
     return TreeGraphData(
       rootVuid: '109284729102',
       formattedRootVuid: '1092 8472 9102',
-      nodes: nodes,
-      edges: edges,
+      nodes: [],
+      edges: [],
     );
+  }
+
+  Future<void> _saveGraphToLocalStorage(TreeGraphData graph) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final jsonStr = jsonEncode(graph.toJson());
+      await prefs.setString('persisted_tree_graph_${graph.rootVuid}', jsonStr);
+      await prefs.setString('persisted_tree_graph_latest', jsonStr);
+    } catch (_) {}
+  }
+
+  Future<TreeGraphData?> _loadGraphFromLocalStorage(String vuid) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      String? jsonStr = prefs.getString('persisted_tree_graph_$vuid');
+      jsonStr ??= prefs.getString('persisted_tree_graph_latest');
+      if (jsonStr != null && jsonStr.isNotEmpty) {
+        final decoded = jsonDecode(jsonStr) as Map<String, dynamic>;
+        return TreeGraphData.fromJson(decoded);
+      }
+    } catch (_) {}
+    return null;
   }
 
   Future<void> fetchTree(String vuid) async {
@@ -135,13 +176,21 @@ class TreeNotifier extends StateNotifier<TreeState> {
 
       final graphData = TreeGraphData.fromJson(response);
       _computeNodeCoordinates(graphData);
+      await _saveGraphToLocalStorage(graphData);
 
       state = state.copyWith(isLoading: false, graphData: graphData);
     } catch (e) {
-      // Offline / API Fallback: Render complete database seed graph
-      final fallbackGraph = createDatabaseSeedGraph();
-      _computeNodeCoordinates(fallbackGraph);
-      state = state.copyWith(isLoading: false, graphData: fallbackGraph);
+      // Offline / Local JSON Persistence Fallback: Try loading persisted local graph first!
+      final localGraph = await _loadGraphFromLocalStorage(vuid);
+      if (localGraph != null && localGraph.nodes.isNotEmpty) {
+        _computeNodeCoordinates(localGraph);
+        state = state.copyWith(isLoading: false, graphData: localGraph);
+      } else {
+        final fallbackGraph = await loadSeedGraphFromJson();
+        _computeNodeCoordinates(fallbackGraph);
+        await _saveGraphToLocalStorage(fallbackGraph);
+        state = state.copyWith(isLoading: false, graphData: fallbackGraph);
+      }
     }
   }
 
@@ -169,6 +218,79 @@ class TreeNotifier extends StateNotifier<TreeState> {
     }
   }
 
+  Future<bool> recordDivorce({
+    required String spouse1Vuid,
+    required String spouse2Vuid,
+  }) async {
+    try {
+      final client = _ref.read(apiClientProvider);
+      await client.post(
+        ApiEndpoints.eventDivorce,
+        body: {
+          'spouse1_vuid': spouse1Vuid,
+          'spouse2_vuid': spouse2Vuid,
+          'divorce_date': DateTime.now().toIso8601String().split('T').first,
+        },
+      );
+      await fetchTree(spouse1Vuid);
+      return true;
+    } catch (e) {
+      // Offline fallback: update graph edges in memory
+      if (state.graphData != null) {
+        final currentGraph = state.graphData!;
+        final updatedEdges = currentGraph.edges.map((edge) {
+          final isTargetPair = (edge.source == spouse1Vuid && edge.target == spouse2Vuid) ||
+              (edge.source == spouse2Vuid && edge.target == spouse1Vuid);
+          if (edge.type == 'Spouse' && isTargetPair) {
+            return KinshipEdge(
+              source: edge.source,
+              target: edge.target,
+              type: 'Spouse',
+              status: 'Divorced',
+            );
+          }
+          return edge;
+        }).toList();
+
+        final updatedNodes = currentGraph.nodes.map((node) {
+          if (node.vuid == spouse1Vuid || node.vuid == spouse2Vuid) {
+            return TreeCitizenNode(
+              vuid: node.vuid,
+              formattedVuid: node.formattedVuid,
+              name: node.name,
+              gender: node.gender,
+              dob: node.dob,
+              caste: node.caste,
+              category: node.category,
+              gotra: node.gotra,
+              religion: node.religion,
+              maritalStatus: 'Divorced',
+              bloodGroup: node.bloodGroup,
+              district: node.district,
+              state: node.state,
+              isVerified: node.isVerified,
+              isClaimed: node.isClaimed,
+              status: node.status,
+              position: node.position,
+            );
+          }
+          return node;
+        }).toList();
+
+        final newGraph = TreeGraphData(
+          rootVuid: currentGraph.rootVuid,
+          formattedRootVuid: currentGraph.formattedRootVuid,
+          nodes: updatedNodes,
+          edges: updatedEdges,
+        );
+        _computeNodeCoordinates(newGraph);
+        await _saveGraphToLocalStorage(newGraph);
+        state = state.copyWith(graphData: newGraph);
+      }
+      return true;
+    }
+  }
+
   void removeNode(String vuid) {
     if (state.graphData == null) return;
 
@@ -188,6 +310,7 @@ class TreeNotifier extends StateNotifier<TreeState> {
     );
 
     _computeNodeCoordinates(newGraph);
+    _saveGraphToLocalStorage(newGraph);
     state = state.copyWith(graphData: newGraph);
   }
 
@@ -210,6 +333,7 @@ class TreeNotifier extends StateNotifier<TreeState> {
     );
 
     _computeNodeCoordinates(newGraph);
+    _saveGraphToLocalStorage(newGraph);
     state = state.copyWith(graphData: newGraph);
   }
 
@@ -218,9 +342,9 @@ class TreeNotifier extends StateNotifier<TreeState> {
     if (graph.nodes.isEmpty) return;
 
     const double cardWidth = 170.0;
-    const double spouseGap = 65.0; // Spacious gap between married spouses
-    const double siblingGap = 150.0; // Generous breathing room between separate family units / siblings
-    const double vGap = 340.0; // Ample vertical distance between generations
+    const double spouseGap = 40.0; // Gap between married spouses
+    const double siblingGap = 80.0; // Breathing room between separate family units
+    const double vGap = 200.0; // Vertical distance between generations
     const double centerX = 1600.0;
     const double centerY = 60.0;
 
@@ -234,15 +358,12 @@ class TreeNotifier extends StateNotifier<TreeState> {
     levels[rootNode.vuid] = 0;
 
     bool changed = true;
-    int maxPasses = 15;
+    int maxPasses = 25;
     while (changed && maxPasses-- > 0) {
       changed = false;
       for (final edge in graph.edges) {
-        if (edge.type == 'Father' ||
-            edge.type == 'Mother' ||
-            edge.type == 'Guardian' ||
-            edge.type.startsWith('Adopt') ||
-            edge.type.contains('Adopt')) {
+        final t = edge.type.toLowerCase();
+        if (t == 'father' || t == 'mother' || t == 'guardian' || t.contains('adopt')) {
           if (levels.containsKey(edge.source) && !levels.containsKey(edge.target)) {
             levels[edge.target] = levels[edge.source]! + 1;
             changed = true;
@@ -250,20 +371,53 @@ class TreeNotifier extends StateNotifier<TreeState> {
             levels[edge.source] = levels[edge.target]! - 1;
             changed = true;
           }
-        } else if (edge.type == 'Spouse' || edge.type == 'Sibling') {
+        } else if (t == 'spouse' || t == 'sibling') {
           if (levels.containsKey(edge.source) && !levels.containsKey(edge.target)) {
             levels[edge.target] = levels[edge.source]!;
             changed = true;
           } else if (levels.containsKey(edge.target) && !levels.containsKey(edge.source)) {
             levels[edge.source] = levels[edge.target]!;
             changed = true;
+          } else if (t == 'spouse' && levels.containsKey(edge.source) && levels.containsKey(edge.target)) {
+            if (levels[edge.source] != levels[edge.target]) {
+              levels[edge.target] = levels[edge.source]!;
+              changed = true;
+            }
           }
         }
       }
     }
 
+    // Guarantee unassigned nodes inherit their level from any connected spouse or parent edge
     for (final node in graph.nodes) {
-      levels.putIfAbsent(node.vuid, () => 0);
+      if (!levels.containsKey(node.vuid)) {
+        // 1. Try spouse edge
+        final spouseEdge = graph.edges.firstWhere(
+          (e) => (e.type.isEmpty || e.type.toLowerCase() == 'spouse') &&
+                 ((e.source == node.vuid && levels.containsKey(e.target)) ||
+                  (e.target == node.vuid && levels.containsKey(e.source))),
+          orElse: () => KinshipEdge(source: '', target: '', type: '', status: ''),
+        );
+        if (spouseEdge.source.isNotEmpty) {
+          final partnerVuid = spouseEdge.source == node.vuid ? spouseEdge.target : spouseEdge.source;
+          levels[node.vuid] = levels[partnerVuid]!;
+          continue;
+        }
+
+        // 2. Try parent edge (as child)
+        final parentEdge = graph.edges.firstWhere(
+          (e) => (e.target == node.vuid && levels.containsKey(e.source)),
+          orElse: () => KinshipEdge(source: '', target: '', type: '', status: ''),
+        );
+        if (parentEdge.source.isNotEmpty) {
+          levels[node.vuid] = levels[parentEdge.source]! + 1;
+          continue;
+        }
+
+        // 3. Fallback: place on bottom level if completely unconnected
+        final maxLvl = levels.values.isNotEmpty ? levels.values.reduce(max) : 0;
+        levels[node.vuid] = maxLvl + 1;
+      }
     }
 
     // 2. Group nodes by generation level
@@ -276,19 +430,20 @@ class TreeNotifier extends StateNotifier<TreeState> {
     final sortedLevels = levelGroups.keys.toList()..sort();
     final minLvl = sortedLevels.first;
 
-    // 3. Build spouse map
-    final spouseMap = <String, String>{};
+    // 3. Build multi-spouse map (case-insensitive)
+    final spouseMap = <String, List<String>>{};
     for (final edge in graph.edges) {
-      if (edge.type == 'Spouse') {
-        spouseMap[edge.source] = edge.target;
-        spouseMap[edge.target] = edge.source;
+      if (edge.type.toLowerCase() == 'spouse') {
+        spouseMap.putIfAbsent(edge.source, () => []).add(edge.target);
+        spouseMap.putIfAbsent(edge.target, () => []).add(edge.source);
       }
     }
 
     // 4. Build child-to-parents map
     final childParentsMap = <String, List<String>>{};
     for (final edge in graph.edges) {
-      if (edge.type == 'Father' || edge.type == 'Mother' || edge.type.contains('Adopt')) {
+      final t = edge.type.toLowerCase();
+      if (t == 'father' || t == 'mother' || t.contains('adopt')) {
         childParentsMap.putIfAbsent(edge.target, () => []).add(edge.source);
       }
     }
@@ -300,22 +455,50 @@ class TreeNotifier extends StateNotifier<TreeState> {
       final rawNodes = levelGroups[lvl]!;
       final double posY = centerY + (lvl - minLvl) * vGap;
 
-      // Build visual blocks for this level (each block is a couple [husband, wife] or single person [person])
+      // Build visual blocks for this level (each block is a spouse cluster [spouse1, person, spouse2] or single person)
       final visitedInLevel = <String>{};
       final blocks = <List<TreeCitizenNode>>[];
 
       for (final node in rawNodes) {
         if (visitedInLevel.contains(node.vuid)) continue;
 
-        final spouseVuid = spouseMap[node.vuid];
-        if (spouseVuid != null && rawNodes.any((n) => n.vuid == spouseVuid)) {
-          final spouseNode = rawNodes.firstWhere((n) => n.vuid == spouseVuid);
-          final husband = node.gender.toLowerCase() == 'male' ? node : spouseNode;
-          final wife = node.gender.toLowerCase() == 'male' ? spouseNode : node;
+        final spouseVuids = (spouseMap[node.vuid] ?? [])
+            .where((v) => rawNodes.any((n) => n.vuid == v))
+            .toList();
 
-          blocks.add([husband, wife]);
-          visitedInLevel.add(husband.vuid);
-          visitedInLevel.add(wife.vuid);
+        if (spouseVuids.isNotEmpty) {
+          final spouseNodes = spouseVuids
+              .map((v) => rawNodes.firstWhere((n) => n.vuid == v))
+              .toList();
+
+          final block = <TreeCitizenNode>[];
+          if (spouseNodes.length == 1) {
+            final spouseNode = spouseNodes.first;
+            final husband = node.gender.toLowerCase() == 'male' ? node : spouseNode;
+            final wife = node.gender.toLowerCase() == 'male' ? spouseNode : node;
+            block.addAll([husband, wife]);
+          } else {
+            // Multiple spouses: group former spouses on left, central node in middle, current spouse on right
+            final formerSpouses = spouseNodes.where((s) {
+              final edge = graph.edges.firstWhere(
+                (e) => e.type.toLowerCase() == 'spouse' && ((e.source == node.vuid && e.target == s.vuid) || (e.source == s.vuid && e.target == node.vuid)),
+                orElse: () => KinshipEdge(source: '', target: '', type: '', status: ''),
+              );
+              final status = edge.status.toLowerCase();
+              return status == 'divorced' || status == 'former' || status == 'separated' || status == 'ex';
+            }).toList();
+
+            final currentSpouses = spouseNodes.where((s) => !formerSpouses.contains(s)).toList();
+
+            block.addAll(formerSpouses);
+            block.add(node);
+            block.addAll(currentSpouses);
+          }
+
+          blocks.add(block);
+          for (final m in block) {
+            visitedInLevel.add(m.vuid);
+          }
         } else {
           blocks.add([node]);
           visitedInLevel.add(node.vuid);
@@ -325,7 +508,6 @@ class TreeNotifier extends StateNotifier<TreeState> {
       // Group blocks by parent unit key
       final familyUnitBlocks = <String, List<List<TreeCitizenNode>>>{};
       for (final block in blocks) {
-        // Determine parent key for the block (check if any member of the block has parents in tree)
         List<String> parents = [];
         for (final member in block) {
           if (childParentsMap.containsKey(member.vuid)) {
@@ -337,74 +519,81 @@ class TreeNotifier extends StateNotifier<TreeState> {
         familyUnitBlocks.putIfAbsent(parentKey, () => []).add(block);
       }
 
-      double currentX = centerX;
-      bool firstUnit = true;
-
-      for (final parentKey in familyUnitBlocks.keys) {
-        final unitBlocks = familyUnitBlocks[parentKey]!;
-
-        // Compute total width of this family unit (sum of block widths + sibling gaps)
-        double unitWidth = 0.0;
-        for (int b = 0; b < unitBlocks.length; b++) {
-          final block = unitBlocks[b];
-          final blockWidth = block.length == 2 ? (cardWidth * 2 + spouseGap) : cardWidth;
-          unitWidth += blockWidth;
-          if (b < unitBlocks.length - 1) {
-            unitWidth += siblingGap;
-          }
-        }
-
-        // Determine target center X for this unit from parent positions
-        double targetCenterX = centerX;
-        if (parentKey != 'default-group') {
-          final parentVuids = parentKey.split('-');
-          final parentPositions = parentVuids
+      // Sort family units by parent center X position (left → right)
+      final sortedKeys = familyUnitBlocks.keys.toList()..sort((a, b) {
+        double parentCenterOf(String key) {
+          if (key == 'default-group') return centerX;
+          final parents = key.split('-');
+          final xs = parents
               .where((v) => positionMap.containsKey(v))
-              .map((v) => positionMap[v]!)
-              .toList();
+              .map((v) => positionMap[v]!.dx + cardWidth / 2);
+          if (xs.isEmpty) return centerX;
+          return xs.reduce((a, b) => a + b) / xs.length;
+        }
+        return parentCenterOf(a).compareTo(parentCenterOf(b));
+      });
 
-          if (parentPositions.isNotEmpty) {
-            final parentMinX = parentPositions.map((p) => p.dx).reduce(min);
-            final parentMaxX = parentPositions.map((p) => p.dx).reduce(max);
-            targetCenterX = (parentMinX + parentMaxX + cardWidth) / 2;
+      // Compute target center and width for each unit
+      final unitTargetCenters = <double>[];
+      final unitWidths = <double>[];
+
+      for (final key in sortedKeys) {
+        final unitBlocks = familyUnitBlocks[key]!;
+        double w = 0.0;
+        for (int b = 0; b < unitBlocks.length; b++) {
+          w += unitBlocks[b].length * cardWidth + (unitBlocks[b].length - 1) * spouseGap;
+          if (b < unitBlocks.length - 1) w += siblingGap;
+        }
+        unitWidths.add(w);
+
+        double target = centerX;
+        if (key != 'default-group') {
+          final parentVuids = key.split('-');
+          final parentXs = parentVuids
+              .where((v) => positionMap.containsKey(v))
+              .map((v) => positionMap[v]!.dx)
+              .toList();
+          if (parentXs.isNotEmpty) {
+            final pMinX = parentXs.reduce(min);
+            final pMaxX = parentXs.reduce(max);
+            target = (pMinX + pMaxX + cardWidth) / 2;
           }
         }
+        unitTargetCenters.add(target);
+      }
 
-        double unitStartX = targetCenterX - unitWidth / 2;
-        if (!firstUnit && unitStartX < currentX + siblingGap) {
-          unitStartX = currentX + siblingGap;
+      // Compute start X for each unit, centered on target
+      final startXs = List.generate(sortedKeys.length,
+          (i) => unitTargetCenters[i] - unitWidths[i] / 2);
+
+      // Resolve overlaps left-to-right
+      for (int i = 1; i < startXs.length; i++) {
+        final prevEnd = startXs[i - 1] + unitWidths[i - 1];
+        if (startXs[i] < prevEnd + siblingGap) {
+          startXs[i] = prevEnd + siblingGap;
         }
+      }
 
-        double xCursor = unitStartX;
+      // Place members within each unit
+      for (int u = 0; u < sortedKeys.length; u++) {
+        final unitBlocks = familyUnitBlocks[sortedKeys[u]]!;
+        double xCursor = startXs[u];
         for (int b = 0; b < unitBlocks.length; b++) {
           final block = unitBlocks[b];
-          if (block.length == 2) {
-            // Married Couple: Husband on left, Wife on right
-            final husband = block[0];
-            final wife = block[1];
-
-            husband.position = Offset(xCursor, posY);
-            positionMap[husband.vuid] = husband.position;
-            xCursor += cardWidth + spouseGap;
-
-            wife.position = Offset(xCursor, posY);
-            positionMap[wife.vuid] = wife.position;
-            xCursor += cardWidth;
-          } else {
-            // Single person
-            final node = block[0];
-            node.position = Offset(xCursor, posY);
-            positionMap[node.vuid] = node.position;
-            xCursor += cardWidth;
+          for (int i = 0; i < block.length; i++) {
+            final member = block[i];
+            member.position = Offset(xCursor, posY);
+            positionMap[member.vuid] = member.position;
+            if (i < block.length - 1) {
+              xCursor += cardWidth + spouseGap;
+            } else {
+              xCursor += cardWidth;
+            }
           }
-
           if (b < unitBlocks.length - 1) {
             xCursor += siblingGap;
           }
         }
-
-        currentX = xCursor;
-        firstUnit = false;
       }
     }
 

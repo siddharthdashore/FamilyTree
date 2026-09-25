@@ -70,6 +70,21 @@ app.use(signatureGuard);
 // Transparent End-to-End Encryption (E2EE) Payload Decryption
 app.use(e2eePayloadGuard);
 
+// Terminal Event & API Request Logger Middleware
+app.use((req, res, next) => {
+    const timestamp = new Date().toISOString();
+    console.log(`\n==================================================`);
+    console.log(`📢 [API EVENT LOG] ${timestamp} -> ${req.method} ${req.originalUrl}`);
+    if (req.body && Object.keys(req.body).length > 0) {
+        console.log(`📦 [PAYLOAD]:`, JSON.stringify(req.body, null, 2));
+    }
+    if (req.query && Object.keys(req.query).length > 0) {
+        console.log(`🔍 [QUERY]:`, JSON.stringify(req.query, null, 2));
+    }
+    console.log(`==================================================\n`);
+    next();
+});
+
 // ============================================================================
 // 2. Health Check & Root Endpoints
 // ============================================================================

@@ -2,13 +2,13 @@
 
 > **A Production-Grade, Minimalist, Material 3 Digital Public Infrastructure (DPI) Kinship Platform for Global Lineage Mapping, OCP Document Vaulting, Indian Civil Life Events, Matrimony with Gotra Exogamy, Census Demographic Analytics, and WhatsApp-Verifiable Vansha Cards.**
 
-[![Platform Version](https://img.shields.io/badge/version-1.2.0--PROD-blue.svg)](file:///Users/siddharthdashore/Workspace/FamilyTree/Docs/constitution.md)
-[![License: Proprietary / DPI](https://img.shields.io/badge/License-DPI%20Sovereign-green.svg)](file:///Users/siddharthdashore/Workspace/FamilyTree/README.md)
+[![Platform Version](https://img.shields.io/badge/version-1.2.0--PROD-blue.svg)](Docs/constitution.md)
+[![License: Proprietary / DPI](https://img.shields.io/badge/License-DPI%20Sovereign-green.svg)](README.md)
 [![Flutter](https://img.shields.io/badge/Flutter-3.20%2B-02569B?logo=flutter)](https://flutter.dev)
 [![Node.js](https://img.shields.io/badge/Node.js-18%2F20%20LTS-339933?logo=node.js)](https://nodejs.org)
 [![MySQL](https://img.shields.io/badge/MySQL-8.0%20InnoDB%20TDE-4479A1?logo=mysql)](https://mysql.com)
-[![Compliance: DPDP + HIPAA](https://img.shields.io/badge/Compliance-DPDP%202023%20%2B%20HIPAA%20%C2%A7164.312-blueviolet.svg)](file:///Users/siddharthdashore/Workspace/FamilyTree/Docs/security_compliance.md)
-[![Test Suite](https://img.shields.io/badge/Tests-100%2F100%20Passed-brightgreen.svg)](file:///Users/siddharthdashore/Workspace/FamilyTree/Docs/constitution.md#section-71-the-100-test-pass-mandate)
+[![Compliance: DPDP + HIPAA](https://img.shields.io/badge/Compliance-DPDP%202023%20%2B%20HIPAA%20%C2%A7164.312-blueviolet.svg)](Docs/security_compliance.md)
+[![Test Suite](https://img.shields.io/badge/Tests-100%2F100%20Passed-brightgreen.svg)](Docs/constitution.md#section-71-the-100-test-pass-mandate)
 
 ---
 
@@ -27,7 +27,7 @@
   * One-tap native WhatsApp sharing engine for community verification.
 * **Canonical Common Domain Models & Zero-Default Mandate:**
   * Universal common models for `religion`, `marital_status`, `gotra`, `category`, `caste`, `blood_group`, `gender`, `relationship`, `qualification_level`, `occupation_sector`, and `document_type`.
-  * **Strict Zero-Default Invariant:** No silent fallbacks or placeholders (`|| 'Hindu'`, `|| 'GEN'`, `|| 'Single'`); operations strictly work with explicitly passed values or fail fast with deterministic errors (`HTTP 400 Bad Request`). Enshrined in [Article X of Constitution](file:///Users/siddharthdashore/Workspace/FamilyTree/Docs/constitution.md#article-x-fail-fast-integrity-universal-prohibition-of-defaults--canonical-domain-models).
+  * **Strict Zero-Default Invariant:** No silent fallbacks or placeholders (`|| 'Hindu'`, `|| 'GEN'`, `|| 'Single'`); operations strictly work with explicitly passed values or fail fast with deterministic errors (`HTTP 400 Bad Request`). Enshrined in [Article X of Constitution](Docs/constitution.md#article-x-fail-fast-integrity-universal-prohibition-of-defaults--canonical-domain-models).
 
 ---
 
@@ -121,13 +121,13 @@
 
 | Document | Description | Direct Link |
 | :--- | :--- | :--- |
-| **Sovereign Constitution** | Supreme technical bylaws, zero-trust rules, Article X zero-default mandate | [constitution.md](file:///Users/siddharthdashore/Workspace/FamilyTree/Docs/constitution.md) |
-| **Master Specification** | Full technical, mathematical, DDL, and API specification | [vanshasetu_master_specification.md](file:///Users/siddharthdashore/Workspace/FamilyTree/Docs/vanshasetu_master_specification.md) |
-| **Architectural Plan** | Detailed system architecture, security compliance & runbook | [plan.md](file:///Users/siddharthdashore/Workspace/FamilyTree/Docs/plan.md) |
-| **Implementation Tasks** | 13-phase hierarchical checklist with all tracking tasks completed | [tasks.md](file:///Users/siddharthdashore/Workspace/FamilyTree/Docs/tasks.md) |
-| **Security & HIPAA Specification** | Zero-trust, E2EE, TDE, and HIPAA/DISHA/DPDP architecture | [security_compliance.md](file:///Users/siddharthdashore/Workspace/FamilyTree/Docs/security_compliance.md) |
-| **Production Runbook** | BigRock cPanel deployment, CloudLinux Passenger & SSL setup | [deployment_runbook.md](file:///Users/siddharthdashore/Workspace/FamilyTree/Docs/deployment_runbook.md) |
-| **Client Documentation** | Flutter client architecture, state management & screens | [client/README.md](file:///Users/siddharthdashore/Workspace/FamilyTree/client/README.md) |
+| **Sovereign Constitution** | Supreme technical bylaws, zero-trust rules, Article X zero-default mandate | [constitution.md](Docs/constitution.md) |
+| **Master Specification** | Full technical, mathematical, DDL, and API specification | [vanshasetu_master_specification.md](Docs/vanshasetu_master_specification.md) |
+| **Architectural Plan** | Detailed system architecture, security compliance & runbook | [plan.md](Docs/plan.md) |
+| **Implementation Tasks** | 13-phase hierarchical checklist with all tracking tasks completed | [tasks.md](Docs/tasks.md) |
+| **Security & HIPAA Specification** | Zero-trust, E2EE, TDE, and HIPAA/DISHA/DPDP architecture | [security_compliance.md](Docs/security_compliance.md) |
+| **Production Runbook** | BigRock cPanel deployment, CloudLinux Passenger & SSL setup | [deployment_runbook.md](Docs/deployment_runbook.md) |
+| **Client Documentation** | Flutter client architecture, state management & screens | [client/README.md](client/README.md) |
 
 ---
 
@@ -168,7 +168,9 @@ DB_HOST=127.0.0.1
 DB_USER=vanshasetu_user
 DB_PASSWORD=YourSecurePassword
 DB_NAME=vanshasetu_db
-HASH_SALT=VANSHA_SETU_SECURE_SALT_9841
+HASH_SALT=<random-64-hex-chars>
+FLE_MASTER_KEY=<random-64-hex-chars>
+API_HMAC_SECRET=<random-64-hex-chars>
 PORT=3000
 
 # Start development server
@@ -261,4 +263,4 @@ npm run validate:db
 
 ## 9. License & Governance
 
-VanshaSetu is developed under Digital Public Infrastructure (DPI) sovereign guidelines for kinship governance, socio-economic research, civil registry assistance, and demographic transparency. All platform modifications are governed unconditionally by the [Sovereign Constitution](file:///Users/siddharthdashore/Workspace/FamilyTree/Docs/constitution.md).
+VanshaSetu is developed under Digital Public Infrastructure (DPI) sovereign guidelines for kinship governance, socio-economic research, civil registry assistance, and demographic transparency. All platform modifications are governed unconditionally by the [Sovereign Constitution](Docs/constitution.md).

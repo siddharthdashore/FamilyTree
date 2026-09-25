@@ -83,22 +83,36 @@ trap cleanup EXIT INT TERM
 
 cd "$CLIENT_DIR"
 
+# Inject the HMAC signing secret from backend/.env (gitignored) so the client's
+# request signatures match the middleware. Never hardcode secrets in source.
+DART_DEFINE_ARGS=()
+if [ -f "$BACKEND_DIR/.env" ]; then
+    HMAC_SECRET_VAL=$(grep -E '^API_HMAC_SECRET=' "$BACKEND_DIR/.env" | cut -d= -f2- | tr -d '"'"'"' ')
+    if [ -n "$HMAC_SECRET_VAL" ]; then
+        DART_DEFINE_ARGS+=("--dart-define=VANSHA_HMAC_SECRET=$HMAC_SECRET_VAL")
+    fi
+fi
+
 case "$PLATFORM" in
     web)
+        echo -e "${CYAN}🧹 Cleaning Flutter build cache...${NC}"
+        flutter clean
+        echo -e "${CYAN}📦 Fetching dependencies...${NC}"
+        flutter pub get
         echo -e "${CYAN}🚀 Launching VanshaSetu on Web (Chrome)...${NC}"
-        flutter run -d chrome "$@"
+        flutter run -d chrome "${DART_DEFINE_ARGS[@]}" "$@"
         ;;
     ios)
         echo -e "${CYAN}🚀 Launching VanshaSetu on iOS...${NC}"
-        flutter run -d ios "$@"
+        flutter run -d ios "${DART_DEFINE_ARGS[@]}" "$@"
         ;;
     android)
         echo -e "${CYAN}🚀 Launching VanshaSetu on Android...${NC}"
-        flutter run -d android "$@"
+        flutter run -d android "${DART_DEFINE_ARGS[@]}" "$@"
         ;;
     macos)
         echo -e "${CYAN}🚀 Launching VanshaSetu on macOS Desktop...${NC}"
-        flutter run -d macos "$@"
+        flutter run -d macos "${DART_DEFINE_ARGS[@]}" "$@"
         ;;
     help|--help|-h)
         print_usage

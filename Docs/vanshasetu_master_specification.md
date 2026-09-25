@@ -265,7 +265,7 @@ app.use(express.json());
 const pool = mysql.createPool({
     host: process.env.DB_HOST || '127.0.0.1',
     user: process.env.DB_USER || 'vanshasetu_user',
-    password: process.env.DB_PASSWORD || 'ChangeThisPassword123!',
+    password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME || 'vanshasetu_db',
     port: 3306,
     waitForConnections: true,
@@ -273,7 +273,7 @@ const pool = mysql.createPool({
     queueLimit: 0
 });
 
-const HASH_SALT = process.env.HASH_SALT || 'VANSHA_SETU_SECURE_SALT_9841';
+const HASH_SALT = process.env.HASH_SALT;
 
 // Cryptographically secure generation of a strictly 12-digit numeric ID
 function generate12DigitVUID() {
@@ -522,11 +522,11 @@ The platform exposes dedicated modular routers for Indian civil lifecycle manage
 
 ### 4.6 Single Source of Truth (SSOT) Architecture, Kinship Ontology & Universal Zero-Default Policy
 
-In strict alignment with [Article X of the Sovereign Constitution](file:///Users/siddharthdashore/Workspace/FamilyTree/Docs/constitution.md#article-x-fail-fast-integrity-universal-prohibition-of-defaults--canonical-domain-models):
+In strict alignment with [Article X of the Sovereign Constitution](constitution.md#article-x-fail-fast-integrity-universal-prohibition-of-defaults--canonical-domain-models):
 1. **Single Source of Truth (`shared/civil_models.json`):** All civil and demographic ontologies are canonically defined in exactly one place:
-   - Root SSOT: [`shared/civil_models.json`](file:///Users/siddharthdashore/Workspace/FamilyTree/shared/civil_models.json)
-   - Backend Consumer: [`backend/src/models/civil_models.js`](file:///Users/siddharthdashore/Workspace/FamilyTree/backend/src/models/civil_models.js) dynamically imports `shared/civil_models.json` with zero duplication.
-   - Client Synchronizer: [`scripts/sync_models.js`](file:///Users/siddharthdashore/Workspace/FamilyTree/scripts/sync_models.js) (`npm run sync:models`) compiles `shared/civil_models.json` into type-safe Dart constants at [`client/lib/core/constants/civil_models.dart`](file:///Users/siddharthdashore/Workspace/FamilyTree/client/lib/core/constants/civil_models.dart).
+   - Root SSOT: [`shared/civil_models.json`](../shared/civil_models.json)
+   - Backend Consumer: [`backend/src/models/civil_models.js`](../backend/src/models/civil_models.js) dynamically imports `shared/civil_models.json` with zero duplication.
+   - Client Synchronizer: [`scripts/sync_models.js`](../scripts/sync_models.js) (`npm run sync:models`) compiles `shared/civil_models.json` into type-safe Dart constants at [`client/lib/core/constants/civil_models.dart`](../client/lib/core/constants/civil_models.dart).
    - API Metadata Endpoint: `GET /api/v1/meta/civil-models` exposes canonical models to external clients and web consumers.
 2. **72 Indian & Western Kinship Relations (`CivilRelationships`):** Full bilingual ontology spanning Nuclear, Ancestral, Extended Paternal, Extended Maternal, In-laws, Step/Adoptive, and Legal Guardians:
    - Western: `Father`, `Mother`, `Son`, `Daughter`, `Spouse`, `Husband`, `Wife`, `Brother`, `Sister`, `Grandfather`, `Grandmother`, `Grandson`, `Granddaughter`, `Uncle`, `Aunt`, `Nephew`, `Niece`, `Cousin`, `FatherInLaw`, `MotherInLaw`, `BrotherInLaw`, `SisterInLaw`, `SonInLaw`, `DaughterInLaw`, `StepFather`, `StepMother`, `StepSon`, `StepDaughter`, `StepBrother`, `StepSister`, `AdoptiveFather`, `AdoptiveMother`, `AdoptedSon`, `AdoptedDaughter`, `LegalGuardian`, `Ward`.

@@ -26,7 +26,8 @@ class ApiClient {
     http.Client? client,
     String? hmacSecret,
   })  : _client = client ?? http.Client(),
-        _hmacSecret = hmacSecret ?? 'VANSHA_HMAC_SHARED_SECRET_KEY_PROD_8492';
+        // Injected at build/run time via --dart-define=VANSHA_HMAC_SECRET=...
+        _hmacSecret = hmacSecret ?? const String.fromEnvironment('VANSHA_HMAC_SECRET');
 
   // Compute HMAC-SHA256 signature conforming to middleware specification:
   // Formula: HMAC-SHA256(timestamp + ":" + nonce + ":" + body, secret)
@@ -50,6 +51,9 @@ class ApiClient {
 
   Future<Map<String, dynamic>> get(String url, {Map<String, String>? extraHeaders}) async {
     try {
+      print('\n==================================================');
+      print('🌐 [CLIENT API GET] $url');
+      print('==================================================\n');
       final headers = {
         'Accept': 'application/json',
         if (extraHeaders != null) ...extraHeaders,
@@ -59,8 +63,9 @@ class ApiClient {
           .get(Uri.parse(url), headers: headers)
           .timeout(const Duration(seconds: 15));
 
-      return _handleResponse(response);
+      return _handleResponse(response, url);
     } catch (e) {
+      print('❌ [CLIENT API GET ERROR] $url => $e');
       if (e is ApiException) rethrow;
       throw ApiException(statusCode: 0, message: 'Network connection failure: $e');
     }
@@ -73,6 +78,11 @@ class ApiClient {
   }) async {
     try {
       final bodyString = jsonEncode(body);
+      print('\n==================================================');
+      print('🌐 [CLIENT API POST] $url');
+      print('📦 [PAYLOAD]: $bodyString');
+      print('==================================================\n');
+
       final securityHeaders = _buildSecurityHeaders(bodyString);
       
       final headers = {
@@ -84,20 +94,23 @@ class ApiClient {
           .post(Uri.parse(url), headers: headers, body: bodyString)
           .timeout(const Duration(seconds: 15));
 
-      return _handleResponse(response);
+      return _handleResponse(response, url);
     } catch (e) {
+      print('❌ [CLIENT API POST ERROR] $url => $e');
       if (e is ApiException) rethrow;
       throw ApiException(statusCode: 0, message: 'Network connection failure: $e');
     }
   }
 
-  Map<String, dynamic> _handleResponse(http.Response response) {
+  Map<String, dynamic> _handleResponse(http.Response response, String url) {
     dynamic body;
     try {
       body = response.body.isNotEmpty ? jsonDecode(response.body) : {};
     } catch (_) {
       body = {'error': response.body};
     }
+
+    print('✅ [CLIENT API RESPONSE] HTTP ${response.statusCode} from $url => ${response.body}');
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return body is Map<String, dynamic> ? body : {'data': body};

@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/civil_models.dart';
@@ -400,6 +401,15 @@ class _TreeCanvasScreenState extends ConsumerState<TreeCanvasScreen> {
                   ),
                   const SizedBox(width: 8),
                   ActionChip(
+                    avatar: const Icon(Icons.heart_broken, size: 16, color: Color(0xFFF43F5E)),
+                    label: const Text('Divorce'),
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      _showDivorceDialog(node);
+                    },
+                  ),
+                  const SizedBox(width: 8),
+                  ActionChip(
                     avatar: const Icon(Icons.sentiment_dissatisfied, size: 16, color: Colors.purpleAccent),
                     label: const Text('Record Death'),
                     onPressed: () {
@@ -535,67 +545,176 @@ class _TreeCanvasScreenState extends ConsumerState<TreeCanvasScreen> {
 
   void _showAddKinDialog(TreeCitizenNode sourceNode) {
     final vuidController = TextEditingController();
+    final searchController = TextEditingController();
+    TreeCitizenNode? selectedCandidate;
+    String searchQuery = '';
     String relationship = 'Son';
+
+    final allNodes = ref.read(treeProvider).graphData?.nodes ?? [];
 
     showDialog(
       context: context,
       builder: (ctx) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
-          title: Text('Connect Kin to ${sourceNode.name}'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: vuidController,
-                decoration: const InputDecoration(
-                  labelText: 'Relative 12-Digit VUID',
-                  hintText: '510928340192',
+        builder: (context, setDialogState) {
+          final matchingCandidates = searchQuery.trim().isEmpty
+              ? <TreeCitizenNode>[]
+              : allNodes.where((n) {
+                  if (n.vuid == sourceNode.vuid) return false;
+                  final q = searchQuery.toLowerCase();
+                  return n.name.toLowerCase().contains(q) ||
+                      n.formattedVuid.contains(q) ||
+                      n.vuid.contains(q);
+                }).take(5).toList();
+
+          return AlertDialog(
+            title: Text('Connect Kin to ${sourceNode.name}'),
+            content: SingleChildScrollView(
+              child: Container(
+                width: 360,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: searchController,
+                      decoration: InputDecoration(
+                        labelText: 'Search Existing Person by Name',
+                        hintText: 'Type relative name',
+                        prefixIcon: const Icon(Icons.search),
+                        suffixIcon: searchController.text.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear, size: 18),
+                                onPressed: () {
+                                  searchController.clear();
+                                  setDialogState(() {
+                                    searchQuery = '';
+                                    selectedCandidate = null;
+                                    vuidController.clear();
+                                  });
+                                },
+                              )
+                            : null,
+                      ),
+                      onChanged: (val) {
+                        setDialogState(() {
+                          searchQuery = val;
+                          selectedCandidate = null;
+                        });
+                      },
+                    ),
+                    if (matchingCandidates.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Container(
+                        constraints: const BoxConstraints(maxHeight: 160),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF0F172A),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.white12),
+                        ),
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: matchingCandidates.length,
+                          itemBuilder: (context, idx) {
+                            final candidate = matchingCandidates[idx];
+                            return ListTile(
+                              dense: true,
+                              leading: CircleAvatar(
+                                radius: 14,
+                                backgroundColor: TreeCanvasScreen.getNodeColor(candidate),
+                                child: Text(
+                                  candidate.name.isNotEmpty ? candidate.name[0] : '?',
+                                  style: const TextStyle(fontSize: 12, color: Colors.white),
+                                ),
+                              ),
+                              title: Text(
+                                candidate.name,
+                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                              ),
+                              subtitle: Text(
+                                '${candidate.gender} • ${candidate.formattedVuid}',
+                                style: const TextStyle(color: Colors.white60, fontSize: 11),
+                              ),
+                              onTap: () {
+                                setDialogState(() {
+                                  selectedCandidate = candidate;
+                                  vuidController.text = candidate.vuid;
+                                });
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                    if (selectedCandidate != null) ...[
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF0F172A),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: const Color(0xFF10B981)),
+                        ),
+                        child: Text(
+                          'Selected: ${selectedCandidate!.name} (${selectedCandidate!.formattedVuid})',
+                          style: const TextStyle(color: Colors.greenAccent, fontSize: 12, fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: vuidController,
+                      decoration: const InputDecoration(
+                        labelText: 'Or Relative 12-Digit VUID',
+                        hintText: '510928340192',
+                      ),
+                      keyboardType: TextInputType.number,
+                    ),
+                    const SizedBox(height: 16),
+                    DropdownButtonFormField<String>(
+                      isExpanded: true,
+                      initialValue: relationship,
+                      items: CivilRelationships.all
+                          .take(30)
+                          .map((r) => DropdownMenuItem(
+                                value: r,
+                                child: Text(
+                                  '${CivilRelationships.getLocalizedLabel(r, ref.read(localeProvider).languageCode)} ($r)',
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ))
+                          .toList(),
+                      onChanged: (v) => setDialogState(() => relationship = v!),
+                      decoration: const InputDecoration(labelText: 'Relationship'),
+                    ),
+                  ],
                 ),
-                keyboardType: TextInputType.number,
               ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                isExpanded: true,
-                initialValue: relationship,
-                items: CivilRelationships.all
-                    .take(30)
-                    .map((r) => DropdownMenuItem(
-                          value: r,
-                          child: Text(
-                            '${CivilRelationships.getLocalizedLabel(r, ref.read(localeProvider).languageCode)} ($r)',
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ))
-                    .toList(),
-                onChanged: (v) => setDialogState(() => relationship = v!),
-                decoration: const InputDecoration(labelText: 'Relationship'),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: () async {
+                  final targetVuid = vuidController.text.trim();
+                  if (targetVuid.length == 12) {
+                    Navigator.pop(ctx);
+                    await ref.read(treeProvider.notifier).connectKinship(
+                      sourceVuid: sourceNode.vuid,
+                      targetVuid: targetVuid,
+                      relationshipType: relationship,
+                    );
+                  }
+                },
+                child: const Text('Connect'),
               ),
             ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('Cancel'),
-            ),
-            FilledButton(
-              onPressed: () async {
-                final targetVuid = vuidController.text.trim();
-                if (targetVuid.length == 12) {
-                  Navigator.pop(ctx);
-                  await ref.read(treeProvider.notifier).connectKinship(
-                    sourceVuid: sourceNode.vuid,
-                    targetVuid: targetVuid,
-                    relationshipType: relationship,
-                  );
-                }
-              },
-              child: const Text('Connect'),
-            ),
-          ],
-        ),
+          );
+        },
       ),
     ).then((_) {
       vuidController.dispose();
+      searchController.dispose();
     });
   }
 
@@ -667,26 +786,188 @@ class _TreeCanvasScreenState extends ConsumerState<TreeCanvasScreen> {
     final nameController = TextEditingController();
     String childGender = 'Male';
 
+    final allNodes = ref.read(treeProvider).graphData?.nodes ?? [];
+    final allEdges = ref.read(treeProvider).graphData?.edges ?? [];
+    final nodeMap = {for (var n in allNodes) n.vuid: n};
+
+    // Find active spouses of parentNode
+    final activeSpouseEdges = allEdges.where((e) {
+      final isSpouse = e.type == 'Spouse';
+      final isRelevant = e.source == parentNode.vuid || e.target == parentNode.vuid;
+      final isNotDivorced = e.status.toLowerCase() != 'divorced';
+      return isSpouse && isRelevant && isNotDivorced;
+    });
+
+    TreeCitizenNode? defaultHusband;
+    TreeCitizenNode? defaultWife;
+
+    for (final edge in activeSpouseEdges) {
+      final spouseVuid = edge.source == parentNode.vuid ? edge.target : edge.source;
+      final spouseNode = nodeMap[spouseVuid];
+      if (spouseNode != null) {
+        if (spouseNode.gender.toLowerCase() == 'male') {
+          defaultHusband = spouseNode;
+        } else if (spouseNode.gender.toLowerCase() == 'female') {
+          defaultWife = spouseNode;
+        }
+      }
+    }
+
+    TreeCitizenNode? selectedFather;
+    TreeCitizenNode? selectedMother;
+
+    final isMotherSource = parentNode.gender.toLowerCase() == 'female';
+
+    if (isMotherSource) {
+      selectedMother = parentNode;
+      selectedFather = defaultHusband; // Auto-select husband as father if present
+    } else {
+      selectedFather = parentNode; // Auto-select parent as father if male
+      selectedMother = defaultWife;
+    }
+
+    final maleNodes = allNodes.where((n) => n.gender.toLowerCase() == 'male').toList();
+    if (selectedFather != null && !maleNodes.any((n) => n.vuid == selectedFather!.vuid)) {
+      maleNodes.add(selectedFather!);
+    }
+
+    final femaleNodes = allNodes.where((n) => n.gender.toLowerCase() == 'female').toList();
+    if (selectedMother != null && !femaleNodes.any((n) => n.vuid == selectedMother!.vuid)) {
+      femaleNodes.add(selectedMother!);
+    }
+
     showDialog(
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDialogState) => AlertDialog(
-          title: Text('Register Child of ${parentNode.name}'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: nameController,
-                decoration: const InputDecoration(labelText: 'Child First Name', hintText: 'Aaradhya'),
+          title: Text('Register Child — ${parentNode.name}'),
+          content: SingleChildScrollView(
+            child: SizedBox(
+              width: 360,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextField(
+                    controller: nameController,
+                    decoration: const InputDecoration(
+                      labelText: 'Child First Name',
+                      hintText: 'Aaradhya',
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  DropdownButtonFormField<String>(
+                    initialValue: childGender,
+                    items: ['Male', 'Female', 'Other']
+                        .map((g) => DropdownMenuItem(value: g, child: Text(g)))
+                        .toList(),
+                    onChanged: (v) => setDialogState(() => childGender = v!),
+                    decoration: const InputDecoration(labelText: 'Child Gender'),
+                  ),
+                  const SizedBox(height: 14),
+
+                  if (isMotherSource) ...[
+                    // Fixed Mother info tile (cannot be changed when mother triggers birth)
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF0F172A),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.pinkAccent.withOpacity(0.4)),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.female, color: Colors.pinkAccent, size: 20),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Mother: ${parentNode.name} (${parentNode.formattedVuid})',
+                              style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.white, fontSize: 13),
+                            ),
+                          ),
+                          const Icon(Icons.lock_outline, size: 14, color: Colors.grey),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    // Configurable Father Dropdown
+                    DropdownButtonFormField<TreeCitizenNode?>(
+                      isExpanded: true,
+                      initialValue: selectedFather,
+                      items: [
+                        const DropdownMenuItem<TreeCitizenNode?>(
+                          value: null,
+                          child: Text('None / Unspecified'),
+                        ),
+                        ...maleNodes.map((m) {
+                          final isHusband = defaultHusband != null && defaultHusband.vuid == m.vuid;
+                          final label = '${m.name}${isHusband ? ' (Husband)' : ''} (${m.formattedVuid})';
+                          return DropdownMenuItem<TreeCitizenNode?>(
+                            value: m,
+                            child: Text(label, overflow: TextOverflow.ellipsis),
+                          );
+                        }),
+                      ],
+                      onChanged: (val) => setDialogState(() => selectedFather = val),
+                      decoration: const InputDecoration(
+                        labelText: 'Select Father (Configurable)',
+                        helperText: 'Auto-selected husband if married, or pick from tree',
+                      ),
+                    ),
+                  ] else ...[
+                    // Fixed Father info tile (cannot be changed when father triggers birth)
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF0F172A),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.blueAccent.withOpacity(0.4)),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.male, color: Colors.blueAccent, size: 20),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Father: ${parentNode.name} (${parentNode.formattedVuid})',
+                              style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.white, fontSize: 13),
+                            ),
+                          ),
+                          const Icon(Icons.lock_outline, size: 14, color: Colors.grey),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    // Configurable Mother Dropdown
+                    DropdownButtonFormField<TreeCitizenNode?>(
+                      isExpanded: true,
+                      initialValue: selectedMother,
+                      items: [
+                        const DropdownMenuItem<TreeCitizenNode?>(
+                          value: null,
+                          child: Text('None / Unspecified'),
+                        ),
+                        ...femaleNodes.map((f) {
+                          final isWife = defaultWife != null && defaultWife.vuid == f.vuid;
+                          final label = '${f.name}${isWife ? ' (Wife)' : ''} (${f.formattedVuid})';
+                          return DropdownMenuItem<TreeCitizenNode?>(
+                            value: f,
+                            child: Text(label, overflow: TextOverflow.ellipsis),
+                          );
+                        }),
+                      ],
+                      onChanged: (val) => setDialogState(() => selectedMother = val),
+                      decoration: const InputDecoration(
+                        labelText: 'Select Mother (Configurable)',
+                        helperText: 'Auto-selected wife if married, or pick from tree',
+                      ),
+                    ),
+                  ],
+                ],
               ),
-              const SizedBox(height: 12),
-              DropdownButtonFormField<String>(
-                initialValue: childGender,
-                items: ['Male', 'Female', 'Other'].map((g) => DropdownMenuItem(value: g, child: Text(g))).toList(),
-                onChanged: (v) => setDialogState(() => childGender = v!),
-                decoration: const InputDecoration(labelText: 'Child Gender'),
-              ),
-            ],
+            ),
           ),
           actions: [
             TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
@@ -695,19 +976,37 @@ class _TreeCanvasScreenState extends ConsumerState<TreeCanvasScreen> {
                 if (nameController.text.isNotEmpty) {
                   Navigator.pop(ctx);
                   final client = ref.read(apiClientProvider);
+                  final body = <String, dynamic>{
+                    'first_name': nameController.text.trim(),
+                    'last_name': parentNode.name.split(' ').last,
+                    'gender': childGender,
+                    'dob': DateTime.now().toIso8601String().split('T').first,
+                  };
+                  if (isMotherSource) {
+                    body['mother_vuid'] = parentNode.vuid;
+                    if (selectedFather != null) {
+                      body['father_vuid'] = selectedFather!.vuid;
+                    }
+                  } else {
+                    body['father_vuid'] = parentNode.vuid;
+                    if (selectedMother != null) {
+                      body['mother_vuid'] = selectedMother!.vuid;
+                    }
+                  }
+
                   await client.post(
                     ApiEndpoints.eventBirth,
-                    body: {
-                      parentNode.gender == 'Male' ? 'father_vuid' : 'mother_vuid': parentNode.vuid,
-                      'first_name': nameController.text.trim(),
-                      'last_name': parentNode.name.split(' ').last,
-                      'gender': childGender,
-                      'dob': DateTime.now().toIso8601String().split('T').first,
-                    },
+                    body: body,
                   );
                   ref.read(treeProvider.notifier).fetchTree(widget.rootVuid);
                   if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Child birth registered with new 12-Digit VUID!')));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          'Child birth registered! Father: ${selectedFather?.name ?? parentNode.name}, Mother: ${selectedMother?.name ?? parentNode.name}',
+                        ),
+                      ),
+                    );
                   }
                 }
               },
@@ -793,48 +1092,292 @@ class _TreeCanvasScreenState extends ConsumerState<TreeCanvasScreen> {
 
   void _showMarriageDialog(TreeCitizenNode node) {
     final spouseVuidController = TextEditingController();
+    final searchController = TextEditingController();
+    TreeCitizenNode? selectedCandidate;
+    String searchQuery = '';
+
+    final allNodes = ref.read(treeProvider).graphData?.nodes ?? [];
 
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('Register Marriage — ${node.name}'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: spouseVuidController,
-              decoration: const InputDecoration(labelText: 'Spouse 12-Digit VUID', hintText: '710293849103'),
-              keyboardType: TextInputType.number,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          final matchingCandidates = searchQuery.trim().isEmpty
+              ? <TreeCitizenNode>[]
+              : allNodes.where((n) {
+                  if (n.vuid == node.vuid) return false;
+                  if (n.status.toLowerCase() == 'deceased') return false;
+                  final q = searchQuery.toLowerCase();
+                  return n.name.toLowerCase().contains(q) ||
+                      n.formattedVuid.contains(q) ||
+                      n.vuid.contains(q);
+                }).take(5).toList();
+
+          return AlertDialog(
+            title: Text('Register Marriage — ${node.name}'),
+            content: SingleChildScrollView(
+              child: Container(
+                width: 360,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextField(
+                      controller: searchController,
+                      decoration: InputDecoration(
+                        labelText: 'Search Existing Person by Name',
+                        hintText: 'Type name (e.g. Meena, Sunita, Kavita)',
+                        prefixIcon: const Icon(Icons.search),
+                        suffixIcon: searchController.text.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear, size: 18),
+                                onPressed: () {
+                                  searchController.clear();
+                                  setDialogState(() {
+                                    searchQuery = '';
+                                    selectedCandidate = null;
+                                    spouseVuidController.clear();
+                                  });
+                                },
+                              )
+                            : null,
+                      ),
+                      onChanged: (val) {
+                        setDialogState(() {
+                          searchQuery = val;
+                          selectedCandidate = null;
+                        });
+                      },
+                    ),
+                    if (matchingCandidates.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Container(
+                        constraints: const BoxConstraints(maxHeight: 180),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF0F172A),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.white12),
+                        ),
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: matchingCandidates.length,
+                          itemBuilder: (context, idx) {
+                            final candidate = matchingCandidates[idx];
+                            final isSelected = selectedCandidate?.vuid == candidate.vuid;
+                            return ListTile(
+                              dense: true,
+                              selected: isSelected,
+                              selectedTileColor: const Color(0xFF1E293B),
+                              leading: CircleAvatar(
+                                radius: 14,
+                                backgroundColor: TreeCanvasScreen.getNodeColor(candidate),
+                                child: Text(
+                                  candidate.name.isNotEmpty ? candidate.name[0] : '?',
+                                  style: const TextStyle(fontSize: 12, color: Colors.white),
+                                ),
+                              ),
+                              title: Text(
+                                candidate.name,
+                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                              ),
+                              subtitle: Text(
+                                '${candidate.gender} • ${candidate.gotra} • ${candidate.formattedVuid}',
+                                style: const TextStyle(color: Colors.white60, fontSize: 11),
+                              ),
+                              onTap: () {
+                                setDialogState(() {
+                                  selectedCandidate = candidate;
+                                  spouseVuidController.text = candidate.vuid;
+                                });
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                    if (selectedCandidate != null) ...[
+                      const SizedBox(height: 10),
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1E1B4B),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: const Color(0xFFEC4899)),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.check_circle, color: Color(0xFFF472B6), size: 18),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Selected: ${selectedCandidate!.name} (${selectedCandidate!.formattedVuid})',
+                                style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: spouseVuidController,
+                      decoration: const InputDecoration(
+                        labelText: 'Or Enter 12-Digit VUID Directly',
+                        hintText: '710293849103',
+                      ),
+                      keyboardType: TextInputType.number,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+              FilledButton(
+                style: FilledButton.styleFrom(backgroundColor: const Color(0xFFEC4899)),
+                onPressed: () async {
+                  final spouseVuid = spouseVuidController.text.trim();
+                  if (spouseVuid.length == 12) {
+                    Navigator.pop(ctx);
+                    final client = ref.read(apiClientProvider);
+                    try {
+                      await client.post(
+                        ApiEndpoints.eventMarriage,
+                        body: {
+                          node.gender.toLowerCase() == 'male' ? 'groom_vuid' : 'bride_vuid': node.vuid,
+                          node.gender.toLowerCase() == 'male' ? 'bride_vuid' : 'groom_vuid': spouseVuid,
+                          'marriage_date': DateTime.now().toIso8601String().split('T').first,
+                        },
+                      );
+                    } catch (_) {
+                      // Fallback: connect kinship directly if API route is offline
+                      await ref.read(treeProvider.notifier).connectKinship(
+                        sourceVuid: node.vuid,
+                        targetVuid: spouseVuid,
+                        relationshipType: 'Spouse',
+                      );
+                    }
+                    ref.read(treeProvider.notifier).fetchTree(widget.rootVuid);
+                    if (mounted) {
+                      final spouseName = selectedCandidate?.name ?? spouseVuid;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Marriage registered with $spouseName! Mutual spouse edge created.')),
+                      );
+                    }
+                  }
+                },
+                child: const Text('Record Marriage'),
+              ),
+            ],
+          );
+        },
+      ),
+    ).then((_) {
+      spouseVuidController.dispose();
+      searchController.dispose();
+    });
+  }
+
+  void _showDivorceDialog(TreeCitizenNode node) {
+    final treeState = ref.read(treeProvider);
+    final allNodes = treeState.graphData?.nodes ?? [];
+    final allEdges = treeState.graphData?.edges ?? [];
+    final nodeMap = {for (var n in allNodes) n.vuid: n};
+
+    // Find active spouses of this node
+    final activeSpouseEdges = allEdges.where((e) {
+      final isSpouse = e.type == 'Spouse';
+      final isRelevant = e.source == node.vuid || e.target == node.vuid;
+      final status = e.status.toLowerCase();
+      final isNotDivorced = status != 'divorced' && status != 'former' && status != 'separated' && status != 'ex';
+      return isSpouse && isRelevant && isNotDivorced;
+    }).toList();
+
+    final activeSpouseNodes = <TreeCitizenNode>[];
+    for (final edge in activeSpouseEdges) {
+      final spouseVuid = edge.source == node.vuid ? edge.target : edge.source;
+      if (nodeMap.containsKey(spouseVuid)) {
+        activeSpouseNodes.add(nodeMap[spouseVuid]!);
+      }
+    }
+
+    final manualVuidController = TextEditingController();
+    TreeCitizenNode? selectedSpouse = activeSpouseNodes.isNotEmpty ? activeSpouseNodes.first : null;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text('Record Divorce — ${node.name}'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (activeSpouseNodes.isNotEmpty) ...[
+                const Text(
+                  'Select Active Spouse to Divorce:',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white70),
+                ),
+                const SizedBox(height: 8),
+                DropdownButtonFormField<TreeCitizenNode>(
+                  isExpanded: true,
+                  initialValue: selectedSpouse,
+                  items: activeSpouseNodes.map((sp) {
+                    return DropdownMenuItem<TreeCitizenNode>(
+                      value: sp,
+                      child: Text('${sp.name} (${sp.formattedVuid})'),
+                    );
+                  }).toList(),
+                  onChanged: (val) {
+                    setDialogState(() {
+                      selectedSpouse = val;
+                    });
+                  },
+                  decoration: const InputDecoration(labelText: 'Active Spouse'),
+                ),
+              ] else ...[
+                const Text(
+                  'No active spouse found in visible canvas. Enter spouse VUID directly:',
+                  style: TextStyle(fontSize: 12, color: Colors.white70),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: manualVuidController,
+                  decoration: const InputDecoration(
+                    labelText: 'Spouse 12-Digit VUID',
+                    hintText: '391029485711',
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+              ],
+            ],
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+            FilledButton(
+              style: FilledButton.styleFrom(backgroundColor: const Color(0xFFF43F5E)),
+              onPressed: () async {
+                final targetVuid = selectedSpouse?.vuid ?? manualVuidController.text.trim();
+                if (targetVuid.length == 12) {
+                  Navigator.pop(ctx);
+                  await ref.read(treeProvider.notifier).recordDivorce(
+                    spouse1Vuid: node.vuid,
+                    spouse2Vuid: targetVuid,
+                  );
+                  if (mounted) {
+                    final targetName = selectedSpouse?.name ?? targetVuid;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Recorded divorce between ${node.name} and $targetName.')),
+                    );
+                  }
+                }
+              },
+              child: const Text('Record Divorce'),
             ),
           ],
         ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
-          FilledButton(
-            onPressed: () async {
-              final spouseVuid = spouseVuidController.text.trim();
-              if (spouseVuid.length == 12) {
-                Navigator.pop(ctx);
-                final client = ref.read(apiClientProvider);
-                await client.post(
-                  ApiEndpoints.eventMarriage,
-                  body: {
-                    node.gender == 'Male' ? 'groom_vuid' : 'bride_vuid': node.vuid,
-                    node.gender == 'Male' ? 'bride_vuid' : 'groom_vuid': spouseVuid,
-                    'marriage_date': DateTime.now().toIso8601String().split('T').first,
-                  },
-                );
-                ref.read(treeProvider.notifier).fetchTree(widget.rootVuid);
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Marriage registered and mutual spouse edge created!')));
-                }
-              }
-            },
-            child: const Text('Record Marriage'),
-          ),
-        ],
       ),
-    ).then((_) => spouseVuidController.dispose());
+    ).then((_) => manualVuidController.dispose());
   }
 
   void _showDeathDialog(TreeCitizenNode node) {
@@ -881,6 +1424,7 @@ class _TreeCanvasScreenState extends ConsumerState<TreeCanvasScreen> {
   }
 
   bool _hasAutoCentered = false;
+  bool _isNodeDragging = false;
   double _lastViewportWidth = 1200.0;
   double _lastViewportHeight = 800.0;
 
@@ -1037,6 +1581,7 @@ class _TreeCanvasScreenState extends ConsumerState<TreeCanvasScreen> {
                       transformationController: _transformationController,
                       boundaryMargin: const EdgeInsets.all(double.infinity),
                       clipBehavior: Clip.none,
+                      panEnabled: !_isNodeDragging,
                       minScale: 0.05,
                       maxScale: 5.0,
                       child: SizedBox(
@@ -1046,19 +1591,37 @@ class _TreeCanvasScreenState extends ConsumerState<TreeCanvasScreen> {
                           clipBehavior: Clip.none,
                           children: [
                             if (treeState.graphData != null)
-                              CustomPaint(
-                                size: Size(canvasW, canvasH),
-                                painter: KinshipLinePainter(
-                                  nodes: treeState.graphData!.nodes,
-                                  edges: treeState.graphData!.edges,
+                              IgnorePointer(
+                                child: CustomPaint(
+                                  size: Size(canvasW, canvasH),
+                                  painter: KinshipLinePainter(
+                                    nodes: treeState.graphData!.nodes,
+                                    edges: treeState.graphData!.edges,
+                                  ),
                                 ),
                               ),
                             if (treeState.graphData != null)
                               ...treeState.graphData!.nodes.map((node) => Positioned(
+                                key: ValueKey('pos_${node.vuid}'),
                                 left: node.position.dx,
                                 top: node.position.dy,
-                                child: _NodeTapWrapper(
+                                child: _DraggableNodeWrapper(
+                                  key: ValueKey('node_${node.vuid}'),
+                                  node: node,
+                                  transformationController: _transformationController,
                                   onTap: () => _showNodeDetails(node),
+                                  onPositionChanged: (n, newPos) {
+                                    setState(() {
+                                      _isNodeDragging = true;
+                                      n.position = newPos;
+                                    });
+                                  },
+                                  onDragEnd: () {
+                                    setState(() {
+                                      _isNodeDragging = false;
+                                    });
+                                    ref.read(treeProvider.notifier).updateNode(node);
+                                  },
                                   child: _buildNodeCard(node),
                                 ),
                               )),
@@ -1262,6 +1825,33 @@ class KinshipLinePainter extends CustomPainter {
 
     final nodeMap = {for (var n in nodes) n.vuid: n};
 
+    // Helper: Determine if edge status represents a former/divorced relationship
+    bool isFormerEdge(KinshipEdge e) {
+      final s = e.status.toLowerCase();
+      return s == 'divorced' || s == 'former' || s == 'separated' || s == 'ex';
+    }
+
+    // Map each node to all its spouse edges (sorted: former marriages first, active marriages last)
+    final nodeSpouseEdges = <String, List<KinshipEdge>>{};
+    for (final edge in edges) {
+      if (edge.type == 'Spouse') {
+        if (nodeMap.containsKey(edge.source) && nodeMap.containsKey(edge.target)) {
+          nodeSpouseEdges.putIfAbsent(edge.source, () => []).add(edge);
+          nodeSpouseEdges.putIfAbsent(edge.target, () => []).add(edge);
+        }
+      }
+    }
+
+    for (final vuid in nodeSpouseEdges.keys) {
+      nodeSpouseEdges[vuid]!.sort((a, b) {
+        final aFormer = isFormerEdge(a);
+        final bFormer = isFormerEdge(b);
+        if (aFormer && !bFormer) return -1;
+        if (!aFormer && bFormer) return 1;
+        return 0;
+      });
+    }
+
     // 1. Process Unique Spouse Pairs
     final processedSpouses = <String>{};
     for (final edge in edges) {
@@ -1275,43 +1865,125 @@ class KinshipLinePainter extends CustomPainter {
         if (processedSpouses.contains(pairId)) continue;
         processedSpouses.add(pairId);
 
-        // Determine left and right spouse
-        final left = source.position.dx < target.position.dx ? source : target;
-        final right = source.position.dx < target.position.dx ? target : source;
+        final isFormer = isFormerEdge(edge);
 
-        final startX = left.position.dx + cardWidth;
-        final endX = right.position.dx;
-        final y = left.position.dy + 34.0; // vertical center of 68px node avatar
+        // Determine marriage number badge symbol
+        final sourceEdges = nodeSpouseEdges[source.vuid] ?? [];
+        final targetEdges = nodeSpouseEdges[target.vuid] ?? [];
+        final hasMultipleMarriages = sourceEdges.length > 1 || targetEdges.length > 1;
 
-        // Draw spouse connector line
-        canvas.drawLine(Offset(startX, y), Offset(endX, y), spouseLinePaint);
+        String numberSymbol;
+        if (hasMultipleMarriages) {
+          int idx = 1;
+          if (sourceEdges.length > 1) {
+            idx = sourceEdges.indexOf(edge) + 1;
+          } else if (targetEdges.length > 1) {
+            idx = targetEdges.indexOf(edge) + 1;
+          }
+          if (idx <= 0) idx = 1;
 
-        // Draw Marriage Badge (⚭) in the middle of spouse line
-        final midX = (startX + endX) / 2;
+          const symbols = ['①', '②', '③', '④', '⑤'];
+          numberSymbol = idx <= symbols.length ? symbols[idx - 1] : '#$idx';
+        } else {
+          numberSymbol = '⚭';
+        }
+
+        // Dynamic 2D center positions for flexible drag & drop connectivity
+        final startCenter = Offset(source.position.dx + 85.0, source.position.dy + 34.0);
+        final endCenter = Offset(target.position.dx + 85.0, target.position.dy + 34.0);
+
+        final double dist = (endCenter - startCenter).distance;
+        final Offset dir = dist > 0 ? (endCenter - startCenter) / dist : Offset.zero;
+
+        const double avatarRadius = 34.0;
+        final Offset startPoint = dist > avatarRadius * 2
+            ? startCenter + dir * avatarRadius
+            : startCenter;
+        final Offset endPoint = dist > avatarRadius * 2
+            ? endCenter - dir * avatarRadius
+            : endCenter;
+
+        final Offset midPos = Offset((startCenter.dx + endCenter.dx) / 2, (startCenter.dy + endCenter.dy) / 2);
+
+        // Styling based on active vs former marriage
+        final Paint currentLinePaint = isFormer
+            ? (Paint()
+              ..color = const Color(0x70EC4899) // Light faded rose
+              ..strokeWidth = 2.0
+              ..style = PaintingStyle.stroke)
+            : spouseLinePaint;
+
+        // Draw flexible 2D spouse connector line (stubs if divorced, full line if active)
+        if (isFormer) {
+          const double gapRadius = 24.0;
+          final Offset leftEnd = midPos - dir * gapRadius;
+          final Offset rightStart = midPos + dir * gapRadius;
+
+          const double dashLength = 5.0;
+          const double spaceLength = 4.0;
+
+          // Start -> Left stub
+          double curDist = 0.0;
+          final double maxDist1 = (leftEnd - startPoint).distance;
+          while (curDist < maxDist1) {
+            final p1 = startPoint + dir * curDist;
+            final p2 = startPoint + dir * min(curDist + dashLength, maxDist1);
+            canvas.drawLine(p1, p2, currentLinePaint);
+            curDist += dashLength + spaceLength;
+          }
+
+          // Right stub -> End
+          curDist = 0.0;
+          final double maxDist2 = (endPoint - rightStart).distance;
+          while (curDist < maxDist2) {
+            final p1 = rightStart + dir * curDist;
+            final p2 = rightStart + dir * min(curDist + dashLength, maxDist2);
+            canvas.drawLine(p1, p2, currentLinePaint);
+            curDist += dashLength + spaceLength;
+          }
+        } else {
+          canvas.drawLine(startPoint, endPoint, currentLinePaint);
+        }
+
+        // Draw Marriage / Divorce Badge in the 2D midpoint
+        final badgeText = isFormer
+            ? (numberSymbol == '⚭' ? '💔 Divorced' : '$numberSymbol 💔')
+            : numberSymbol;
+
+        final textPainter = TextPainter(
+          text: TextSpan(
+            text: badgeText,
+            style: TextStyle(
+              color: isFormer ? const Color(0xFFFB7185) : const Color(0xFFF472B6),
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          textDirection: TextDirection.ltr,
+        );
+        textPainter.layout();
+
+        final double badgePadding = isFormer ? 10.0 : 8.0;
+        final double badgeWidth = max(24.0, textPainter.width + badgePadding * 2);
         final badgeRect = RRect.fromLTRBR(
-          midX - 11, y - 9, midX + 11, y + 9, const Radius.circular(9)
+          midPos.dx - badgeWidth / 2, midPos.dy - 10, midPos.dx + badgeWidth / 2, midPos.dy + 10, const Radius.circular(10)
         );
 
         final badgeBgPaint = Paint()
-          ..color = const Color(0xFF1E1B4B)
+          ..color = isFormer ? const Color(0xFF26101E) : const Color(0xFF1E1B4B)
           ..style = PaintingStyle.fill;
         final badgeBorderPaint = Paint()
-          ..color = const Color(0xFFEC4899)
+          ..color = isFormer ? const Color(0xFFF43F5E) : const Color(0xFFEC4899)
           ..strokeWidth = 1.5
           ..style = PaintingStyle.stroke;
 
         canvas.drawRRect(badgeRect, badgeBgPaint);
         canvas.drawRRect(badgeRect, badgeBorderPaint);
 
-        final textPainter = TextPainter(
-          text: const TextSpan(
-            text: '⚭',
-            style: TextStyle(color: Color(0xFFF472B6), fontSize: 12, fontWeight: FontWeight.bold),
-          ),
-          textDirection: TextDirection.ltr,
+        textPainter.paint(
+          canvas,
+          Offset(midPos.dx - textPainter.width / 2, midPos.dy - textPainter.height / 2),
         );
-        textPainter.layout();
-        textPainter.paint(canvas, Offset(midX - textPainter.width / 2, y - textPainter.height / 2));
       }
     }
 
@@ -1479,53 +2151,105 @@ class KinshipLinePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant KinshipLinePainter oldDelegate) {
-    return oldDelegate.nodes != nodes || oldDelegate.edges != edges;
+    return true;
   }
 }
 
-class _NodeTapWrapper extends StatefulWidget {
+class _DraggableNodeWrapper extends StatefulWidget {
+  final TreeCitizenNode node;
+  final TransformationController transformationController;
   final VoidCallback onTap;
+  final Function(TreeCitizenNode node, Offset newPos) onPositionChanged;
+  final VoidCallback onDragEnd;
   final Widget child;
 
-  const _NodeTapWrapper({
+  const _DraggableNodeWrapper({
     super.key,
+    required this.node,
+    required this.transformationController,
     required this.onTap,
+    required this.onPositionChanged,
+    required this.onDragEnd,
     required this.child,
   });
 
   @override
-  State<_NodeTapWrapper> createState() => _NodeTapWrapperState();
+  State<_DraggableNodeWrapper> createState() => _DraggableNodeWrapperState();
 }
 
-class _NodeTapWrapperState extends State<_NodeTapWrapper> {
-  Offset? _downLocalPos;
+class _DraggableNodeWrapperState extends State<_DraggableNodeWrapper> {
+  bool _isDragging = false;
+  double _dragDistance = 0.0;
+  DateTime? _lastTapTime;
+
+  void _triggerTap() {
+    final now = DateTime.now();
+    if (_lastTapTime != null && now.difference(_lastTapTime!).inMilliseconds < 350) {
+      return;
+    }
+    _lastTapTime = now;
+    widget.onTap();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Listener(
-      behavior: HitTestBehavior.opaque,
-      onPointerDown: (event) {
-        _downLocalPos = event.localPosition;
-      },
-      onPointerUp: (event) {
-        if (_downLocalPos != null) {
-          final renderBox = context.findRenderObject() as RenderBox?;
-          if (renderBox != null && renderBox.hasSize) {
-            final size = renderBox.size;
-            final localUp = renderBox.globalToLocal(event.position);
-            if (localUp.dx >= 0 &&
-                localUp.dx <= size.width &&
-                localUp.dy >= 0 &&
-                localUp.dy <= size.height) {
-              final dist = (localUp - _downLocalPos!).distance;
-              if (dist < 15.0) {
-                widget.onTap();
-              }
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: _triggerTap,
+        onPanStart: (details) {
+          _dragDistance = 0.0;
+          _isDragging = false;
+        },
+        onPanUpdate: (details) {
+          _dragDistance += details.delta.distance;
+          if (_dragDistance > 4.0) {
+            if (!_isDragging) {
+              setState(() {
+                _isDragging = true;
+              });
             }
+            // details.delta is already in canvas (local) coordinates
+            // inside InteractiveViewer — no scale division needed
+            final dx = details.delta.dx;
+            final dy = details.delta.dy;
+            final newPos = Offset(widget.node.position.dx + dx, widget.node.position.dy + dy);
+            widget.onPositionChanged(widget.node, newPos);
           }
-        }
-      },
-      child: widget.child,
+        },
+        onPanEnd: (details) {
+          if (_isDragging) {
+            setState(() {
+              _isDragging = false;
+            });
+            widget.onDragEnd();
+          } else {
+            _triggerTap();
+          }
+          _dragDistance = 0.0;
+        },
+        onPanCancel: () {
+          if (_isDragging) {
+            setState(() {
+              _isDragging = false;
+            });
+          } else {
+            _triggerTap();
+          }
+          _dragDistance = 0.0;
+        },
+        child: AnimatedScale(
+          scale: _isDragging ? 1.08 : 1.0,
+          duration: const Duration(milliseconds: 120),
+          child: Material(
+            color: Colors.transparent,
+            elevation: _isDragging ? 10 : 0,
+            borderRadius: BorderRadius.circular(12),
+            child: widget.child,
+          ),
+        ),
+      ),
     );
   }
 }

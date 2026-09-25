@@ -436,4 +436,72 @@ router.post('/marriage', async (req, res) => {
     }
 });
 
+/**
+ * POST /api/v1/events/divorce
+ * Registers civil divorce/dissolution between two citizens,
+ * updates bidirectional spouse edge status to 'Divorced', and updates marital status.
+ */
+router.post('/divorce', async (req, res) => {
+    const { spouse1_vuid, spouse2_vuid, divorce_date, divorce_reason } = req.body;
+
+    if (!isValidVUID(spouse1_vuid) || !isValidVUID(spouse2_vuid)) {
+        return res.status(400).json({ error: 'Both spouse1_vuid and spouse2_vuid must be strictly 12 digits.' });
+    }
+
+    if (spouse1_vuid === spouse2_vuid) {
+        return res.status(400).json({ error: 'Spouse VUIDs cannot be identical.' });
+    }
+
+    const connection = await pool.getConnection();
+    try {
+        await connection.beginTransaction();
+
+        // 1. Update relationship edges status to 'Divorced'
+        const updateEdge = `
+            UPDATE relationships 
+            SET verification_status = 'Divorced' 
+            WHERE (source_vuid = ? AND target_vuid = ?) OR (source_vuid = ? AND target_vuid = ?)
+        `;
+        await connection.query(updateEdge, [spouse1_vuid, spouse2_vuid, spouse2_vuid, spouse1_vuid]);
+
+        // 2. Update marital status to 'Divorced'
+        await connection.query("UPDATE citizens SET marital_status = 'Divorced' WHERE vuid IN (?, ?)", [spouse1_vuid, spouse2_vuid]);
+
+        // 3. Record Audit Trail
+        await logAuditEvent({
+            actor_vuid: spouse1_vuid,
+            action: 'DIVORCE_REGISTRATION',
+            resource_type: 'RELATIONSHIP',
+            resource_id: `${spouse1_vuid}-${spouse2_vuid}`,
+            ip_address: req.ip || '127.0.0.1',
+            user_agent: req.headers['user-agent'] || 'VanshaSetu Client',
+            status: 'SUCCESS',
+            details: {
+                spouse1_vuid,
+                spouse2_vuid,
+                divorce_date: divorce_date || new Date().toISOString().split('T')[0],
+                divorce_reason: divorce_reason || 'Mutual Legal Dissolution'
+            }
+        }, connection);
+
+        await connection.commit();
+
+        return sendSecureResponse(req, res, 200, {
+            success: true,
+            message: 'Divorce recorded successfully and relationship edges updated to Divorced.',
+            data: {
+                spouse1_vuid,
+                spouse2_vuid,
+                status: 'Divorced'
+            }
+        });
+    } catch (err) {
+        await connection.rollback();
+        console.error('Divorce Registration Error:', err);
+        return res.status(500).json({ error: 'Failed to record divorce event.' });
+    } finally {
+        connection.release();
+    }
+});
+
 module.exports = router;

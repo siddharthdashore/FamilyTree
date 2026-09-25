@@ -1,10 +1,10 @@
 # VanshaSetu (वन्शसेतु) — BigRock Cloud cPanel Production Deployment Runbook
 ## End-to-End Operational Guide: Infrastructure Provisioning, Passenger Node.js, and Flutter Web SPA
 
-> **Specification Reference:** [`vanshasetu_master_specification.md`](file:///Users/siddharthdashore/Workspace/FamilyTree/Docs/vanshasetu_master_specification.md)  
-> **Sovereign Constitution:** [`constitution.md`](file:///Users/siddharthdashore/Workspace/FamilyTree/Docs/constitution.md)  
+> **Specification Reference:** [`vanshasetu_master_specification.md`](vanshasetu_master_specification.md)  
+> **Sovereign Constitution:** [`constitution.md`](constitution.md)  
 > **Target Environment:** BigRock Cloud Linux Shared / VPS Hosting with cPanel  
-> **Release Artifacts:** [`dist/public_html.tar.gz`](file:///Users/siddharthdashore/Workspace/FamilyTree/dist/public_html.tar.gz) & [`dist/vanshasetu-api.tar.gz`](file:///Users/siddharthdashore/Workspace/FamilyTree/dist/vanshasetu-api.tar.gz)
+> **Release Artifacts:** [`dist/public_html.tar.gz`](../dist/public_html.tar.gz) & [`dist/vanshasetu-api.tar.gz`](../dist/vanshasetu-api.tar.gz)
 
 ---
 
@@ -75,10 +75,10 @@ ls -lh dist/
 6. Open **phpMyAdmin** from cPanel:
    - Select the newly created database.
    - Click on the **Import** tab.
-   - Choose file: [`database/schema.sql`](file:///Users/siddharthdashore/Workspace/FamilyTree/database/schema.sql).
+   - Choose file: [`database/schema.sql`](../database/schema.sql).
    - Click **Import** to execute the DDL (creates all 7 tables with InnoDB TDE `ENCRYPTION='Y'` and strict CHECK constraints: `citizens`, `relationships`, `citizen_documents`, `duplicate_conflict_logs`, `audit_logs`, `citizen_education`, `marriages`).
    - Run `node database/validate_ddl.js` to assert 30/30 schema constraints.
-   - *(Optional Initial Seed)*: Import [`database/seed.sql`](file:///Users/siddharthdashore/Workspace/FamilyTree/database/seed.sql) to populate standard multi-generational Indian lineages with education and civil marriage records.
+   - *(Optional Initial Seed)*: Import [`database/seed.sql`](../database/seed.sql) to populate standard multi-generational Indian lineages with education and civil marriage records.
 
 ---
 
@@ -93,7 +93,7 @@ ls -lh dist/
 3. Click **Create**.
 4. Upload Backend Code:
    - In cPanel **File Manager**, navigate to the newly created directory `~/vanshasetu-api/`.
-   - Upload [`dist/vanshasetu-api.tar.gz`](file:///Users/siddharthdashore/Workspace/FamilyTree/dist/vanshasetu-api.tar.gz).
+   - Upload [`dist/vanshasetu-api.tar.gz`](../dist/vanshasetu-api.tar.gz).
    - Right-click and choose **Extract**.
 5. Configure Environment Secrets:
    - In the Node.js App Manager under **Environment variables**, click **Add Variable**:
@@ -112,7 +112,7 @@ ls -lh dist/
 
 ### Step 3.3: Flutter Web SPA Deployment (`public_html`)
 1. In cPanel **File Manager**, navigate to `~/public_html/` (or the document root for `vanshasetu.in`).
-2. Upload [`dist/public_html.tar.gz`](file:///Users/siddharthdashore/Workspace/FamilyTree/dist/public_html.tar.gz).
+2. Upload [`dist/public_html.tar.gz`](../dist/public_html.tar.gz).
 3. Right-click the archive and click **Extract**.
 4. Confirm the following files exist in `public_html/`:
    - `index.html`

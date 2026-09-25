@@ -3,7 +3,7 @@
 > **Compliance Standards:** HIPAA Security & Privacy Rules (45 CFR § 164.308, § 164.312), ABDM, DISHA, DPDP Act 2023  
 > **Security Posture:** Zero-Trust, 100% Defense-in-Depth, End-to-End Encrypted (E2EE), Transparent Data Encryption (TDE), Fail-Fast Zero-Default Invariant  
 > **Platform Version:** 1.2.0-PROD  
-> **Constitutional Mandate:** [Docs/constitution.md](file:///Users/siddharthdashore/Workspace/FamilyTree/Docs/constitution.md)
+> **Constitutional Mandate:** [Docs/constitution.md](constitution.md)
 
 ---
 
@@ -67,8 +67,8 @@
 - Any retroactive tampering or deletion breaks the mathematical hash chain and is immediately flagged by the compliance integrity scanner `/api/v1/audit/verify-integrity`.
 
 ### 3.4 Fail-Fast Domain Integrity & Canonical Model Encodings
-- **Zero-Default Mandate:** In accordance with [Constitution Article X](file:///Users/siddharthdashore/Workspace/FamilyTree/Docs/constitution.md#article-x-fail-fast-integrity-universal-prohibition-of-defaults--canonical-domain-models), default values or placeholders are completely banned (`|| 'Hindu'`, `|| 'GEN'`, `|| 'Single'`).
-- All inputs are strictly checked against [`backend/src/models/civil_models.js`](file:///Users/siddharthdashore/Workspace/FamilyTree/backend/src/models/civil_models.js) and [`client/lib/core/constants/civil_models.dart`](file:///Users/siddharthdashore/Workspace/FamilyTree/client/lib/core/constants/civil_models.dart). Non-compliant inputs fail fast with `400 Bad Request`.
+- **Zero-Default Mandate:** In accordance with [Constitution Article X](constitution.md#article-x-fail-fast-integrity-universal-prohibition-of-defaults--canonical-domain-models), default values or placeholders are completely banned (`|| 'Hindu'`, `|| 'GEN'`, `|| 'Single'`).
+- All inputs are strictly checked against [`backend/src/models/civil_models.js`](../backend/src/models/civil_models.js) and [`client/lib/core/constants/civil_models.dart`](../client/lib/core/constants/civil_models.dart). Non-compliant inputs fail fast with `400 Bad Request`.
 
 ---
 

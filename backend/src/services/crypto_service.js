@@ -5,11 +5,23 @@ const ALGORITHM = 'aes-256-gcm';
 const IV_LENGTH = 12; // Standard 96-bit IV for GCM
 const AUTH_TAG_LENGTH = 16; // Standard 128-bit authentication tag
 
-// Master Key for Field-Level Encryption (fallback to sha256 of salt if not explicitly set)
-const rawKey = process.env.FLE_MASTER_KEY || 'vanshasetu_master_fle_encryption_key_32_bytes!';
+// Cryptographic material is loaded exclusively from environment variables —
+// no secrets are embedded in source. In production the variables are mandatory;
+// otherwise an ephemeral per-boot value is generated for local development.
+function requireEnvOrEphemeral(name, lengthBytes) {
+    const value = process.env[name];
+    if (value) return value;
+    if (process.env.NODE_ENV === 'production') {
+        throw new Error(`${name} environment variable is required in production`);
+    }
+    console.warn(`⚠️ ${name} not set — using ephemeral per-boot value (development only)`);
+    return crypto.randomBytes(lengthBytes).toString('hex');
+}
+
+const rawKey = requireEnvOrEphemeral('FLE_MASTER_KEY', 32);
 const FLE_MASTER_KEY = crypto.createHash('sha256').update(rawKey).digest();
 
-const HASH_SALT = process.env.HASH_SALT || 'VANSHA_SETU_SECURE_SALT_9841';
+const HASH_SALT = requireEnvOrEphemeral('HASH_SALT', 32);
 
 /**
  * Encrypt sensitive ePHI/PII string using AES-256-GCM.
@@ -128,7 +140,10 @@ function decryptPayload(envelope, secretKey = FLE_MASTER_KEY) {
  * @param {string} secret 
  * @returns {string}
  */
-function computeSignature(timestamp, nonce, body, secret = process.env.API_HMAC_SECRET || 'VANSHA_HMAC_SHARED_SECRET_KEY_PROD_8492') {
+function computeSignature(timestamp, nonce, body, secret = process.env.API_HMAC_SECRET) {
+    if (!secret) {
+        throw new Error('API_HMAC_SECRET environment variable is required for HMAC signing');
+    }
     const bodyStr = typeof body === 'object' ? JSON.stringify(body) : String(body || '');
     const message = `${timestamp}:${nonce}:${bodyStr}`;
     return crypto.createHmac('sha256', secret).update(message).digest('hex');
@@ -145,8 +160,8 @@ function computeSignature(timestamp, nonce, body, secret = process.env.API_HMAC_
  */
 function verifySignature(incomingSignature, timestamp, nonce, body, secret) {
     if (!incomingSignature || !timestamp || !nonce) return false;
-    const expected = computeSignature(timestamp, nonce, body, secret);
     try {
+        const expected = computeSignature(timestamp, nonce, body, secret);
         return crypto.timingSafeEqual(Buffer.from(incomingSignature, 'hex'), Buffer.from(expected, 'hex'));
     } catch {
         return false;
